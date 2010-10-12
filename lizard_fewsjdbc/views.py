@@ -45,18 +45,24 @@ def jdbc_source(request,
     date_range_form = DateRangeForm(
         current_start_end_dates(request, for_form=True))
 
-    filters = [{'id': 'filter1', 'name': 'filter 1', 'children': None},
-               {'id': 'filter2', 'name': 'filter 2', 'children': [
-                {'id': 'filter2a', 'name': 'filter 2a', 'children': None},
-                {'id': 'filter2b', 'name': 'filter 2b', 'children': None},
+    filter_tree = [
+        {'name': 'filter 1', 'url': 'http://amplivibe.com', 'children': None},
+        {'name': 'filter 2', 'url': '', 'children': [
+                {'name': 'filter 2a', 'url': '', 'children': None},
+                {'name': 'filter 2b', 'url': '', 'children': None},
                 ]},
-               ]
+        ]
+    fews_parameters = None
+    fews_filter = None
 
     return render_to_response(
         template,
         {'javascript_hover_handler': javascript_hover_handler,
          'javascript_click_handler': javascript_click_handler,
          'date_range_form': date_range_form,
-         'filters': filters,
+         'filter_tree': filter_tree,
+         'tree_items': filter_tree,
+         'parameters': fews_parameters,
+         'filter': fews_filter,
          'workspaces': workspaces},
         context_instance=RequestContext(request))

@@ -10,24 +10,25 @@
   <h2>1: Filters{% block linkback %}{% endblock %}</h2>
   <ul class="automatic-tree filetree pane accordion-load-next"
       data-next-pane-id="#parameter-pane">
-    {% for node in filters %}
-      <li>
-      {% if node.children %}
-        {% with "lizard_fewsjdbc/tree_snippet.html" as ourselves %}
-          {% include ourselves %}
-        {% endwith %}
-      {% else %}
-        <a href="?filterkey={{ node.id }}"
-           class="file">
-          {{ node.name }}
-        </a>
-      {% endif %}
-      </li>
-    {% endfor %}
+    {# variables tree_template and tree_items must be set #}
+    {% with "lizard_ui/tree_snippet.html" as tree_template %}
+      {% include tree_template %}
+    {% endwith %}
   </ul>
   <h2>2: Parameters</h2>
   <ul class="without-bullets pane"
       id="parameter-pane">
+    {% for parameter in parameters %}
+    <li class="workspace-acceptable file"
+        data-name="{{ filter.name }} - {{ parameter.name }}"
+        data-adapter-class="adapter_fewsjdbc"
+        data-adapter-layer-json='{"filter": {{ filter }}, "parameter": {{ parameter.id }}}'
+        data-filter-id="{{ filter.id }}">
+      {{ parameter.name }}
+    </li>
+    {% empty %}
+    <li>Geen parameters gevonden/geladen.</li>
+    {% endfor %}
   </ul>
 </div>
 {% for workspace in workspaces.user %}
