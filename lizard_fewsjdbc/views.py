@@ -45,10 +45,18 @@ def jdbc_source(request,
     date_range_form = DateRangeForm(
         current_start_end_dates(request, for_form=True))
 
+    filters = [{'name': 'filter 1', 'children': None},
+               {'name': 'filter 2', 'children': [
+                {'name': 'filter 2a', 'children': None},
+                {'name': 'filter 2b', 'children': None},
+                ]},
+               ]
+
     return render_to_response(
         template,
         {'javascript_hover_handler': javascript_hover_handler,
          'javascript_click_handler': javascript_click_handler,
          'date_range_form': date_range_form,
+         'filters': filters,
          'workspaces': workspaces},
         context_instance=RequestContext(request))
