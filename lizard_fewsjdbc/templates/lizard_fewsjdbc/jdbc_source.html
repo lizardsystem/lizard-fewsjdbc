@@ -1,0 +1,24 @@
+{% extends "lizard_map/wms.html" %}
+{% load workspaces %}
+
+{% block subtitle %} Meetgegevens {% endblock %}
+
+{% block sidebar %}
+<div class="sidebarbox sidebarbox-stretched"
+     id="accordion">
+  <h2>1: Filters{% block linkback %}{% endblock %}</h2>
+  <ul class="automatic-tree filetree pane accordion-load-next"
+      data-next-pane-id="#parameter-pane">
+  </ul>
+  <h2>2: Parameters</h2>
+  <ul class="without-bullets pane"
+      id="parameter-pane">
+  </ul>
+</div>
+{% for workspace in workspaces.user %}
+  {% workspace workspace %}
+{% empty %}
+No workspace
+{% endfor %}
+
+{% endblock sidebar %}

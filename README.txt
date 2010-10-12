@@ -1,9 +1,14 @@
 lizard-fewsjdbc
 ==========================================
 
-Introduction
+This app is used to view fews-jdbc data sources. The interface looks the same as
+fews-unblobbed. Multiple fews-jdbc sources can be configurated.
 
-Usage, etc.
+
+Prerequisities
+--------------
+
+- Jdbc2Ei. The app uses Jdbc2Ei to connect to a jdbc server.
 
 
 Development installation

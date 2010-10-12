@@ -5,6 +5,7 @@ DATABASE_NAME = 'test.db'
 SITE_ID = 1
 INSTALLED_APPS = [
     'lizard_fewsjdbc',
+    'lizard_map',
     'lizard_ui',
     'staticfiles',
     'compressor',
