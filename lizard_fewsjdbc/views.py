@@ -44,23 +44,32 @@ def jdbc_source(request,
     workspaces = workspace_manager.load_or_create()
     date_range_form = DateRangeForm(
         current_start_end_dates(request, for_form=True))
+    filter_id = request.GET.get('filter_id', None)
 
+    # Building up the fews filter tree.
+    # TODO: get actual tree.
     filter_tree = [
-        {'name': 'filter 1', 'url': 'http://amplivibe.com', 'children': None},
+        {'name': 'filter 1', 'url': '?filter_id=filter', 'children': None},
         {'name': 'filter 2', 'url': '', 'children': [
                 {'name': 'filter 2a', 'url': '', 'children': None},
                 {'name': 'filter 2b', 'url': '', 'children': None},
                 ]},
         ]
-    fews_parameters = None
-    fews_filter = None
+
+    # If the page is called with option filter_id, add some extra's.
+    if filter_id is None:
+        fews_parameters = None
+        fews_filter = None
+    else:
+        # TODO: get actual parameter
+        fews_parameters = [{'name': 'parameter', 'id': 'parameter'}]
+        fews_filter = {'name': 'filter', 'id': 'filter'}
 
     return render_to_response(
         template,
         {'javascript_hover_handler': javascript_hover_handler,
          'javascript_click_handler': javascript_click_handler,
          'date_range_form': date_range_form,
-         'filter_tree': filter_tree,
          'tree_items': filter_tree,
          'parameters': fews_parameters,
          'filter': fews_filter,
