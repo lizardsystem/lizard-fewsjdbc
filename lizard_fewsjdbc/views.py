@@ -45,10 +45,10 @@ def jdbc_source(request,
     date_range_form = DateRangeForm(
         current_start_end_dates(request, for_form=True))
 
-    filters = [{'name': 'filter 1', 'children': None},
-               {'name': 'filter 2', 'children': [
-                {'name': 'filter 2a', 'children': None},
-                {'name': 'filter 2b', 'children': None},
+    filters = [{'id': 'filter1', 'name': 'filter 1', 'children': None},
+               {'id': 'filter2', 'name': 'filter 2', 'children': [
+                {'id': 'filter2a', 'name': 'filter 2a', 'children': None},
+                {'id': 'filter2b', 'name': 'filter 2b', 'children': None},
                 ]},
                ]
 

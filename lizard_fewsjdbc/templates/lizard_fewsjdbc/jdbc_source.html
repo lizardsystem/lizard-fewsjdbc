@@ -1,5 +1,6 @@
 {% extends "lizard_map/wms.html" %}
 {% load workspaces %}
+{% load utility %}
 
 {% block subtitle %} Meetgegevens {% endblock %}
 
@@ -9,6 +10,20 @@
   <h2>1: Filters{% block linkback %}{% endblock %}</h2>
   <ul class="automatic-tree filetree pane accordion-load-next"
       data-next-pane-id="#parameter-pane">
+    {% for node in filters %}
+      <li>
+      {% if node.children %}
+        {% with "lizard_fewsjdbc/tree_snippet.html" as ourselves %}
+          {% include ourselves %}
+        {% endwith %}
+      {% else %}
+        <a href="?filterkey={{ node.id }}"
+           class="file">
+          {{ node.name }}
+        </a>
+      {% endif %}
+      </li>
+    {% endfor %}
   </ul>
   <h2>2: Parameters</h2>
   <ul class="without-bullets pane"
