@@ -3,6 +3,7 @@
 from django.test import TestCase
 
 from lizard_fewsjdbc.models import JdbcSource
+from lizard_fewsjdbc.operations import AnchestorRegistration
 from lizard_fewsjdbc.operations import tree_from_list
 
 
@@ -42,11 +43,29 @@ class TestAdapter(TestCase):
 
 class TestOperations(TestCase):
 
-    # def test_tree_from_list1(self):
-    #     rows = []
-    #     result_good = []
-    #     result_function = tree_from_list(rows)
-    #     self.assertEqual(result_function, result_good)
+    def test_anchestor_registration(self):
+        """Check basic functionality"""
+        anchestors = AnchestorRegistration()
+        self.assertFalse(anchestors.anchestor_of('child', 'parent'))
+        anchestors.register_parent('child', 'parent')
+        self.assertTrue(anchestors.anchestor_of('child', 'parent'))
+        anchestors.register_parent('grandchild', 'child')
+        self.assertTrue(anchestors.anchestor_of('grandchild', 'parent'))
+        self.assertFalse(anchestors.anchestor_of('parent', 'grandchild'))
+
+    def test_anchestor_registration2(self):
+        """The anchestor registration doesn't mind cycles"""
+        anchestors = AnchestorRegistration()
+        anchestors.register_parent('child', 'parent')
+        anchestors.register_parent('parent', 'child')
+        self.assertTrue(anchestors.anchestor_of('child', 'parent'))
+        self.assertTrue(anchestors.anchestor_of('parent', 'child'))
+
+    def test_tree_from_list1(self):
+        rows = []
+        result_good = []
+        result_function = tree_from_list(rows)
+        self.assertEqual(result_function, result_good)
 
     def test_tree_from_list2(self):
         rows = [{'name': 'parent_name', 'parent': None},
@@ -64,4 +83,70 @@ class TestOperations(TestCase):
             parent_field='parent',
             children_field='children',
             root_parent=None)
+        self.assertEqual(result_function, result_good)
+
+    def test_tree_from_list3(self):
+        rows = [{'name': 'parent_name', 'parent': None},
+                {'name': 'child_name', 'parent': 'parent_name'},
+                {'name': 'child_name2', 'parent': 'parent_name'},
+                {'name': 'child_name3', 'parent': 'parent_name'},
+                {'name': 'child_child', 'parent': 'child_name3'}]
+        result_good = [
+                {'name': 'parent_name',
+                 'parent': None,
+                 'children': [
+                    {'name': 'child_name',
+                     'parent': 'parent_name',
+                     'children': []},
+                    {'name': 'child_name2',
+                     'parent': 'parent_name',
+                     'children': []},
+                    {'name': 'child_name3',
+                     'parent': 'parent_name',
+                     'children': [
+                         {'name': 'child_child',
+                          'parent': 'child_name3',
+                          'children': []}]},
+                     ]}]
+        result_function = tree_from_list(
+            rows,
+            id_field='name',
+            parent_field='parent',
+            children_field='children',
+            root_parent=None)
+        self.assertEqual(result_function, result_good)
+
+    def test_tree_from_list_cyclic(self):
+        """
+        Nodes where the name is already used in one of the anchestors
+        are not added.
+        """
+        rows = [{'name': 'child_name', 'parent': 'parent_name'},
+                {'name': 'parent_name', 'parent': 'child_name'}
+                ]
+        result_good = [
+                {'name': 'child_name',
+                 'parent': 'parent_name',
+                 'children': []}]
+        result_function = tree_from_list(
+            rows,
+            id_field='name',
+            parent_field='parent',
+            children_field='children',
+            root_parent='parent_name')
+        self.assertEqual(result_function, result_good)
+
+    def test_tree_from_list_cyclic2(self):
+        """
+        Nodes where the name is already used in one of the anchestors
+        are not added.
+        """
+        rows = [{'name': 'parent_name', 'parent': 'parent_name'}, ]
+        result_good = []
+        result_function = tree_from_list(
+            rows,
+            id_field='name',
+            parent_field='parent',
+            children_field='children',
+            root_parent='child_name')
         self.assertEqual(result_function, result_good)
