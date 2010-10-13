@@ -35,7 +35,7 @@ def fews_symbol_name(filterkey, nodata=False):
 
     # determine icon layout by looking at filter.id
     if str(filterkey) in LAYER_STYLES:
-        icon_style = copy.deepcopy(LAYER_STYLES[str(filter_.fews_id)])
+        icon_style = copy.deepcopy(LAYER_STYLES[str(filterkey)])
     else:
         icon_style = copy.deepcopy(LAYER_STYLES['default'])
 
@@ -72,6 +72,7 @@ def fews_point_style(filterkey, nodata=False):
 
     return point_style
 
+
 class FewsJdbc(workspace.WorkspaceItemAdapter):
     """
     Registered as adapter_fewsjdbc.
@@ -95,14 +96,18 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         layer = mapnik.Layer("FEWS JDBC points layer", coordinates.WGS84)
 
         layer.datasource = mapnik.PointDatasource()
-        query = ("select longitude, latitude, location from filters "
-                 "where id='%s' and parameterid='%s'" % (self.filterkey, self.parameterkey))
 
-        location_cache_key = LOCATION_CACHE_KEY + '::' + self.filterkey + '::' + self.parameterkey
+        location_cache_key = ('%s::%s::%s' %
+                              (LOCATION_CACHE_KEY, self.filterkey,
+                               self.parameterkey))
         named_locations = cache.get(location_cache_key)
         if named_locations is None:
+            query = ("select longitude, latitude, location from filters "
+                     "where id='%s' and parameterid='%s'" %
+                     (self.filterkey, self.parameterkey))
             locations = self.jdbc_source.query(query)
-            named_locations = named_list(locations, ['longitude', 'latitude', 'location'])
+            named_locations = named_list(locations,
+                                         ['longitude', 'latitude', 'location'])
             cache.set(location_cache_key, named_locations)
 
         for named_location in named_locations:
@@ -114,7 +119,8 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
 
         point_style = fews_point_style(self.filterkey, nodata=False)
         # generate "unique" point style name and append to layer
-        style_name = str("Style with data %s::%s" % (self.filterkey, self.parameterkey))
+        style_name = str("Style with data %s::%s" %
+                         (self.filterkey, self.parameterkey))
         styles[style_name] = point_style
         layer.styles.append(style_name)
 
