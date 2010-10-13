@@ -1,6 +1,11 @@
 # (c) Nelen & Schuurmans.  GPL licensed, see LICENSE.txt.
+import xmlrpclib
+from xml.parsers.expat import ExpatError
+
 from django.db import models
 from django.utils.translation import ugettext as _
+
+JDBC_NONE = -999
 
 
 class JdbcSource(models.Model):
@@ -29,3 +34,21 @@ class JdbcSource(models.Model):
 
     def __unicode__(self):
         return u'%s' % self.name
+
+    def query(self, q):
+        """
+        Tries to connect to the Jdbc source and fire query. Returns list of lists.
+        """
+        sp = xmlrpclib.ServerProxy(self.jdbc_url)
+        sp.Ping.isAlive('', '')
+
+        # sp.Config.get('', '', self.jdbc_tag_name)
+        try:
+            # Check if jdbc_tag_name is used
+            sp.Config.get('', '', self.jdbc_tag_name)
+        except ExpatError:
+            sp.Config.put('', '', self.jdbc_tag_name, self.connector_string)
+
+        result = sp.Query.execute('', '', q, [self.jdbc_tag_name])
+
+        return result

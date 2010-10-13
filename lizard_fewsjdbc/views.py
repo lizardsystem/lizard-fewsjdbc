@@ -2,7 +2,11 @@
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 
+from lizard_fewsjdbc.models import JDBC_NONE
 from lizard_fewsjdbc.models import JdbcSource
+from lizard_fewsjdbc.operations import named_list
+from lizard_fewsjdbc.operations import tree_from_list
+from lizard_fewsjdbc.operations import unique_list
 from lizard_map.daterange import current_start_end_dates
 from lizard_map.daterange import DateRangeForm
 from lizard_map.workspace import WorkspaceManager
@@ -45,16 +49,26 @@ def jdbc_source(request,
     date_range_form = DateRangeForm(
         current_start_end_dates(request, for_form=True))
     filter_id = request.GET.get('filter_id', None)
+    jdbc_source = JdbcSource.objects.get(slug=jdbc_source_slug)
 
     # Building up the fews filter tree.
     # TODO: get actual tree.
-    filter_tree = [
-        {'name': 'filter 1', 'url': '?filter_id=filter', 'children': None},
-        {'name': 'filter 2', 'url': '', 'children': [
-                {'name': 'filter 2a', 'url': '', 'children': None},
-                {'name': 'filter 2b', 'url': '', 'children': None},
-                ]},
-        ]
+    # filter_tree = [
+    #     {'name': 'filter 1', 'url': '?filter_id=filter', 'children': None},
+    #     {'name': 'filter 2', 'url': '', 'children': [
+    #             {'name': 'filter 2a', 'url': '', 'children': None},
+    #             {'name': 'filter 2b', 'url': '', 'children': None},
+    #             ]},
+    #     ]
+    filters = jdbc_source.query("select id, name, parentid from filters;")
+    unique_filters = unique_list(filters)
+    named_filters = named_list(unique_filters, ['id', 'name', 'parentid'])
+    filter_tree = tree_from_list(
+        named_filters,
+        id_field='id',
+        parent_field='parentid',
+        children_field='children',
+        root_parent=JDBC_NONE)
 
     # If the page is called with option filter_id, add some extra's.
     if filter_id is None:

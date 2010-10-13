@@ -5,7 +5,9 @@ from django.test import TestCase
 from lizard_fewsjdbc.models import JdbcSource
 from lizard_fewsjdbc.operations import AnchestorRegistration
 from lizard_fewsjdbc.operations import CycleError
+from lizard_fewsjdbc.operations import named_list
 from lizard_fewsjdbc.operations import tree_from_list
+from lizard_fewsjdbc.operations import unique_list
 
 
 class TestModel(TestCase):
@@ -147,3 +149,25 @@ class TestOperations(TestCase):
             children_field='children',
             root_parent='child_name')
 
+    def test_named_list(self):
+        rows = [
+            ['a', 'b', 'c', 'd', 'e'],
+            ['f', 'g', 'h', 'i', 'j']]
+        names = ['name1', 'name2', 'name3', 'name4', 'name5']
+        result = named_list(rows, names)
+        result_good = [
+            {'name1': 'a', 'name2': 'b', 'name3': 'c', 'name4': 'd', 'name5': 'e'},
+            {'name1': 'f', 'name2': 'g', 'name3': 'h', 'name4': 'i', 'name5': 'j'}]
+        self.assertEqual(result, result_good)
+
+    def test_unique_list(self):
+        rows = [1, 2, 2, 3, 4, 5, 5, 7, 2, 5]
+        result = unique_list(rows)
+        result_good = [1, 2, 3, 4, 5, 7]
+        self.assertEqual(result, result_good)
+
+    def test_unique_list2(self):
+        rows = [[1, 2], [2, 2], [3, 4], [2, 2], [1, 2]]
+        result = unique_list(rows)
+        result_good = [[1, 2], [2, 2], [3, 4]]
+        self.assertEqual(result, result_good)
