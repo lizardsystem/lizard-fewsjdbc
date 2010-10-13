@@ -1,4 +1,5 @@
 # (c) Nelen & Schuurmans.  GPL licensed, see LICENSE.txt.
+import logging
 import xmlrpclib
 from xml.parsers.expat import ExpatError
 
@@ -6,6 +7,8 @@ from django.db import models
 from django.utils.translation import ugettext as _
 
 JDBC_NONE = -999
+
+logger = logging.getLogger(__name__)
 
 
 class JdbcSource(models.Model):
@@ -39,6 +42,10 @@ class JdbcSource(models.Model):
         """
         Tries to connect to the Jdbc source and fire query. Returns list of lists.
         """
+        if '"' in q:
+            logger.warn(
+                "You used double quotes in the query. "
+                "Is it intended? Query: %s" % q)
         sp = xmlrpclib.ServerProxy(self.jdbc_url)
         sp.Ping.isAlive('', '')
 

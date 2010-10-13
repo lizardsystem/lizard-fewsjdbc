@@ -22,7 +22,7 @@
     <li class="workspace-acceptable file"
         data-name="{{ filter.name }} - {{ parameter.name }}"
         data-adapter-class="adapter_fewsjdbc"
-        data-adapter-layer-json='{"filter": "{{ filter.id }}", "parameter": "{{ parameter.id }}"}'
+        data-adapter-layer-json='{"slug": "{{ jdbc_source_slug }}", "filter": "{{ filter.id }}", "parameter": "{{ parameter.id }}"}'
         data-filter-id="{{ filter.id }}">
       {{ parameter.name }}
     </li>

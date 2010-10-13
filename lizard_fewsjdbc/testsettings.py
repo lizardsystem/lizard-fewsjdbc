@@ -1,3 +1,5 @@
+import os
+
 DEBUG = True
 TEMPLATE_DEBUG = True
 DATABASE_ENGINE = 'sqlite3'
@@ -33,6 +35,37 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'staticfiles.context_processors.static_url',
     )
 
+# SETTINGS_DIR allows media paths and so to be relative to this settings file
+# instead of hardcoded to c:\only\on\my\computer.
+SETTINGS_DIR = os.path.dirname(os.path.realpath(__file__))
+
+# BUILDOUT_DIR is for access to the "surrounding" buildout, for instance for
+# BUILDOUT_DIR/var/static files to give django-staticfiles a proper place
+# to place all collected static files.
+BUILDOUT_DIR = os.path.abspath(os.path.join(SETTINGS_DIR, '..'))
+
+# Absolute path to the directory that holds user-uploaded media.
+MEDIA_ROOT = os.path.join(BUILDOUT_DIR, 'var', 'media')
+
+# URL that handles the media served from MEDIA_ROOT. Make sure to use a
+# trailing slash if there is a path component (optional in other cases).
+MEDIA_URL = '/media/'
+
+# URL for the per-application /media static files collected by
+# django-staticfiles.  Use it in templates like
+# "{{ MEDIA_URL }}mypackage/my.css".
+STATIC_URL = '/static_media/'
+
+MAP_SETTINGS = {
+    'base_layer_type': 'OSM',  # OSM or WMS
+    'projection': 'EPSG:900913',  # EPSG:900913, EPSG:28992
+    'display_projection': 'EPSG:4326',  # EPSG:900913/28992/4326
+    'startlocation_x': '550000',
+    'startlocation_y': '6850000',
+    'startlocation_zoom': '7',
+    'base_layer_osm': (
+        'http://tile.openstreetmap.nl/tiles/${z}/${x}/${y}.png'),
+    }
 
 try:
     # Import local settings that aren't stored in svn.
