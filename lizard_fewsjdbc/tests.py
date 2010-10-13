@@ -4,6 +4,7 @@ from django.test import TestCase
 
 from lizard_fewsjdbc.models import JdbcSource
 from lizard_fewsjdbc.operations import AnchestorRegistration
+from lizard_fewsjdbc.operations import CycleError
 from lizard_fewsjdbc.operations import tree_from_list
 
 
@@ -118,35 +119,31 @@ class TestOperations(TestCase):
 
     def test_tree_from_list_cyclic(self):
         """
-        Nodes where the name is already used in one of the anchestors
-        are not added.
+        Cycle detection 1
         """
         rows = [{'name': 'child_name', 'parent': 'parent_name'},
                 {'name': 'parent_name', 'parent': 'child_name'}
                 ]
-        result_good = [
-                {'name': 'child_name',
-                 'parent': 'parent_name',
-                 'children': []}]
-        result_function = tree_from_list(
+        self.assertRaises(
+            CycleError,
+            tree_from_list,
             rows,
             id_field='name',
             parent_field='parent',
             children_field='children',
             root_parent='parent_name')
-        self.assertEqual(result_function, result_good)
 
     def test_tree_from_list_cyclic2(self):
         """
-        Nodes where the name is already used in one of the anchestors
-        are not added.
+        Cycle detection 2
         """
         rows = [{'name': 'parent_name', 'parent': 'parent_name'}, ]
-        result_good = []
-        result_function = tree_from_list(
+        self.assertRaises(
+            CycleError,
+            tree_from_list,
             rows,
             id_field='name',
             parent_field='parent',
             children_field='children',
             root_parent='child_name')
-        self.assertEqual(result_function, result_good)
+
