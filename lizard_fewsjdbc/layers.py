@@ -1,6 +1,7 @@
 import copy
 import logging
 import mapnik
+import math
 import os
 
 from django.conf import settings
@@ -87,6 +88,27 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
 
         self.jdbc_source = JdbcSource.objects.get(slug=self.jdbc_source_slug)
 
+    def _locations(self):
+        """
+        Query locations from jdbc source and return named locations in
+        a list.
+
+        {'location': '<location name>', 'longitude': <longitude>, 'latitude': <latitude>}
+        """
+        location_cache_key = ('%s::%s::%s' %
+                              (LOCATION_CACHE_KEY, self.filterkey,
+                               self.parameterkey))
+        named_locations = cache.get(location_cache_key)
+        if named_locations is None:
+            query = ("select longitude, latitude, location, locationid from filters "
+                     "where id='%s' and parameterid='%s'" %
+                     (self.filterkey, self.parameterkey))
+            locations = self.jdbc_source.query(query)
+            named_locations = named_list(locations,
+                                         ['longitude', 'latitude', 'location', 'locationid'])
+            cache.set(location_cache_key, named_locations)
+        return named_locations
+
     def layer(self, layer_ids=None, webcolor=None, request=None):
         """Return layer and styles that render points.
 
@@ -97,18 +119,7 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
 
         layer.datasource = mapnik.PointDatasource()
 
-        location_cache_key = ('%s::%s::%s' %
-                              (LOCATION_CACHE_KEY, self.filterkey,
-                               self.parameterkey))
-        named_locations = cache.get(location_cache_key)
-        if named_locations is None:
-            query = ("select longitude, latitude, location from filters "
-                     "where id='%s' and parameterid='%s'" %
-                     (self.filterkey, self.parameterkey))
-            locations = self.jdbc_source.query(query)
-            named_locations = named_list(locations,
-                                         ['longitude', 'latitude', 'location'])
-            cache.set(location_cache_key, named_locations)
+        named_locations = self._locations()
 
         for named_location in named_locations:
             layer.datasource.add_point(
@@ -132,5 +143,52 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         <timeserie>} of closest fews point that matches x, y, radius.
 
         """
+        def distance(x1, y1, x2, y2):
+            return math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
+
+        named_locations = self._locations()
+
         result = []
+        for named_location in named_locations:
+            x, y = coordinates.wgs84_to_google(
+                named_location['longitude'],
+                named_location['latitude'])
+            dist = distance(google_x, google_y, x, y)
+            if dist < radius:
+                result.append(
+                    {'distance': dist,
+                     'name': named_location['location'],
+                     'shortname': named_location['location'],
+                     'workspace_item': self.workspace_item,
+                     'identifier': {'location': named_location['locationid']},
+                     'google_coords': (x, y),
+                     'object': None})
         return result
+
+    def location(self, location, layout=None):
+        # TODO: do the list -> dict conversion only once
+        dict_locations = {}
+        for named_location in self._locations():
+            dict_locations[named_location['locationid']] = named_location
+
+        identifier = {'location': location}
+        if layout is not None:
+            identifier['layout'] = layout
+
+        x, y = coordinates.wgs84_to_google(
+            dict_locations[location]['longitude'],
+            dict_locations[location]['latitude'])
+
+        return {
+            'name': dict_locations[location]['location'],
+            'shortname': dict_locations[location]['location'],
+            'workspace_item': self.workspace_item,
+            'identifier': identifier,
+            'google_coords': (x, y),
+            'object': None}
+
+    def html(self, snippet_group=None, identifiers=None, layout_options=None):
+        return super(FewsJdbc, self).html_default(
+            snippet_group=snippet_group,
+            identifiers=identifiers,
+            layout_options=layout_options)
