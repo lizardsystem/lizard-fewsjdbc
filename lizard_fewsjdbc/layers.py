@@ -167,6 +167,18 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
                      'object': None})
         return result
 
+    def values(self, identifier, start_date, end_date):
+        timeseries = self.jdbc_source.get_timeseries(
+            self.filterkey, identifier['location'], self.parameterkey,
+            start_date, end_date)
+        unit = self.jdbc_source.get_unit(self.parameterkey)
+        result = []
+        for row in timeseries:
+            result.append({'value': row['value'],
+                           'datetime': row['time'],
+                           'unit': unit})
+        return result
+
     def location(self, location, layout=None):
         # TODO: do the list -> dict conversion only once
         dict_locations = {}

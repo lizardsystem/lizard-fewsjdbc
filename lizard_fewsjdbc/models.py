@@ -156,3 +156,16 @@ class JdbcSource(models.Model):
         for row in result:
             row['time'] = convert_java_datetime_to_python(row['time'])
         return result
+
+    def get_unit(self, parameter_id):
+        """
+        Gets unit for given parameter.
+
+        select unit from parameters where id='<parameter_id>'
+
+        Assumes 1 row is fetched.
+        """
+        q = ("select unit from parameters where id='%s'" % parameter_id)
+        query_result = self.query(q)
+        return query_result[0][0]  # First row, first column.
+
