@@ -187,6 +187,14 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
             'google_coords': (x, y),
             'object': None}
 
+    def symbol_url(self, identifier=None, start_date=None, end_date=None):
+        """
+        returns symbol
+
+        """
+        output_filename = fews_symbol_name(self.filterkey, nodata=False)
+        return '%sgenerated_icons/%s' % (settings.MEDIA_URL, output_filename)
+
     def html(self, snippet_group=None, identifiers=None, layout_options=None):
         return super(FewsJdbc, self).html_default(
             snippet_group=snippet_group,

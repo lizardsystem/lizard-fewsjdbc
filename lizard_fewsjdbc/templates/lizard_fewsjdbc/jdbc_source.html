@@ -20,7 +20,7 @@
       id="parameter-pane">
     {% for parameter in parameters %}
     <li class="workspace-acceptable file"
-        data-name="{{ filter.name }} - {{ parameter.name }}"
+        data-name="{{ filter.name }} - {{ parameter.name }} - {{ jdbc_source_slug }}"
         data-adapter-class="adapter_fewsjdbc"
         data-adapter-layer-json='{"slug": "{{ jdbc_source_slug }}", "filter": "{{ filter.id }}", "parameter": "{{ parameter.id }}"}'
         data-filter-id="{{ filter.id }}">

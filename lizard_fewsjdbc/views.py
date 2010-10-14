@@ -58,8 +58,9 @@ def jdbc_source(request,
 
         if named_parameters:
             for named_parameter in named_parameters:
-                fews_parameters = [{'name': named_parameter['parameter'],
-                                    'id': named_parameter['parameterid']}]
+                fews_parameters = [
+                    {'name': named_parameter['parameter'],
+                     'id': named_parameter['parameterid']}]
             fews_filter = {'name': named_parameters[0]['name'],
                            'id': filter_id}
 
