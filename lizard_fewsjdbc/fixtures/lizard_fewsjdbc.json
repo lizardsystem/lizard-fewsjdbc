@@ -1,0 +1,28 @@
+[
+  {
+    "pk": 1,
+    "model": "lizard_fewsjdbc.jdbcsource",
+    "fields": {
+      "slug": "wro",
+      "jdbc_tag_name": "url_wro_dev",
+      "usecustomfilter": false,
+      "customfilter": "",
+      "connector_string": "jdbc:vjdbc:rmi://127.0.0.1:2006/VJdbc,FewsDataStore",
+      "jdbc_url": "http://web.lizardsystem.nl:8090/Jdbc2Ei/test",
+      "name": "Waterschap Roer en Overmaas"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "lizard_fewsjdbc.jdbcsource",
+    "fields": {
+      "slug": "assen",
+      "jdbc_tag_name": "url_assn_dev",
+      "usecustomfilter": false,
+      "customfilter": "",
+      "connector_string": "jdbc:vjdbc:rmi://127.0.0.1:2002/VJdbc,FewsDataStore",
+      "jdbc_url": "http://web.lizardsystem.nl:8090/Jdbc2Ei/test",
+      "name": "Gemeente Assen"
+    }
+  }
+]
