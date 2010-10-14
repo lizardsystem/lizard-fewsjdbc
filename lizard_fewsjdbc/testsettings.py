@@ -75,6 +75,7 @@ MAP_SETTINGS = {
         'http://tile.openstreetmap.nl/tiles/${z}/${x}/${y}.png'),
     }
 
+# Set the default period in days.
 DEFAULT_START_DAYS = -20
 DEFAULT_END_DAYS = 5
 
