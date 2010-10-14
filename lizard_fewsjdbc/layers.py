@@ -1,4 +1,5 @@
 import copy
+import datetime
 import logging
 import mapnik
 import math
@@ -11,6 +12,7 @@ from lizard_fewsjdbc.models import JdbcSource
 from lizard_fewsjdbc.operations import named_list
 from lizard_map import coordinates
 from lizard_map import workspace
+from lizard_map.adapter import Graph
 from lizard_map.models import ICON_ORIGINALS
 from lizard_map.symbol_manager import SymbolManager
 
@@ -186,6 +188,42 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
             'identifier': identifier,
             'google_coords': (x, y),
             'object': None}
+
+    def image(self,
+              identifiers,
+              start_date,
+              end_date,
+              width=380.0,
+              height=250.0,
+              layout_extra=None):
+
+        line_styles = self.line_styles(identifiers)
+
+        today = datetime.datetime.now()
+        graph = Graph(start_date, end_date,
+                      width=width, height=height, today=today)
+        graph.axes.grid(True)
+
+        for identifier in identifiers:
+            filter_id = self.filterkey
+            location_id = identifier['location']
+            parameter_id = self.parameterkey
+            timeseries = self.jdbc_source.get_timeseries(
+                filter_id, location_id, parameter_id, start_date, end_date)
+
+            # Plot data.
+            dates = [row['time'] for row in timeseries]
+            values = [row['value'] for row in timeseries]
+            graph.axes.plot(dates, values,
+                            lw=1,
+                            color=line_styles[str(identifier)]['color'],
+                            label=parameter_id)
+
+        # if legend:
+        #     graph.legend()
+
+        graph.add_today()
+        return graph.http_png()
 
     def symbol_url(self, identifier=None, start_date=None, end_date=None):
         """

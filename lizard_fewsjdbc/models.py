@@ -9,11 +9,13 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.translation import ugettext as _
 
+from lizard_fewsjdbc.operations import convert_java_datetime_to_python
 from lizard_fewsjdbc.operations import named_list
 from lizard_fewsjdbc.operations import tree_from_list
 from lizard_fewsjdbc.operations import unique_list
 
 JDBC_NONE = -999
+JDBC_DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
 FILTER_CACHE_KEY = 'lizard_fewsjdbc.models.filter_cache_key'
 
 logger = logging.getLogger(__name__)
@@ -134,3 +136,23 @@ class JdbcSource(models.Model):
                                           ['name', 'parameterid', 'parameter'])
             cache.set(parameter_cache_key, named_parameters, 8 * 60 * 60)
         return named_parameters
+
+    def get_timeseries(self, filter_id, location_id, parameter_id, start_date, end_date):
+        """
+        SELECT TIME,VALUE,FLAG,DETECTION,COMMENT from
+        ExTimeSeries WHERE filterId = 'MFPS' AND parameterId =
+        'H.meting' AND locationId = 'BW_NZ_04' AND time BETWEEN
+        '2007-01-01 13:00:00' AND '2008-01-10 13:00:00'
+        """
+        q = ("select time, value, flag, detection, comment from "
+             "extimeseries where filterid='%s' and locationid='%s' "
+             "and parameterid='%s' and time between '%s' and '%s'" %
+             (filter_id, location_id, parameter_id,
+              start_date.strftime(JDBC_DATE_FORMAT),
+              end_date.strftime(JDBC_DATE_FORMAT)))
+        query_result = self.query(q)
+        result = named_list(
+            query_result, ['time', 'value', 'flag', 'detection', 'comment'])
+        for row in result:
+            row['time'] = convert_java_datetime_to_python(row['time'])
+        return result
