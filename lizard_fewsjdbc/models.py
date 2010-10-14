@@ -2,18 +2,27 @@
 import logging
 import xmlrpclib
 from xml.parsers.expat import ExpatError
+from socket import gaierror
 
+from django.core.cache import cache
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.translation import ugettext as _
 
+from lizard_fewsjdbc.operations import named_list
+from lizard_fewsjdbc.operations import tree_from_list
+from lizard_fewsjdbc.operations import unique_list
+
 JDBC_NONE = -999
+FILTER_CACHE_KEY = 'lizard_fewsjdbc.models.filter_cache_key'
 
 logger = logging.getLogger(__name__)
 
 
 class JdbcSource(models.Model):
     """
-    Uses Jdbc2Ei to connect to a Jdbc source.
+    Uses Jdbc2Ei to connect to a Jdbc source. Works only for Jdbc2Ei
+    that is connected to a FEWS-JDBC server.
     """
 
     class Meta:
@@ -40,7 +49,10 @@ class JdbcSource(models.Model):
 
     def query(self, q):
         """
-        Tries to connect to the Jdbc source and fire query. Returns list of lists.
+        Tries to connect to the Jdbc source and fire query. Returns
+        list of lists.
+
+        Throws (socket.)gaierror if server is not reachable.
         """
         if '"' in q:
             logger.warn(
@@ -59,3 +71,66 @@ class JdbcSource(models.Model):
         result = sp.Query.execute('', '', q, [self.jdbc_tag_name])
 
         return result
+
+    def get_filter_tree(self, url_name='lizard_fewsjdbc.jdbc_source'):
+        """
+        Gets filter tree from Jdbc source. Also adds url per filter
+        which links to url_name.
+
+        [{'name': <name>, 'url': <url>, children: [...]}]
+
+        url, children is optional.
+
+        Uses cache.
+        """
+        filter_source_cache_key = FILTER_CACHE_KEY + '::' + self.slug
+        filter_tree = cache.get(filter_source_cache_key)
+        if filter_tree is None:
+            # Building up the fews filter tree.
+            try:
+                filters = self.query("select id, name, parentid from filters;")
+            except gaierror:
+                return [{'name': 'Jdbc2Ei server not available.'}]
+            if isinstance(filters, int):
+                logger.error("JdbcSource returned an error: %s" % filters)
+                return [{'name': 'Jdbc data source not available.'}]
+            unique_filters = unique_list(filters)
+            named_filters = named_list(unique_filters,
+                                       ['id', 'name', 'parentid'])
+            # Add url per filter.
+            for named_filter in named_filters:
+                url = reverse(url_name,
+                              kwargs={'jdbc_source_slug': self.slug})
+                url += '?filter_id=%s' % named_filter['id']
+                named_filter['url'] = url
+            # Make the tree.
+            filter_tree = tree_from_list(
+                named_filters,
+                id_field='id',
+                parent_field='parentid',
+                children_field='children',
+                root_parent=JDBC_NONE)
+            cache.set(filter_source_cache_key, filter_tree, 8 * 60 * 60)
+        return filter_tree
+
+    def get_named_parameters(self, filter_id):
+        """
+        Get named parameters given filter_id: [{'name': <filter>,
+        'parameterid': <parameterid1>, 'parameter': <parameter1>},
+        ...]
+
+        Uses cache.
+        """
+        parameter_cache_key = ('%s::%s::%s' %
+                               (FILTER_CACHE_KEY, self.slug, str(filter_id)))
+        named_parameters = cache.get(parameter_cache_key)
+
+        if named_parameters is None:
+            parameter_result = self.query(
+                ("select name, parameterid, parameter "
+                 "from filters where id='%s'" % filter_id))
+            unique_parameters = unique_list(parameter_result)
+            named_parameters = named_list(unique_parameters,
+                                          ['name', 'parameterid', 'parameter'])
+            cache.set(parameter_cache_key, named_parameters, 8 * 60 * 60)
+        return named_parameters

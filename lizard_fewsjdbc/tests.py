@@ -1,6 +1,8 @@
 # (c) Nelen & Schuurmans.  GPL licensed, see LICENSE.txt.
 
+from django.core.urlresolvers import reverse
 from django.test import TestCase
+from django.test.client import Client
 
 from lizard_fewsjdbc.models import JdbcSource
 from lizard_fewsjdbc.operations import AnchestorRegistration
@@ -8,6 +10,46 @@ from lizard_fewsjdbc.operations import CycleError
 from lizard_fewsjdbc.operations import named_list
 from lizard_fewsjdbc.operations import tree_from_list
 from lizard_fewsjdbc.operations import unique_list
+
+
+class TestIntegration(TestCase):
+    """
+    Integration tests.
+
+    This test uses a test client with actual connection data to
+    connect to (should be) working and not working data sources.
+    """
+    fixtures = ['lizard_fewsjdbc_test']
+
+    def TestWro(self):
+        """
+        Working set.
+        """
+        c = Client()
+        url = reverse('lizard_fewsjdbc.jdbc_source',
+                      kwargs={'jdbc_source_slug': 'wro'})
+        response = c.get(url)
+        self.assertEqual(response.status_code, 200)
+
+    def TestKapot(self):
+        """
+        The Jdbc2Ei is reachable, but the Jdbc itself returns an error.
+        """
+        c = Client()
+        url = reverse('lizard_fewsjdbc.jdbc_source',
+                      kwargs={'jdbc_source_slug': 'kapot'})
+        response = c.get(url)
+        self.assertEqual(response.status_code, 200)
+
+    def TestKapot2(self):
+        """
+        Incorrect Jdbc2Ei url
+        """
+        c = Client()
+        url = reverse('lizard_fewsjdbc.jdbc_source',
+                      kwargs={'jdbc_source_slug': 'kapot2'})
+        response = c.get(url)
+        self.assertEqual(response.status_code, 200)
 
 
 class TestModel(TestCase):
@@ -18,7 +60,8 @@ class TestModel(TestCase):
             name='Waterschap Roer en Overmaas',
             jdbc_url='http://web.lizardsystem.nl:8090/Jdbc2Ei/test',
             jdbc_tag_name='url_wro_dev',
-            connector_string='jdbc:vjdbc:rmi://127.0.0.1:2006/VJdbc,FewsDataStore')
+            connector_string=('jdbc:vjdbc:rmi://127.0.0.1:2006/'
+                              'VJdbc,FewsDataStore'))
         self.jdbc_source.save()
 
     def test_customfilter(self):
@@ -124,8 +167,7 @@ class TestOperations(TestCase):
         Cycle detection 1
         """
         rows = [{'name': 'child_name', 'parent': 'parent_name'},
-                {'name': 'parent_name', 'parent': 'child_name'}
-                ]
+                {'name': 'parent_name', 'parent': 'child_name'}]
         self.assertRaises(
             CycleError,
             tree_from_list,
@@ -151,13 +193,13 @@ class TestOperations(TestCase):
 
     def test_named_list(self):
         rows = [
-            ['a', 'b', 'c', 'd', 'e'],
-            ['f', 'g', 'h', 'i', 'j']]
-        names = ['name1', 'name2', 'name3', 'name4', 'name5']
+            ['a', 'b', 'c', 'd'],
+            ['f', 'g', 'h', 'i']]
+        names = ['name1', 'name2', 'name3', 'name4']
         result = named_list(rows, names)
         result_good = [
-            {'name1': 'a', 'name2': 'b', 'name3': 'c', 'name4': 'd', 'name5': 'e'},
-            {'name1': 'f', 'name2': 'g', 'name3': 'h', 'name4': 'i', 'name5': 'j'}]
+            {'name1': 'a', 'name2': 'b', 'name3': 'c', 'name4': 'd'},
+            {'name1': 'f', 'name2': 'g', 'name3': 'h', 'name4': 'i'}]
         self.assertEqual(result, result_good)
 
     def test_unique_list(self):
