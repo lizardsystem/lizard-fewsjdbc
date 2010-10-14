@@ -75,6 +75,9 @@ MAP_SETTINGS = {
         'http://tile.openstreetmap.nl/tiles/${z}/${x}/${y}.png'),
     }
 
+DEFAULT_START_DAYS = -20
+DEFAULT_END_DAYS = 5
+
 try:
     # Import local settings that aren't stored in svn.
     from lizard_fewsjdbc.local_testsettings import *
