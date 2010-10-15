@@ -2,7 +2,17 @@ Changelog of lizard-fewsjdbc
 ===================================================
 
 
-0.1 (unreleased)
+0.1 (2010-10-15)
 ----------------
 
-- Initial library skeleton created by thaskel.  [your name]
+- Initial library skeleton created by nensskel.  [Jack]
+
+- Added model for Jdbc source.
+
+- Frontpage shows list of Jdbc sources.
+
+- Added tests.
+
+- Each Jdbc source has an own page, where workspace items can be used.
+
+- Basic adapter for Jdbc source implemented: layer, image, values, ...

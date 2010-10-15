@@ -27,10 +27,6 @@ class JdbcSource(models.Model):
     that is connected to a FEWS-JDBC server.
     """
 
-    class Meta:
-        verbose_name = _("Jdbc Source")
-        verbose_name_plural = _("Jdbc Sources")
-
     slug = models.SlugField()
     name = models.CharField(max_length=200)
     jdbc_url = models.URLField(verify_exists=False, max_length=200)
@@ -45,6 +41,10 @@ class JdbcSource(models.Model):
             "The rootnode has 'parentid': None. i.e. "
             "[{'id':'id','name':'name','parentid':None}, "
             "{'id':'id2','name':'name2','parentid':'id'}]"))
+
+    class Meta:
+        verbose_name = _("Jdbc Source")
+        verbose_name_plural = _("Jdbc Sources")
 
     def __unicode__(self):
         return u'%s' % self.name

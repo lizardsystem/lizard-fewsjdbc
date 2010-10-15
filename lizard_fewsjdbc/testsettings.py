@@ -34,6 +34,19 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'staticfiles.context_processors.static_url',
     )
 
+# Language code for this installation. All choices can be found here:
+# http://www.i18nguy.com/unicode/language-identifiers.html
+LANGUAGE_CODE = 'nl-NL'
+# For at-runtime language switching.  Note: they're shown in reverse order in
+# the interface!
+LANGUAGES = (
+    ('en', 'English'),
+    ('nl', 'Nederlands'),
+)
+# If you set this to False, Django will make some optimizations so as not to
+# load the internationalization machinery.
+USE_I18N = True
+
 # SETTINGS_DIR allows media paths and so to be relative to this settings file
 # instead of hardcoded to c:\only\on\my\computer.
 SETTINGS_DIR = os.path.dirname(os.path.realpath(__file__))

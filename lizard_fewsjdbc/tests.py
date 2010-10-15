@@ -54,6 +54,9 @@ class TestIntegration(TestCase):
 
 class TestModel(TestCase):
 
+    def mock_query(self, q):
+        return
+
     def setUp(self):
         self.jdbc_source = JdbcSource(
             slug='wro',

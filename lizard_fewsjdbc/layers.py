@@ -179,6 +179,13 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
                            'unit': unit})
         return result
 
+    def value_aggregate(self, identifier, aggregate_functions,
+                        start_date, end_date):
+        return super(
+            FewsJdbc,
+            self).value_aggregate_default(
+            identifier, aggregate_functions, start_date, end_date)
+
     def location(self, location, layout=None):
         # TODO: do the list -> dict conversion only once
         dict_locations = {}
