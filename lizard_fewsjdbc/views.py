@@ -45,16 +45,18 @@ def jdbc_source(request,
     date_range_form = DateRangeForm(
         current_start_end_dates(request, for_form=True))
     filter_id = request.GET.get('filter_id', None)
+    ignore_cache = request.GET.get('ignore_cache', False)
     jdbc_source = JdbcSource.objects.get(slug=jdbc_source_slug)
 
-    filter_tree = jdbc_source.get_filter_tree()
+    filter_tree = jdbc_source.get_filter_tree(ignore_cache=ignore_cache)
 
     # If the page is called with option filter_id, add parameter variables.
     fews_parameters = None
     fews_filter = None
 
     if filter_id is not None:
-        named_parameters = jdbc_source.get_named_parameters(filter_id)
+        named_parameters = jdbc_source.get_named_parameters(
+            filter_id, ignore_cache=ignore_cache)
 
         if named_parameters:
             for named_parameter in named_parameters:

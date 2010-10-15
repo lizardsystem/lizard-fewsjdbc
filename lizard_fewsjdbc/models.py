@@ -78,7 +78,9 @@ class JdbcSource(models.Model):
     def _customfilter(self):
         return eval(self.customfilter)
 
-    def get_filter_tree(self, url_name='lizard_fewsjdbc.jdbc_source'):
+    def get_filter_tree(self,
+                        url_name='lizard_fewsjdbc.jdbc_source',
+                        ignore_cache=False):
         """
         Gets filter tree from Jdbc source. Also adds url per filter
         which links to url_name.
@@ -124,7 +126,7 @@ class JdbcSource(models.Model):
             cache.set(filter_source_cache_key, filter_tree, 8 * 60 * 60)
         return filter_tree
 
-    def get_named_parameters(self, filter_id):
+    def get_named_parameters(self, filter_id, ignore_cache=False):
         """
         Get named parameters given filter_id: [{'name': <filter>,
         'parameterid': <parameterid1>, 'parameter': <parameter1>},
