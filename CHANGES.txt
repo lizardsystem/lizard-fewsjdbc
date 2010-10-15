@@ -5,7 +5,7 @@ Changelog of lizard-fewsjdbc
 0.2 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Pinned lizard-map and lizard-ui.
 
 
 0.1 (2010-10-15)
