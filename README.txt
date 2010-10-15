@@ -37,3 +37,23 @@ versions), add them as an "svn external" in the ``local_checkouts/`` directory
 and add them to the ``develop =`` list in buildout.cfg.
 
 Tests can always be run with ``bin/test`` or ``bin\test.exe``.
+
+
+Using the djangoapp in a site
+-----------------------------
+
+- Add lizard_fewsjdbc to your buildout.cfg. Make sure that (sysegg,
+  matplotlib).
+
+- Add lizard_fewsjdbc and lizard_map to the INSTALLED_APPS in your
+  settings.
+
+Make the database tables:
+
+    $> bin/django syncdb
+
+Load some config (optional):
+
+    $> bin/django loaddata lizard_fewsjdbc
+
+Add some references in your urls.py, i.e. (r'^', include('lizard_fewsjdbc.urls')).
