@@ -5,7 +5,9 @@ Changelog of lizard-fewsjdbc
 0.3 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Added usecustomfilter option.
+
+- Update fixtures.
 
 
 0.2 (2010-10-15)
