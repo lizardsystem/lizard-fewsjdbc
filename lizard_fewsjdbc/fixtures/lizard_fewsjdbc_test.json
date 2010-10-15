@@ -5,8 +5,8 @@
     "fields": {
       "slug": "wro", 
       "jdbc_tag_name": "url_wro_dev", 
-      "usecustomfilter": false, 
-      "customfilter": "", 
+      "usecustomfilter": true, 
+      "customfilter": "[ {'id':'Hoofd_Afgeleide_debieten_webserver','name':'debiet','parentid':None} , {'id':'Hoofd_waterstand_webserver','name':'waterstand','parentid':None} , {'id':'Hoofd_waterstand_peilschalen_webserver','name':'waterstand (peilschalen)','parentid':None} , {'id':'Hoofd_grondwaterstand_webserver','name':'grondwaterstand','parentid':None} , {'id':'Hoofd_neerslag_webserver','name':'neerslag','parentid':None} ]", 
       "connector_string": "jdbc:vjdbc:rmi://127.0.0.1:2006/VJdbc,FewsDataStore", 
       "jdbc_url": "http://web.lizardsystem.nl:8090/Jdbc2Ei/test", 
       "name": "Waterschap Roer en Overmaas"
