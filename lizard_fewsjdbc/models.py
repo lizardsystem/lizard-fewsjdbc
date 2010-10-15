@@ -74,6 +74,10 @@ class JdbcSource(models.Model):
 
         return result
 
+    @property
+    def _customfilter(self):
+        return eval(self.customfilter)
+
     def get_filter_tree(self, url_name='lizard_fewsjdbc.jdbc_source'):
         """
         Gets filter tree from Jdbc source. Also adds url per filter
@@ -89,16 +93,21 @@ class JdbcSource(models.Model):
         filter_tree = cache.get(filter_source_cache_key)
         if filter_tree is None:
             # Building up the fews filter tree.
-            try:
-                filters = self.query("select id, name, parentid from filters;")
-            except gaierror:
-                return [{'name': 'Jdbc2Ei server not available.'}]
-            if isinstance(filters, int):
-                logger.error("JdbcSource returned an error: %s" % filters)
-                return [{'name': 'Jdbc data source not available.'}]
-            unique_filters = unique_list(filters)
-            named_filters = named_list(unique_filters,
-                                       ['id', 'name', 'parentid'])
+            if self.usecustomfilter:
+                named_filters = self._customfilter
+                root_parent = None
+            else:
+                try:
+                    filters = self.query("select id, name, parentid from filters;")
+                except gaierror:
+                    return [{'name': 'Jdbc2Ei server not available.'}]
+                if isinstance(filters, int):
+                    logger.error("JdbcSource returned an error: %s" % filters)
+                    return [{'name': 'Jdbc data source not available.'}]
+                unique_filters = unique_list(filters)
+                named_filters = named_list(unique_filters,
+                                           ['id', 'name', 'parentid'])
+                root_parent = JDBC_NONE
             # Add url per filter.
             for named_filter in named_filters:
                 url = reverse(url_name,
@@ -111,7 +120,7 @@ class JdbcSource(models.Model):
                 id_field='id',
                 parent_field='parentid',
                 children_field='children',
-                root_parent=JDBC_NONE)
+                root_parent=root_parent)
             cache.set(filter_source_cache_key, filter_tree, 8 * 60 * 60)
         return filter_tree
 
