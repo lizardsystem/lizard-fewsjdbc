@@ -2,10 +2,10 @@ Changelog of lizard-fewsjdbc
 ===================================================
 
 
-0.5 (unreleased)
+0.5 (2010-10-15)
 ----------------
 
-- Nothing changed yet.
+- Use lizard-ui 1.21.
 
 
 0.4 (2010-10-15)
