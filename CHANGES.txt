@@ -5,7 +5,7 @@ Changelog of lizard-fewsjdbc
 0.4 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Added option ignore_cache in fews_jdbc page.
 
 
 0.3 (2010-10-15)
