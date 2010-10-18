@@ -167,7 +167,10 @@ class JdbcSource(models.Model):
         result = named_list(
             query_result, ['time', 'value', 'flag', 'detection', 'comment'])
         for row in result:
-            row['time'] = iso8601.parse_date(row['time'].value)
+            date_time = row['time'].value
+            date_time_adjusted = '%s-%s-%s' % (
+                date_time[0:4], date_time[4:6], date_time[6:])
+            row['time'] = iso8601.parse_date(date_time_adjusted)
         return result
 
     def get_unit(self, parameter_id):
