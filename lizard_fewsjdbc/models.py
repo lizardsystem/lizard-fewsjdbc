@@ -100,7 +100,8 @@ class JdbcSource(models.Model):
                 root_parent = None
             else:
                 try:
-                    filters = self.query("select id, name, parentid from filters;")
+                    filters = self.query(
+                        "select id, name, parentid from filters;")
                 except gaierror:
                     return [{'name': 'Jdbc2Ei server not available.'}]
                 if isinstance(filters, int):
@@ -148,7 +149,8 @@ class JdbcSource(models.Model):
             cache.set(parameter_cache_key, named_parameters, 8 * 60 * 60)
         return named_parameters
 
-    def get_timeseries(self, filter_id, location_id, parameter_id, start_date, end_date):
+    def get_timeseries(self, filter_id, location_id,
+                       parameter_id, start_date, end_date):
         """
         SELECT TIME,VALUE,FLAG,DETECTION,COMMENT from
         ExTimeSeries WHERE filterId = 'MFPS' AND parameterId =
@@ -179,4 +181,3 @@ class JdbcSource(models.Model):
         q = ("select unit from parameters where id='%s'" % parameter_id)
         query_result = self.query(q)
         return query_result[0][0]  # First row, first column.
-

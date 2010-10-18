@@ -95,19 +95,22 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         Query locations from jdbc source and return named locations in
         a list.
 
-        {'location': '<location name>', 'longitude': <longitude>, 'latitude': <latitude>}
+        {'location': '<location name>', 'longitude': <longitude>,
+        'latitude': <latitude>}
         """
         location_cache_key = ('%s::%s::%s' %
                               (LOCATION_CACHE_KEY, self.filterkey,
                                self.parameterkey))
         named_locations = cache.get(location_cache_key)
         if named_locations is None:
-            query = ("select longitude, latitude, location, locationid from filters "
+            query = ("select longitude, latitude, location, locationid "
+                     "from filters "
                      "where id='%s' and parameterid='%s'" %
                      (self.filterkey, self.parameterkey))
             locations = self.jdbc_source.query(query)
-            named_locations = named_list(locations,
-                                         ['longitude', 'latitude', 'location', 'locationid'])
+            named_locations = named_list(
+                locations,
+                ['longitude', 'latitude', 'location', 'locationid'])
             cache.set(location_cache_key, named_locations)
         return named_locations
 
@@ -146,7 +149,7 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
 
         """
         def distance(x1, y1, x2, y2):
-            return math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
+            return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
         named_locations = self._locations()
 
