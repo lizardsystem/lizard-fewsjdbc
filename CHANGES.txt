@@ -5,7 +5,7 @@ Changelog of lizard-fewsjdbc
 0.7 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Bugfix using iso8601.
 
 
 0.6 (2010-10-18)

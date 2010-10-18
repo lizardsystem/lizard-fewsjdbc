@@ -128,6 +128,7 @@ class TestModelMockQuery(TestCase):
 
 
 class TestModel(TestCase):
+    fixtures = ['lizard_fewsjdbc']
 
     def setUp(self):
         self.jdbc_source = JdbcSource.objects.get(slug='assen')
