@@ -1,7 +1,6 @@
 """
 Some utility operations on data structures
 """
-import datetime
 
 
 class AnchestorRegistration(object):
@@ -39,7 +38,8 @@ def tree_from_list(rows,
                    parent_field='parent_id',
                    children_field='children',
                    root_parent=None):
-    """Makes a hierarchical tree structure, list of dicts with list of dicts, etc
+    """Makes a hierarchical tree structure, list of dicts with list of
+    dicts, etc
 
     [{'name': 'name', 'children': [{'name': 'child', 'children': None}, ],
     {'name': 'name2', 'children': None,

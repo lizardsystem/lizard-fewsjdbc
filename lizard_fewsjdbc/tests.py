@@ -130,9 +130,12 @@ class TestModelMockQuery(TestCase):
             ]
         result = self.jdbc_source.get_named_parameters('id1')
         result_good = [
-            {'name': 'name1', 'parameterid': 'parameterid1', 'parameter': 'parameter1'},
-            {'name': 'name2', 'parameterid': 'parameterid2', 'parameter': 'parameter2'},
-            {'name': 'name3', 'parameterid': 'parameterid3', 'parameter': 'parameter3'},
+            {'name': 'name1', 'parameterid': 'parameterid1',
+             'parameter': 'parameter1'},
+            {'name': 'name2', 'parameterid': 'parameterid2',
+             'parameter': 'parameter2'},
+            {'name': 'name3', 'parameterid': 'parameterid3',
+             'parameter': 'parameter3'},
             ]
         self.assertEqual(result, result_good)
 
@@ -143,7 +146,6 @@ class TestModelMockQuery(TestCase):
 
     def test_get_unit(self):
         pass
-
 
 
 class TestModel(TestCase):
