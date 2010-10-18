@@ -5,7 +5,8 @@ Changelog of lizard-fewsjdbc
 0.6 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Change datetime conversion from timetuple to iso8601 parsing
+  (timetuple does not always exist).
 
 
 0.5 (2010-10-15)

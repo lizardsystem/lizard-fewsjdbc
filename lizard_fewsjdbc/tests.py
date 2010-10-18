@@ -4,6 +4,7 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.client import Client
 
+from lizard_fewsjdbc.models import JDBC_NONE
 from lizard_fewsjdbc.models import JdbcSource
 from lizard_fewsjdbc.operations import AnchestorRegistration
 from lizard_fewsjdbc.operations import CycleError
@@ -31,6 +32,16 @@ class TestIntegration(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def TestWro(self):
+        """
+        Working jdbc source with custom filters.
+        """
+        c = Client()
+        url = reverse('lizard_fewsjdbc.jdbc_source',
+                      kwargs={'jdbc_source_slug': 'wro'})
+        response = c.get(url)
+        self.assertEqual(response.status_code, 200)
+
+    def TestAssen(self):
         """
         Working jdbc source.
         """
@@ -61,20 +72,65 @@ class TestIntegration(TestCase):
         self.assertEqual(response.status_code, 200)
 
 
-class TestModel(TestCase):
+class TestModelMockQuery(TestCase):
+    fixtures = ['lizard_fewsjdbc']
 
     def mock_query(self, q):
-        return
+        return self.mock_query_result
 
     def setUp(self):
-        self.jdbc_source = JdbcSource(
-            slug='wro',
-            name='Waterschap Roer en Overmaas',
-            jdbc_url='http://web.lizardsystem.nl:8090/Jdbc2Ei/test',
-            jdbc_tag_name='url_wro_dev',
-            connector_string=('jdbc:vjdbc:rmi://127.0.0.1:2006/'
-                              'VJdbc,FewsDataStore'))
-        self.jdbc_source.save()
+        self.jdbc_source = JdbcSource.objects.get(slug='assen')
+        self.query_orig = self.jdbc_source.query
+        self.jdbc_source.query = self.mock_query
+        self.mock_query_result = []
+
+    def tearDown(self):
+        self.jdbc_source.query = self.query_orig
+
+    # def test_get_filter_tree(self):
+    #     """
+    #     """
+    #     # Define mock result: id, name, parentid
+    #     self.mock_query_result = [
+    #         ['id1', 'name1', JDBC_NONE],
+    #         ['id2', 'name2', 'id1'],
+    #         ['id3', 'name3', 'id1'],
+    #         ['id4', 'name4', 'id2'],
+    #         ]
+    #     result = self.jdbc_source.get_filter_tree()
+    #     result_good = [
+    #         {'id': 'id1', 'name': 'name1',
+    #          'url': '',
+    #          'parentid': JDBC_NONE, 'children': [
+    #                 {'id': 'id2', 'name': 'name2',
+    #                  'parentid': 'id1', 'children': [
+    #                         {'id': 'id4', 'name': 'name4',
+    #                          'parentid': 'id2', 'children': []},
+    #                         ]},
+    #                 {'id': 'id3', 'name': 'name3',
+    #                  'parentid': 'id1', 'children': []},
+    #                 ]}
+    #         ]
+    #     self.assertEqual(result, result_good)
+
+    def test_get_filter_tree2(self):
+        pass
+
+    def test_get_named_parameters(self):
+        pass
+
+    def test_get_timeseries(self):
+        pass
+
+    def test_get_unit(self):
+        pass
+
+
+
+class TestModel(TestCase):
+
+    def setUp(self):
+        self.jdbc_source = JdbcSource.objects.get(slug='assen')
 
     def test_customfilter(self):
         """See if customfilters can be used"""

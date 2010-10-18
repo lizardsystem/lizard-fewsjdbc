@@ -105,17 +105,3 @@ def unique_list(rows):
             result.append(row)
             seen[row_str] = None
     return result
-
-
-def convert_java_datetime_to_python(dt_java):
-    """
-    Convert java DateTime object to python datetime
-    """
-    timetuple = dt_java.timetuple()
-    timedict = {'year': timetuple.tm_year,
-                'month': timetuple.tm_mon,
-                'day': timetuple.tm_mday,
-                'hour': timetuple.tm_hour,
-                'minute': timetuple.tm_min,
-                'second': timetuple.tm_sec}
-    return datetime.datetime(**timedict)

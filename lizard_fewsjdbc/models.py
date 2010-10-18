@@ -1,4 +1,5 @@
 # (c) Nelen & Schuurmans.  GPL licensed, see LICENSE.txt.
+import iso8601
 import logging
 import xmlrpclib
 from xml.parsers.expat import ExpatError
@@ -9,7 +10,6 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.translation import ugettext as _
 
-from lizard_fewsjdbc.operations import convert_java_datetime_to_python
 from lizard_fewsjdbc.operations import named_list
 from lizard_fewsjdbc.operations import tree_from_list
 from lizard_fewsjdbc.operations import unique_list
@@ -167,7 +167,7 @@ class JdbcSource(models.Model):
         result = named_list(
             query_result, ['time', 'value', 'flag', 'detection', 'comment'])
         for row in result:
-            row['time'] = convert_java_datetime_to_python(row['time'])
+            row['time'] = iso8601.parse_date(row['time'].value)
         return result
 
     def get_unit(self, parameter_id):

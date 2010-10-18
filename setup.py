@@ -15,6 +15,7 @@ install_requires = [
     'lizard-map',
     'lizard-ui',
     'django-nose',
+    'iso8601',
     ],
 
 tests_require = [
