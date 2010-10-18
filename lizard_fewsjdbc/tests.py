@@ -1,5 +1,7 @@
 # (c) Nelen & Schuurmans.  GPL licensed, see LICENSE.txt.
 
+import datetime
+
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.client import Client
@@ -139,10 +141,40 @@ class TestModelMockQuery(TestCase):
             ]
         self.assertEqual(result, result_good)
 
-    # def test_get_timeseries(self):
-    #     self.mock_query_result = []
-    #     result = self.jdbc_source.get_timeseries(
-    #         'id1', 'location1', 'parameter1', start_date, end_date)
+    def test_get_timeseries(self):
+        class MockTime(object):
+            def __init__(self, value):
+                self.value = value
+
+        class MockTzInfo(datetime.tzinfo):
+            def utcoffset(self, dt):
+                return datetime.timedelta(hours=0)
+        # time, value, flag, detection, comment; time has a property
+        # 'value'
+        self.mock_query_result = [
+            [MockTime('20100501T00:00:00'), '1.2', '0', '0', None],
+            [MockTime('20100502T00:00:00'), '1.3', '0', '0', None],
+            [MockTime('20100503T00:00:00'), '1.4', '0', '0', None],
+            [MockTime('20100504T00:00:00'), '1.5', '0', '0', None],
+            [MockTime('20100505T00:00:00'), '1.6', '0', '0', None],
+            ]
+        start_date = datetime.datetime(2010, 5, 1)
+        end_date = datetime.datetime(2010, 6, 1)
+        result = self.jdbc_source.get_timeseries(
+            'id1', 'location1', 'parameter1', start_date, end_date)
+        result_good = [
+            {'time': datetime.datetime(2010, 5, 1, tzinfo=MockTzInfo()),
+             'value': '1.2', 'flag': '0', 'detection': '0', 'comment': None},
+            {'time': datetime.datetime(2010, 5, 2, tzinfo=MockTzInfo()),
+             'value': '1.3', 'flag': '0', 'detection': '0', 'comment': None},
+            {'time': datetime.datetime(2010, 5, 3, tzinfo=MockTzInfo()),
+             'value': '1.4', 'flag': '0', 'detection': '0', 'comment': None},
+            {'time': datetime.datetime(2010, 5, 4, tzinfo=MockTzInfo()),
+             'value': '1.5', 'flag': '0', 'detection': '0', 'comment': None},
+            {'time': datetime.datetime(2010, 5, 5, tzinfo=MockTzInfo()),
+             'value': '1.6', 'flag': '0', 'detection': '0', 'comment': None},
+            ]
+        self.assertEqual(result, result_good)
 
     def test_get_unit(self):
         pass
