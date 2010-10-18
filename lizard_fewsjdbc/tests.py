@@ -87,40 +87,59 @@ class TestModelMockQuery(TestCase):
     def tearDown(self):
         self.jdbc_source.query = self.query_orig
 
-    # def test_get_filter_tree(self):
-    #     """
-    #     """
-    #     # Define mock result: id, name, parentid
-    #     self.mock_query_result = [
-    #         ['id1', 'name1', JDBC_NONE],
-    #         ['id2', 'name2', 'id1'],
-    #         ['id3', 'name3', 'id1'],
-    #         ['id4', 'name4', 'id2'],
-    #         ]
-    #     result = self.jdbc_source.get_filter_tree()
-    #     result_good = [
-    #         {'id': 'id1', 'name': 'name1',
-    #          'url': '',
-    #          'parentid': JDBC_NONE, 'children': [
-    #                 {'id': 'id2', 'name': 'name2',
-    #                  'parentid': 'id1', 'children': [
-    #                         {'id': 'id4', 'name': 'name4',
-    #                          'parentid': 'id2', 'children': []},
-    #                         ]},
-    #                 {'id': 'id3', 'name': 'name3',
-    #                  'parentid': 'id1', 'children': []},
-    #                 ]}
-    #         ]
-    #     self.assertEqual(result, result_good)
-
-    def test_get_filter_tree2(self):
-        pass
+    def test_get_filter_tree(self):
+        """
+        Get filter tree using mock query result
+        """
+        # Define mock result: id, name, parentid
+        self.mock_query_result = [
+            ['id1', 'name1', JDBC_NONE],
+            ['id2', 'name2', 'id1'],
+            ['id3', 'name3', 'id1'],
+            ['id4', 'name4', 'id2'],
+            ]
+        result = self.jdbc_source.get_filter_tree()
+        url_base = '/fews_jdbc/assen/?filter_id=%s'
+        result_good = [
+            {'id': 'id1', 'name': 'name1',
+             'url': url_base % 'id1',
+             'parentid': JDBC_NONE, 'children': [
+                    {'id': 'id2', 'name': 'name2',
+                     'url': url_base % 'id2',
+                     'parentid': 'id1', 'children': [
+                            {'id': 'id4', 'name': 'name4',
+                             'url': url_base % 'id4',
+                             'parentid': 'id2', 'children': []},
+                            ]},
+                    {'id': 'id3', 'name': 'name3',
+                     'url': url_base % 'id3',
+                     'parentid': 'id1', 'children': []},
+                    ]}
+            ]
+        self.assertEqual(result, result_good)
 
     def test_get_named_parameters(self):
-        pass
+        """
+        Get parameter list using mock query result
+        """
+        # Define name, parameterid, parameter
+        self.mock_query_result = [
+            ['name1', 'parameterid1', 'parameter1'],
+            ['name2', 'parameterid2', 'parameter2'],
+            ['name3', 'parameterid3', 'parameter3'],
+            ]
+        result = self.jdbc_source.get_named_parameters('id1')
+        result_good = [
+            {'name': 'name1', 'parameterid': 'parameterid1', 'parameter': 'parameter1'},
+            {'name': 'name2', 'parameterid': 'parameterid2', 'parameter': 'parameter2'},
+            {'name': 'name3', 'parameterid': 'parameterid3', 'parameter': 'parameter3'},
+            ]
+        self.assertEqual(result, result_good)
 
-    def test_get_timeseries(self):
-        pass
+    # def test_get_timeseries(self):
+    #     self.mock_query_result = []
+    #     result = self.jdbc_source.get_timeseries(
+    #         'id1', 'location1', 'parameter1', start_date, end_date)
 
     def test_get_unit(self):
         pass
@@ -130,16 +149,19 @@ class TestModelMockQuery(TestCase):
 class TestModel(TestCase):
     fixtures = ['lizard_fewsjdbc']
 
-    def setUp(self):
-        self.jdbc_source = JdbcSource.objects.get(slug='assen')
-
     def test_customfilter(self):
         """See if customfilters can be used"""
+        self.jdbc_source = JdbcSource.objects.get(slug='assen')
         self.jdbc_source.usecustomfilter = True
         self.jdbc_source.customfilter = (
             "[{'id':'id','name':'name','parentid':None}, "
             "{'id':'id2','name':'name2','parentid':'id'}]")
         self.jdbc_source.save()
+
+    def test_customfilter2(self):
+        """See if filtertree can be retrieved."""
+        jdbc_source = JdbcSource.objects.get(slug='wro')
+        jdbc_source.get_filter_tree()
 
     # def test_customfilter_invalid(self):
     #     """See if invalid customfilters can be saved"""
