@@ -21,9 +21,18 @@ class TestIntegration(TestCase):
     """
     fixtures = ['lizard_fewsjdbc_test']
 
+    def TestHomepage(self):
+        """
+        Homepage.
+        """
+        c = Client()
+        url = reverse('lizard_fewsjdbc.homepage')
+        response = c.get(url)
+        self.assertEqual(response.status_code, 200)
+
     def TestWro(self):
         """
-        Working set.
+        Working jdbc source.
         """
         c = Client()
         url = reverse('lizard_fewsjdbc.jdbc_source',
