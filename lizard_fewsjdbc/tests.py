@@ -21,8 +21,38 @@ class TestIntegration(TestCase):
 
     This test uses a test client with actual connection data to
     connect to (should be) working and not working data sources.
+
+    TODO: How to make these tests independent of external source?
     """
     fixtures = ['lizard_fewsjdbc_test']
+
+    def mock_query(self, q):
+        """
+        Mock query function for JdbcSource. We have to see 'which' of
+        the JdbcSource functions it is called from.
+        """
+
+        if 'timeseries' in q:
+            # Timeseries: time, value, flag, detection, comment.
+            return self.mock_query_result.get('timeseries', [])
+        elif 'unit' in q:
+            # Unit: unit.
+            return self.mock_query_result.get('unit', [])
+        elif 'where' in q:  # From here, the call is from filter_tree
+                            # or parameters
+            # Parameters: (filter) name, parameterid, parameter.
+            return self.mock_query_result.get('parameter', [])
+        else:
+            # Filter_tree: id, name, parentid.
+            return self.mock_query_result.get('filter', [])
+
+    def setUp(self):
+        self.query_orig = JdbcSource.query
+        JdbcSource.query = self.mock_query
+        self.mock_query_result = {}
+
+    def tearDown(self):
+        JdbcSource.query = self.query_orig
 
     def TestHomepage(self):
         """
@@ -37,9 +67,39 @@ class TestIntegration(TestCase):
         """
         Working jdbc source with custom filters.
         """
+        self.mock_query_result['filter'] = [
+            ['id1', 'name1', JDBC_NONE],
+            ['id2', 'name2', 'id1'],
+            ['id3', 'name3', 'id1'],
+            ['id4', 'name4', 'id2'],
+            ]
+
         c = Client()
         url = reverse('lizard_fewsjdbc.jdbc_source',
                       kwargs={'jdbc_source_slug': 'wro'})
+        response = c.get(url)
+        self.assertEqual(response.status_code, 200)
+
+    def TestWroFilter(self):
+        """
+        Working jdbc source with custom filters.
+        """
+        self.mock_query_result['filter'] = [
+            ['id1', 'name1', JDBC_NONE],
+            ['id2', 'name2', 'id1'],
+            ['id3', 'name3', 'id1'],
+            ['id4', 'name4', 'id2'],
+            ]
+        self.mock_query_result['parameter'] = [
+            ['name1', 'parameterid1', 'parameter1'],
+            ['name2', 'parameterid2', 'parameter2'],
+            ['name3', 'parameterid3', 'parameter3'],
+            ]
+
+        c = Client()
+        url = reverse('lizard_fewsjdbc.jdbc_source',
+                      kwargs={'jdbc_source_slug': 'wro'})
+        url += '?filter_id=Hoofd_waterstand_webserver'
         response = c.get(url)
         self.assertEqual(response.status_code, 200)
 
@@ -177,7 +237,12 @@ class TestModelMockQuery(TestCase):
         self.assertEqual(result, result_good)
 
     def test_get_unit(self):
-        pass
+        self.mock_query_result = [
+            ['mock_unit'],
+            ]
+        result = self.jdbc_source.get_unit('parameter')
+        result_good = 'mock_unit'
+        self.assertEqual(result, result_good)
 
 
 class TestModel(TestCase):
