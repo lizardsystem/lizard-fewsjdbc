@@ -1,6 +1,7 @@
 # (c) Nelen & Schuurmans.  GPL licensed, see LICENSE.txt.
 
 import datetime
+import xmlrpclib
 
 from django.core.urlresolvers import reverse
 from django.test import TestCase
@@ -246,19 +247,59 @@ class TestModelMockQuery(TestCase):
 class TestModel(TestCase):
     fixtures = ['lizard_fewsjdbc']
 
+    class MockServerProxy(object):
+
+        def __init__(self, url):
+            pass
+
+        class Ping(object):
+            @classmethod
+            def isAlive(self, a, b):
+                return 0
+
+        class Config(object):
+            @classmethod
+            def get(self, a, b, name):
+                return 'http://...'
+
+            @classmethod
+            def put(self, a, b, name, value):
+                return 0
+
+        class Query(object):
+            @classmethod
+            def execute(self, a, b, query, l):
+                if not isinstance(l, list):
+                    raise ("Query.execute expected a list as "
+                           "4th parameter. Instead: %r" % l)
+                return 0
+
     def test_customfilter(self):
         """See if customfilters can be used"""
-        self.jdbc_source = JdbcSource.objects.get(slug='assen')
-        self.jdbc_source.usecustomfilter = True
-        self.jdbc_source.customfilter = (
+        jdbc_source = JdbcSource.objects.get(slug='assen')
+        jdbc_source.usecustomfilter = True
+        jdbc_source.customfilter = (
             "[{'id':'id','name':'name','parentid':None}, "
             "{'id':'id2','name':'name2','parentid':'id'}]")
-        self.jdbc_source.save()
+        jdbc_source.save()
 
     def test_customfilter2(self):
         """See if filtertree can be retrieved."""
         jdbc_source = JdbcSource.objects.get(slug='wro')
         jdbc_source.get_filter_tree()
+
+    def test_query(self):
+        """
+        Set up some mock server proxy, then run the function
+        """
+        server_proxy_orig = xmlrpclib.ServerProxy
+        xmlrpclib.ServerProxy = self.MockServerProxy
+
+        jdbc_source = JdbcSource.objects.get(slug='wro')
+        # Do not crash
+        jdbc_source.query('select * from filters;')
+
+        xmlrpclib.ServerProxy = server_proxy_orig
 
     # def test_customfilter_invalid(self):
     #     """See if invalid customfilters can be saved"""
