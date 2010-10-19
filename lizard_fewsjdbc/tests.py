@@ -21,8 +21,6 @@ class TestIntegration(TestCase):
 
     This test uses a test client with actual connection data to
     connect to (should be) working and not working data sources.
-
-    TODO: How to make these tests independent of external source?
     """
     fixtures = ['lizard_fewsjdbc_test']
 
