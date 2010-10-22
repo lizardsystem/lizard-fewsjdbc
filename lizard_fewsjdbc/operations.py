@@ -1,11 +1,17 @@
 """
-Some utility operations on data structures
+Post-processing utility operations on data structures coming from
+JdbcEi (lists of lists).
 """
 
 
 class AnchestorRegistration(object):
+    """
+    Keeps track of anchestors. Used by tree_from_list. Simple
+    implementation, does not handle corner cases.
+    """
+
     def __init__(self):
-        # self.anchestors consist of id's and a dict of id's that one
+        # self.anchestors consists of ids and a dict of ids that one
         # cannot have as a parent
         self.anchestors = {}
 
@@ -13,20 +19,20 @@ class AnchestorRegistration(object):
         if row_id not in self.anchestors:
             self.anchestors[row_id] = {row_id: None}
 
-    def anchestor_of(self, row_id, row_anchestor):
+    def anchestor_of(self, row_id, row_anchestor_id):
         """
-        Check if row_id is an anchestor of row_anchestor
+        Check if row_anchestor is an anchestor of row
         """
         self.register(row_id)
-        return row_anchestor in self.anchestors[row_id]
+        return row_anchestor_id in self.anchestors[row_id]
 
-    def register_parent(self, row_id, row_parent):
+    def register_parent(self, row_id, row_parent_id):
         """
         Register row_id under row_parent.
         """
-        self.register(row_parent)
+        self.register(row_parent_id)
         self.register(row_id)
-        self.anchestors[row_id].update(self.anchestors[row_parent])
+        self.anchestors[row_id].update(self.anchestors[row_parent_id])
 
 
 class CycleError(Exception):
@@ -38,15 +44,20 @@ def tree_from_list(rows,
                    parent_field='parent_id',
                    children_field='children',
                    root_parent=None):
-    """Makes a hierarchical tree structure, list of dicts with list of
-    dicts, etc
+    """Makes a hierarchical tree structure from list of lists. The
+    resulting tree structure is a recursive list of dicts (with lists
+    of dicts in it).
 
-    [{'name': 'name', 'children': [{'name': 'child', 'children': None}, ],
-    {'name': 'name2', 'children': None,
+    rows is a list with dicts.
+
+    >>> rows = [{'id': 'name', 'parent_id': None},
+                {'id': 'child', 'parent_id': 'name'},
+                {'id': 'name2', 'parent_id': None}]
+    >>> tree_from_list(rows)
+    [{'id': 'name', 'parent_id': None, 'children': [
+        {'id': 'child', 'parent_id': 'name', 'children': []}, ],
+    {'id': 'name2', 'parent_id': None, 'children': [],
     ]
-
-    rows is a list with dicts. Each dict has keys 'name', 'parent'
-    the nodes with parent is None are at root level.
     """
 
     result = {}

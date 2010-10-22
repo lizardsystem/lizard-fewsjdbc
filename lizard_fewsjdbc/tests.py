@@ -272,7 +272,7 @@ class TestModel(TestCase):
                 if not isinstance(l, list):
                     raise ("Query.execute expected a list as "
                            "4th parameter. Instead: %r" % l)
-                return 0
+                return [["mock result"]]
 
     def test_customfilter(self):
         """See if customfilters can be used"""
@@ -296,10 +296,13 @@ class TestModel(TestCase):
         xmlrpclib.ServerProxy = self.MockServerProxy
 
         jdbc_source = JdbcSource.objects.get(slug='wro')
-        # Do not crash
-        jdbc_source.query('select * from filters;')
+
+        result = jdbc_source.query('select * from filters;')
+        result_good = [["mock result"]]
 
         xmlrpclib.ServerProxy = server_proxy_orig
+
+        self.assertEqual(result, result_good)
 
     # def test_customfilter_invalid(self):
     #     """See if invalid customfilters can be saved"""
