@@ -95,7 +95,14 @@ def named_list(rows, names):
     """
     Converts list of lists to list of dicts, with given name.
 
-    Assumes that len(names) = len(single row)
+    Assumes that len(names) == len(single row) and that rows are of
+    equal length.
+
+    >>> named_list([['name1', 'parameter1'],
+                    ['name2', 'parameter2']],
+                   ['name', 'parameter'])
+    [{'name': 'name1', 'parameter': 'parameter1'},
+     {'name': 'name2', 'parameter': 'parameter2'}
     """
     result = []
     for row in rows:
@@ -107,6 +114,9 @@ def named_list(rows, names):
 def unique_list(rows):
     """
     Makes a new list with unique items from input list. Order is preserved.
+
+    >>> unique_list([6, 4, 45, 7, 4, 5, 6, 7, 3, 5, 6, 74, 5, 5])
+    [6, 4, 45, 7, 5, 3, 74]
     """
     result = []
     seen = {}
