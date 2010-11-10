@@ -5,6 +5,8 @@ Changelog of lizard-fewsjdbc
 0.8 (unreleased)
 ----------------
 
+- Bugfix accordion.
+
 - Add tests, make tests independent of external data source.
 
 

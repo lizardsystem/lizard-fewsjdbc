@@ -49,7 +49,7 @@ Using the djangoapp in a site
   settings.
 
 - Optionally set MAP_SETTINGS, DEFAULT_START_DAYS and DEFAULT_END_DAYS
-  in your settings. See the testsettings for examples.
+  in your settings. See the lizard_map testsettings for examples.
 
 Make the database tables:
 

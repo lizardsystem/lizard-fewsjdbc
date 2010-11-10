@@ -9,7 +9,8 @@
      id="accordion">
   <h2>1: Filters{% block linkback %}{% endblock %}</h2>
   <ul class="automatic-tree filetree pane accordion-load-next"
-      data-next-pane-id="#parameter-pane">
+      data-next-pane-id="#parameter-pane"
+      id="filter-pane">
     {# variables tree_template and tree_items must be set #}
     {% with "lizard_ui/tree_snippet.html" as tree_template %}
       {% include tree_template %}
