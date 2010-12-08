@@ -9,11 +9,11 @@ from django.conf import settings
 from django.core.cache import cache
 
 from lizard_fewsjdbc.models import JdbcSource
-from lizard_fewsjdbc.operations import named_list
 from lizard_map import coordinates
 from lizard_map import workspace
 from lizard_map.adapter import Graph
 from lizard_map.models import ICON_ORIGINALS
+from lizard_map.operations import named_list
 from lizard_map.symbol_manager import SymbolManager
 
 logger = logging.getLogger('lizard_fewsunblobbed.layers')
