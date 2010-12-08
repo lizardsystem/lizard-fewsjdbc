@@ -5,7 +5,9 @@ Changelog of lizard-fewsjdbc
 0.9 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Added filter_tree_root. The filter_tree_root takes a filter_id as a
+  root and loads the tree from that point. Use only if not using
+  usecustomfilter.
 
 
 0.8 (2010-11-10)

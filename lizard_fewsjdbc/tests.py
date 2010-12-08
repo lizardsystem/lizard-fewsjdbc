@@ -159,7 +159,7 @@ class TestModelMockQuery(TestCase):
             ['id3', 'name3', 'id1'],
             ['id4', 'name4', 'id2'],
             ]
-        result = self.jdbc_source.get_filter_tree()
+        result = self.jdbc_source.get_filter_tree(ignore_cache=True)
         url_base = '/fews_jdbc/assen/?filter_id=%s'
         result_good = [
             {'id': 'id1', 'name': 'name1',

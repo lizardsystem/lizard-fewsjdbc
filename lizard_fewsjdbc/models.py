@@ -32,6 +32,12 @@ class JdbcSource(models.Model):
     jdbc_url = models.URLField(verify_exists=False, max_length=200)
     jdbc_tag_name = models.CharField(max_length=80)
     connector_string = models.CharField(max_length=200)
+
+    filter_tree_root = models.CharField(
+        max_length=80,
+        blank=True, null=True,
+        help_text=("Fill in the filter id to use as filter root. "
+                   "Only works if no usecustomfilter."))
     usecustomfilter = models.BooleanField(default=False)
     customfilter = models.TextField(
         blank=True,
@@ -110,7 +116,11 @@ class JdbcSource(models.Model):
                 unique_filters = unique_list(filters)
                 named_filters = named_list(unique_filters,
                                            ['id', 'name', 'parentid'])
-                root_parent = JDBC_NONE
+                if self.filter_tree_root:
+                    root_parent = self.filter_tree_root
+                else:
+                    root_parent = JDBC_NONE
+
             # Add url per filter.
             for named_filter in named_filters:
                 url = reverse(url_name,
@@ -124,6 +134,7 @@ class JdbcSource(models.Model):
                 parent_field='parentid',
                 children_field='children',
                 root_parent=root_parent)
+
             cache.set(filter_source_cache_key, filter_tree, 8 * 60 * 60)
         return filter_tree
 
