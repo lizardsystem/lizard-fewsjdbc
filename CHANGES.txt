@@ -2,8 +2,8 @@ Changelog of lizard-fewsjdbc
 ===================================================
 
 
-0.10 (unreleased)
------------------
+0.9.1 (2010-12-08)
+------------------
 
 - Bugfix moving operations.
 
