@@ -10,9 +10,9 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.translation import ugettext as _
 
-from lizard_fewsjdbc.operations import named_list
-from lizard_fewsjdbc.operations import tree_from_list
-from lizard_fewsjdbc.operations import unique_list
+from lizard_map.operations import named_list
+from lizard_map.operations import tree_from_list
+from lizard_map.operations import unique_list
 
 JDBC_NONE = -999
 JDBC_DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
