@@ -7,7 +7,7 @@
 {% block sidebar %}
 <div class="sidebarbox sidebarbox-stretched"
      id="accordion">
-  <h2>1: Filters{% block linkback %}{% endblock %}</h2>
+  <h2>1: Filters{% if filter %} ({{ filter.name }}){% endif %}{% block linkback %}{% endblock %}</h2>
   <ul class="automatic-tree filetree pane accordion-load-next"
       data-next-pane-id="#parameter-pane"
       id="filter-pane">

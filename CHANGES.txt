@@ -5,7 +5,7 @@ Changelog of lizard-fewsjdbc
 0.9.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Fixed not showing all parameters.
 
 
 0.9.1 (2010-12-08)
