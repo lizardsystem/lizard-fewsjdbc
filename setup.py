@@ -12,6 +12,7 @@ long_description = '\n\n'.join([
 install_requires = [
     'Django',
     'django-staticfiles',
+    'django-extensions',
     'lizard-map',
     'lizard-ui',
     'django-nose',
@@ -23,7 +24,8 @@ tests_require = [
 
 setup(name='lizard-fewsjdbc',
       version=version,
-      description="TODO",
+      description=("Lizard-map plugin for showing FEWS " +
+                   "data through a jdbc connection"),
       long_description=long_description,
       # Get strings from http://www.python.org/pypi?%3Aaction=list_classifiers
       classifiers=['Programming Language :: Python',
