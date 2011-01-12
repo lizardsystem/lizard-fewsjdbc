@@ -5,7 +5,7 @@ Changelog of lizard-fewsjdbc
 0.10 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Implemented adapter.extent.
 
 
 0.9.2 (2010-12-09)

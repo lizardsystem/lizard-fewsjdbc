@@ -143,6 +143,36 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         layers = [layer, ]
         return layers, styles
 
+    def extent(self, identifiers=None):
+        north = None
+        south = None
+        east = None
+        west = None
+        named_locations = self._locations()
+
+        result = []
+        for named_location in named_locations:
+            x = named_location['longitude']
+            y = named_location['latitude']
+            if x > east or east is None:
+                east = x
+            if x < west or west is None:
+                west = x
+            if y < south or south is None:
+                south = y
+            if y > north or north is None:
+                north = y
+        west_transformed, north_transformed = coordinates.wgs84_to_google(
+            west, north)
+        east_transformed, south_transformed = coordinates.wgs84_to_google(
+            east, south)
+
+        return {
+            'north': north_transformed,
+            'west': west_transformed,
+            'south': south_transformed,
+            'east': east_transformed}
+
     def search(self, google_x, google_y, radius=None):
         """Return list of dict {'distance': <float>, 'timeserie':
         <timeserie>} of closest fews point that matches x, y, radius.
