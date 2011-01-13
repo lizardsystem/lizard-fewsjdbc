@@ -5,6 +5,9 @@ Changelog of lizard-fewsjdbc
 0.10 (unreleased)
 -----------------
 
+- Fixed some points not showing. Working around Mapnik bug #402. Needs
+  lizard-map 1.39 or higher.
+
 - Implemented adapter.extent.
 
 

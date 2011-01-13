@@ -12,6 +12,7 @@ from lizard_fewsjdbc.models import JdbcSource
 from lizard_map import coordinates
 from lizard_map import workspace
 from lizard_map.adapter import Graph
+from lizard_map.mapnik_helper import add_datasource_point
 from lizard_map.models import ICON_ORIGINALS
 from lizard_map.operations import named_list
 from lizard_map.symbol_manager import SymbolManager
@@ -130,12 +131,11 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
 
         named_locations = self._locations()
 
+        logger.debug("Number of point objects: %d" % len(named_locations))
         for named_location in named_locations:
-            layer.datasource.add_point(
-                named_location['longitude'],
-                named_location['latitude'],
-                'Name',
-                'Info')
+            add_datasource_point(
+                layer.datasource, named_location['longitude'],
+                named_location['latitude'], 'Name', 'Info')
 
         point_style = fews_point_style(self.filterkey, nodata=False)
         # generate "unique" point style name and append to layer
@@ -273,6 +273,8 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         graph = Graph(start_date, end_date,
                       width=width, height=height, today=today)
         graph.axes.grid(True)
+        unit = self.jdbc_source.get_unit(self.parameterkey)
+        graph.axes.set_ylabel(unit)
 
         for identifier in identifiers:
             filter_id = self.filterkey
