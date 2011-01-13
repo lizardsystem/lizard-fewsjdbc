@@ -29,6 +29,8 @@ LAYER_STYLES = {
                             'color': (1, 1, 0, 0)},
     }
 
+EPSILON = 0.0001
+
 
 def fews_symbol_name(filterkey, nodata=False):
     """
@@ -103,14 +105,16 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
                                self.parameterkey))
         named_locations = cache.get(location_cache_key)
         if named_locations is None:
-            query = ("select longitude, latitude, location, locationid "
+            query = ("select longitude, latitude, "
+                     "location, locationid "
                      "from filters "
                      "where id='%s' and parameterid='%s'" %
                      (self.filterkey, self.parameterkey))
             locations = self.jdbc_source.query(query)
             named_locations = named_list(
                 locations,
-                ['longitude', 'latitude', 'location', 'locationid'])
+                ['longitude', 'latitude',
+                 'location', 'locationid'])
             cache.set(location_cache_key, named_locations)
         return named_locations
 
@@ -144,28 +148,42 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         return layers, styles
 
     def extent(self, identifiers=None):
+        """
+        TODO: filter on identifiers.
+        """
+        logger.debug("Started calculating extent")
         north = None
         south = None
         east = None
         west = None
         named_locations = self._locations()
+        wgs0coord_x, wgs0coord_y = coordinates.rd_to_wgs84(0.0, 0.0)
 
         result = []
         for named_location in named_locations:
             x = named_location['longitude']
             y = named_location['latitude']
-            if x > east or east is None:
-                east = x
-            if x < west or west is None:
-                west = x
-            if y < south or south is None:
-                south = y
-            if y > north or north is None:
-                north = y
+            # Ignore rd coordinates (0, 0).
+            if (abs(x - wgs0coord_x) > EPSILON or
+                abs(y - wgs0coord_y) > EPSILON):
+
+                if x > east or east is None:
+                    east = x
+                if x < west or west is None:
+                    west = x
+                if y < south or south is None:
+                    south = y
+                if y > north or north is None:
+                    north = y
+            else:
+                logger.warn("Location (%s, %s) at RD coordinates 0,0" %
+                            (named_location['location'],
+                             named_location['locationid']));
         west_transformed, north_transformed = coordinates.wgs84_to_google(
             west, north)
         east_transformed, south_transformed = coordinates.wgs84_to_google(
             east, south)
+        logger.debug("Finished calculating extent")
 
         return {
             'north': north_transformed,
