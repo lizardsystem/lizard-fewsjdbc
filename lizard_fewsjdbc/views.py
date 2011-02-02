@@ -23,7 +23,7 @@ def homepage(request,
         current_start_end_dates(request, for_form=True))
 
     if crumbs_prepend is not None:
-        crumbs = crumbs_prepend
+        crumbs = list(crumbs_prepend)
     else:
         crumbs = [{'name': 'home', 'url': '/'}]
     crumbs.append({'name': 'metingen',
@@ -78,7 +78,7 @@ def jdbc_source(request,
                            'id': filter_id}
 
     if crumbs_prepend is not None:
-        crumbs = crumbs_prepend
+        crumbs = list(crumbs_prepend)  # Use list to prevent strange behaviour
     else:
         crumbs = [{'name': 'home', 'url': '/'}]
     crumbs.append({'name': jdbc_source.name,
