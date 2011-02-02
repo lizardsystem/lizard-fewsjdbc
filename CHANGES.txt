@@ -5,7 +5,7 @@ Changelog of lizard-fewsjdbc
 1.1 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Added crumbs_prepend (see lizard_ui).
 
 
 1.0 (2011-01-13)

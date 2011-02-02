@@ -11,7 +11,8 @@ from lizard_map.workspace import WorkspaceManager
 def homepage(request,
              javascript_click_handler='popup_click_handler',
              javascript_hover_handler='popup_hover_handler',
-             template="lizard_fewsjdbc/homepage.html"):
+             template="lizard_fewsjdbc/homepage.html",
+             crumbs_prepend=None):
     """
     Overview of all Jdbc Sources.
     """
@@ -21,13 +22,22 @@ def homepage(request,
     date_range_form = DateRangeForm(
         current_start_end_dates(request, for_form=True))
 
+    if crumbs_prepend is not None:
+        crumbs = crumbs_prepend
+    else:
+        crumbs = [{'name': 'home', 'url': '/'}]
+    crumbs.append({'name': 'metingen',
+                   'title': 'metingen',
+                   'url': reverse('lizard_fewsjdbc.homepage')})
+
     return render_to_response(
         template,
         {'javascript_hover_handler': javascript_hover_handler,
          'javascript_click_handler': javascript_click_handler,
          'date_range_form': date_range_form,
          'jdbc_sources': JdbcSource.objects.all(),
-         'workspaces': workspaces},
+         'workspaces': workspaces,
+         'crumbs': crumbs},
         context_instance=RequestContext(request))
 
 
@@ -35,7 +45,8 @@ def jdbc_source(request,
                 jdbc_source_slug,
                 javascript_click_handler='popup_click_handler',
                 javascript_hover_handler='popup_hover_handler',
-                template="lizard_fewsjdbc/jdbc_source.html"):
+                template="lizard_fewsjdbc/jdbc_source.html",
+                crumbs_prepend=None):
     """
     FEWS JDBC browser view. Filter list and parameter list is cached.
     """
@@ -66,6 +77,14 @@ def jdbc_source(request,
             fews_filter = {'name': named_parameters[0]['name'],
                            'id': filter_id}
 
+    if crumbs_prepend is not None:
+        crumbs = crumbs_prepend
+    else:
+        crumbs = [{'name': 'home', 'url': '/'}]
+    crumbs.append({'name': jdbc_source.name,
+                   'title': 'metingen %s' % jdbc_source.name,
+                   'url': jdbc_source.get_absolute_url()})
+
     return render_to_response(
         template,
         {'javascript_hover_handler': javascript_hover_handler,
@@ -75,5 +94,6 @@ def jdbc_source(request,
          'parameters': fews_parameters,
          'filter': fews_filter,
          'jdbc_source_slug': jdbc_source_slug,
-         'workspaces': workspaces},
+         'workspaces': workspaces,
+         'crumbs': crumbs},
         context_instance=RequestContext(request))
