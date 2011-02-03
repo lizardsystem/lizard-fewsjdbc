@@ -20,7 +20,7 @@ from lizard_map.symbol_manager import SymbolManager
 logger = logging.getLogger('lizard_fewsunblobbed.layers')
 
 LOCATION_CACHE_KEY = 'lizard_fewsjdbc.layers.location_cache_key'
-
+JDBC_API_URL_NAME = 'api_jdbcs'
 LAYER_STYLES = {
     "default": {'icon': 'meetpuntPeil.png',
                 'mask': ('meetpuntPeil_mask.png', ),
@@ -83,6 +83,8 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
     """
     Registered as adapter_fewsjdbc.
     """
+
+    plugin_api_url_name = JDBC_API_URL_NAME
 
     def __init__(self, *args, **kwargs):
         super(FewsJdbc, self).__init__(

@@ -108,11 +108,13 @@ class JdbcSource(models.Model):
                 try:
                     filters = self.query(
                         "select id, name, parentid from filters;")
-                except gaierror:
-                    return [{'name': 'Jdbc2Ei server not available.'}]
+                except gaierror, e:
+                    return [{'name': 'Jdbc2Ei server not available.',
+                             'error': e}]
                 if isinstance(filters, int):
                     logger.error("JdbcSource returned an error: %s" % filters)
-                    return [{'name': 'Jdbc data source not available.'}]
+                    return [{'name': 'Jdbc data source not available.',
+                             'error code': filters}]
                 unique_filters = unique_list(filters)
                 named_filters = named_list(unique_filters,
                                            ['id', 'name', 'parentid'])
