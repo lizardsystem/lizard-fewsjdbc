@@ -5,7 +5,9 @@ Changelog of lizard-fewsjdbc
 1.0.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Added ``.get_locations()`` method to jdbc source model (with the
+  rest of the related get_something methods) instead of keeping it in
+  the adapter.
 
 
 1.0.1 (2011-02-02)

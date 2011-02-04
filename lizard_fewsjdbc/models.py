@@ -17,6 +17,7 @@ from lizard_map.operations import unique_list
 JDBC_NONE = -999
 JDBC_DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
 FILTER_CACHE_KEY = 'lizard_fewsjdbc.models.filter_cache_key'
+LOCATION_CACHE_KEY = 'lizard_fewsjdbc.layers.location_cache_key'
 
 logger = logging.getLogger(__name__)
 
@@ -161,6 +162,32 @@ class JdbcSource(models.Model):
                                           ['name', 'parameterid', 'parameter'])
             cache.set(parameter_cache_key, named_parameters, 8 * 60 * 60)
         return named_parameters
+
+    def get_locations(self, filter_id, parameter_id):
+        """
+        Query locations from jdbc source and return named locations in
+        a list.
+
+        {'location': '<location name>', 'longitude': <longitude>,
+        'latitude': <latitude>}
+        """
+        location_cache_key = ('%s::%s::%s' %
+                              (LOCATION_CACHE_KEY, filter_id,
+                               parameter_id))
+        named_locations = cache.get(location_cache_key)
+        if named_locations is None:
+            query = ("select longitude, latitude, "
+                     "location, locationid "
+                     "from filters "
+                     "where id='%s' and parameterid='%s'" %
+                     (filter_id, parameter_id))
+            locations = self.query(query)
+            named_locations = named_list(
+                locations,
+                ['longitude', 'latitude',
+                 'location', 'locationid'])
+            cache.set(location_cache_key, named_locations)
+        return named_locations
 
     def get_timeseries(self, filter_id, location_id,
                        parameter_id, start_date, end_date):
