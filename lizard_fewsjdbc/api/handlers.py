@@ -4,6 +4,7 @@ Handlers for the REST api provided through django-piston.
 
 
 """
+import datetime
 import urllib
 
 import pkg_resources
@@ -161,17 +162,11 @@ class TimeserieHandler(BaseHandler):
         result['info'] = documentation(self.__class__)
         jdbc_source = JdbcSource.objects.get(slug=jdbc_source_slug)
         data = []
-        # for location in jdbc_source.get_locations(filter_id, parameter_id):
-        #      safe_location_id = urllib.quote(location['locationid'], '')
-        #      # TODO: add geojson coordinates!!!
-        #      url = request.build_absolute_uri(
-        #          reverse(
-        #              TIMESERIE_URL_NAME,
-        #              kwargs={'jdbc_source_slug': jdbc_source_slug,
-        #                      'filter_id': safe_filter_id,
-        #                      'parameter_id': safe_parameter_id,
-        #                      'location_id': safe_location_id}))
-        #      data.append({'title': location['location'],
-        #                   'url': url})
+        # TODO: start/end date.
+        end_date = datetime.date.today()
+        start_date = end_date - datetime.timedelta(days=100)
+        data = jdbc_source.get_timeseries(
+            filter_id, location_id, parameter_id,
+            start_date, end_date)
         result['data'] = data
         return result
