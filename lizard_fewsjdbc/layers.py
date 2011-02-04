@@ -91,7 +91,6 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         self.jdbc_source_slug = self.layer_arguments['slug']
         self.filterkey = self.layer_arguments['filter']
         self.parameterkey = self.layer_arguments['parameter']
-
         self.jdbc_source = JdbcSource.objects.get(slug=self.jdbc_source_slug)
 
     def _locations(self):

@@ -5,6 +5,9 @@ Changelog of lizard-fewsjdbc
 1.0.2 (unreleased)
 ------------------
 
+- Added implementation of lizard-map's REST api for jdbc sources,
+  filters, parameters and locations.
+
 - Added ``.get_locations()`` method to jdbc source model (with the
   rest of the related get_something methods) instead of keeping it in
   the adapter.
