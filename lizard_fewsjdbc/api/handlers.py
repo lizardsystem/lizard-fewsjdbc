@@ -5,6 +5,7 @@ Handlers for the REST api provided through django-piston.
 
 """
 import datetime
+import time
 import urllib
 
 import pkg_resources
@@ -12,6 +13,8 @@ from django.core.urlresolvers import reverse
 from piston.handler import BaseHandler
 from piston.doc import generate_doc
 from lizard_map.api.handlers import documentation
+from lizard_map.daterange import DEFAULT_START
+from lizard_map.daterange import DEFAULT_END
 
 from lizard_fewsjdbc.layers import FewsJdbc
 from lizard_fewsjdbc.models import JdbcSource
@@ -20,6 +23,32 @@ FILTER_URL_NAME = 'api_jdbc_filters'
 PARAMETER_URL_NAME = 'api_jdbc_parameters'
 LOCATION_URL_NAME = 'api_jdbc_locations'
 TIMESERIE_URL_NAME = 'api_jdbc_timeseries'
+DATE_FORMAT = '%Y-%m-%d'
+
+
+def start_end_dates(request):
+    start_date = DEFAULT_START
+    end_date = DEFAULT_END
+    if 'start' in request.GET:
+        try:
+            date = time.strptime(request.GET['start'], DATE_FORMAT)
+            start_date = datetime.date(
+                year=date.tm_year,
+                month=date.tm_mon,
+                day=date.tm_mday)
+        except ValueError:
+            pass
+    if 'end' in request.GET:
+        try:
+            date = time.strptime(request.GET['end'], DATE_FORMAT)
+            end_date = datetime.date(
+                year=date.tm_year,
+                month=date.tm_mon,
+                day=date.tm_mday)
+        except ValueError:
+            pass
+
+    return start_date, end_date
 
 
 class JdbcHandler(BaseHandler):
@@ -188,9 +217,7 @@ class TimeserieHandler(BaseHandler):
         result['alternative_representations'] = alternative_representations
 
         jdbc_source = JdbcSource.objects.get(slug=jdbc_source_slug)
-        # TODO: start/end date.
-        end_date = datetime.date.today()
-        start_date = end_date - datetime.timedelta(days=100)
+        start_date, end_date = start_end_dates(request)
         data = jdbc_source.get_timeseries(
             filter_id, location_id, parameter_id,
             start_date, end_date)
@@ -217,11 +244,7 @@ class TimeseriePngHandler(BaseHandler):
             }
         adapter = FewsJdbc(None, layer_arguments=layer_arguments)
         identifiers = [{'location': location_id}]
-
-        # TODO: start/end date.
-        end_date = datetime.date.today()
-        start_date = end_date - datetime.timedelta(days=100)
-
+        start_date, end_date = start_end_dates(request)
         return adapter.image(identifiers,
                              start_date,
                              end_date)
