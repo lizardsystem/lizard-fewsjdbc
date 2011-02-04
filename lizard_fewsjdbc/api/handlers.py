@@ -183,10 +183,11 @@ class TimeserieHandler(BaseHandler):
     returned can be big, depending on the date range and the amount of
     data per time period.
 
-    TODO: start/end data handling.
-
     See the 'alternative_representations' for urls for csv/png/html
     output.
+
+    Start/end dates can be given as extra GET parameters by adding 
+    ``?start=yyyy-mm-dd&end=yyyy-mm-dd`` to the URL.
 
     """
     allowed_methods = ('GET',)
@@ -227,7 +228,11 @@ class TimeserieHandler(BaseHandler):
 
 
 class TimeseriePngHandler(BaseHandler):
-    """Show a location's timeseries data.
+    """Show a location's timeseries data as a png image.
+
+    Start/end dates can be given as extra GET parameters by adding 
+    ``?start=yyyy-mm-dd&end=yyyy-mm-dd`` to the URL.
+
     """
     allowed_methods = ('GET',)
 
