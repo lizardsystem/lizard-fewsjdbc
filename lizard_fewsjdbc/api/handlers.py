@@ -11,9 +11,9 @@ import pkg_resources
 from django.core.urlresolvers import reverse
 from piston.handler import BaseHandler
 from piston.doc import generate_doc
-
 from lizard_map.api.handlers import documentation
 
+from lizard_fewsjdbc.layers import FewsJdbc
 from lizard_fewsjdbc.models import JdbcSource
 
 FILTER_URL_NAME = 'api_jdbc_filters'
@@ -147,7 +147,19 @@ class LocationHandler(BaseHandler):
 
 
 class TimeserieHandler(BaseHandler):
-    """Show a location's timeseries data."""
+    """Show a location's timeseries data.
+
+
+    This is the main endpoint of the jdbc FEWS data.  The data
+    returned can be big, depending on the date range and the amount of
+    data per time period.
+
+    TODO: start/end data handling.
+
+    See the 'alternative_representations' for urls for csv/png/html
+    output.
+
+    """
     allowed_methods = ('GET',)
 
     def read(self, request, 
@@ -160,8 +172,22 @@ class TimeserieHandler(BaseHandler):
         location_id = urllib.unquote(location_id)
         result = {}
         result['info'] = documentation(self.__class__)
+
+        alternative_representations = []
+        for format in ('csv', 'png', 'html'):
+             url = request.build_absolute_uri(
+                 reverse(
+                     TIMESERIE_URL_NAME + '_' + format,
+                     kwargs={'jdbc_source_slug': jdbc_source_slug,
+                             'filter_id': safe_filter_id,
+                             'parameter_id': safe_parameter_id,
+                             'location_id': safe_location_id}))
+             alternative_representations.append(
+                 {'url': url,
+                  'format': format})
+        result['alternative_representations'] = alternative_representations
+
         jdbc_source = JdbcSource.objects.get(slug=jdbc_source_slug)
-        data = []
         # TODO: start/end date.
         end_date = datetime.date.today()
         start_date = end_date - datetime.timedelta(days=100)
@@ -169,4 +195,33 @@ class TimeserieHandler(BaseHandler):
             filter_id, location_id, parameter_id,
             start_date, end_date)
         result['data'] = data
+
         return result
+
+
+class TimeseriePngHandler(BaseHandler):
+    """Show a location's timeseries data.
+    """
+    allowed_methods = ('GET',)
+
+    def read(self, request, 
+             jdbc_source_slug, filter_id, parameter_id, location_id):
+        filter_id = urllib.unquote(filter_id)
+        parameter_id = urllib.unquote(parameter_id)
+        location_id = urllib.unquote(location_id)
+
+        layer_arguments = {
+            'slug': jdbc_source_slug,
+            'filter': filter_id,
+            'parameter': parameter_id,
+            }
+        adapter = FewsJdbc(None, layer_arguments=layer_arguments)
+        identifiers = [{'location': location_id}]
+
+        # TODO: start/end date.
+        end_date = datetime.date.today()
+        start_date = end_date - datetime.timedelta(days=100)
+
+        return adapter.image(identifiers,
+                             start_date,
+                             end_date)

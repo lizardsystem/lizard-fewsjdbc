@@ -5,6 +5,8 @@ Changelog of lizard-fewsjdbc
 1.0.2 (unreleased)
 ------------------
 
+- Added csv/html/png output.
+
 - Added implementation of lizard-map's REST api for jdbc sources,
   filters, parameters and locations.
 
