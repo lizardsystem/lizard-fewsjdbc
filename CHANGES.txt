@@ -5,6 +5,10 @@ Changelog of lizard-fewsjdbc
 1.0.2 (unreleased)
 ------------------
 
+- Adding better error handling to jdbc queries: they raise errors
+  right away now instead of returning -1 or -2 and checking later on
+  in the code.
+
 - Supporting date range setting.
 
 - Added csv/html/png output.

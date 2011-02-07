@@ -22,6 +22,23 @@ LOCATION_CACHE_KEY = 'lizard_fewsjdbc.layers.location_cache_key'
 logger = logging.getLogger(__name__)
 
 
+class FewsJdbcNotAvailableError(gaierror):
+    """Wrapping of generic socket.gaierror into a clearer error."""
+    def __str__(self):
+        return 'FEWS Jdbc not available. ' + gaierror.__str__(self)
+
+
+class FewsJdbcQueryError(Exception):
+    """Proper exception instead of -1 or -2 ints that the query returns."""
+    def __init__(self, value, query=None):
+        self.value = value
+        self.query = query
+
+    def __str__(self):
+        return 'The FEWS jdbc query [%s] returned error code %s' % (
+            self.query, self.value)
+
+
 class JdbcSource(models.Model):
     """
     Uses Jdbc2Ei to connect to a Jdbc source. Works only for Jdbc2Ei
@@ -61,14 +78,18 @@ class JdbcSource(models.Model):
         Tries to connect to the Jdbc source and fire query. Returns
         list of lists.
 
-        Throws (socket.)gaierror if server is not reachable.
+        Throws socket.gaierror if server is not reachable.
         """
         if '"' in q:
             logger.warn(
                 "You used double quotes in the query. "
                 "Is it intended? Query: %s" % q)
-        sp = xmlrpclib.ServerProxy(self.jdbc_url)
-        sp.Ping.isAlive('', '')
+        try:
+            sp = xmlrpclib.ServerProxy(self.jdbc_url)
+            sp.Ping.isAlive('', '')
+        except gaierror, e:
+            # Re-raise as more recognizable error.
+            raise FewsJdbcNotAvailableError(e)
 
         # sp.Config.get('', '', self.jdbc_tag_name)
         try:
@@ -78,7 +99,8 @@ class JdbcSource(models.Model):
             sp.Config.put('', '', self.jdbc_tag_name, self.connector_string)
 
         result = sp.Query.execute('', '', q, [self.jdbc_tag_name])
-
+        if isinstance(result, int):
+            raise FewsJdbcQueryError(result, q)
         return result
 
     @property
@@ -109,13 +131,13 @@ class JdbcSource(models.Model):
                 try:
                     filters = self.query(
                         "select id, name, parentid from filters;")
-                except gaierror, e:
+                except FewsJdbcNotAvailableError, e:
                     return [{'name': 'Jdbc2Ei server not available.',
                              'error': e}]
-                if isinstance(filters, int):
-                    logger.error("JdbcSource returned an error: %s" % filters)
+                except FewsJdbcQueryError, e:
+                    logger.error("JdbcSource returned an error: %s" % e)
                     return [{'name': 'Jdbc data source not available.',
-                             'error code': filters}]
+                             'error code': e}]
                 unique_filters = unique_list(filters)
                 named_filters = named_list(unique_filters,
                                            ['id', 'name', 'parentid'])
