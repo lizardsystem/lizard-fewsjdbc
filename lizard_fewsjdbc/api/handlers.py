@@ -47,7 +47,10 @@ def start_end_dates(request):
                 day=date.tm_mday)
         except ValueError:
             pass
-
+    if start_date > end_date:
+        # Yes, Reinout made that happen...
+        raise ValueError("Start date %s is later than end date %s ..." % (
+                start_date, end_date))
     return start_date, end_date
 
 
