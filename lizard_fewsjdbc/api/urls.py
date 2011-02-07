@@ -1,5 +1,6 @@
 from django.conf.urls.defaults import *
 from piston.resource import Resource
+from piston.authentication import HttpBasicAuthentication
 
 from lizard_fewsjdbc.api import emitters
 from lizard_fewsjdbc.api.handlers import FILTER_URL_NAME
@@ -14,12 +15,15 @@ from lizard_fewsjdbc.api.handlers import TimeserieHandler
 from lizard_fewsjdbc.api.handlers import TimeseriePngHandler
 from lizard_fewsjdbc.layers import JDBC_API_URL_NAME
 
-jdbc_handler = Resource(JdbcHandler)
-filter_handler = Resource(FilterHandler)
-parameter_handler = Resource(ParameterHandler)
-location_handler = Resource(LocationHandler)
-timeserie_handler = Resource(TimeserieHandler)
-timeserie_png_handler = Resource(TimeseriePngHandler)
+auth = HttpBasicAuthentication(realm="Fews jdbc")
+ad = { 'authentication': auth }
+
+jdbc_handler = Resource(JdbcHandler, **ad)
+filter_handler = Resource(FilterHandler, **ad)
+parameter_handler = Resource(ParameterHandler, **ad)
+location_handler = Resource(LocationHandler, **ad)
+timeserie_handler = Resource(TimeserieHandler, **ad)
+timeserie_png_handler = Resource(TimeseriePngHandler, **ad)
 
 _jdbc = r'(?P<jdbc_source_slug>[^/]+)/'
 _jdbc_filter = _jdbc + r'(?P<filter_id>[^/]+)/'
