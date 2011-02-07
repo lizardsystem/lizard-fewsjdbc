@@ -91,7 +91,6 @@ class JdbcSource(models.Model):
             # Re-raise as more recognizable error.
             raise FewsJdbcNotAvailableError(e)
 
-        # sp.Config.get('', '', self.jdbc_tag_name)
         try:
             # Check if jdbc_tag_name is used
             sp.Config.get('', '', self.jdbc_tag_name)
@@ -101,6 +100,7 @@ class JdbcSource(models.Model):
         result = sp.Query.execute('', '', q, [self.jdbc_tag_name])
         if isinstance(result, int):
             raise FewsJdbcQueryError(result, q)
+        # logger.debug(q)
         return result
 
     @property
