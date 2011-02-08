@@ -192,6 +192,9 @@ class TimeserieHandler(BaseHandler):
     Start/end dates can be given as extra GET parameters by adding 
     ``?start=yyyy-mm-dd&end=yyyy-mm-dd`` to the URL.
 
+    You can pass 'height' and 'width' GET parameters to the png
+    representation url get the correct image size (in pixels).
+
     """
     allowed_methods = ('GET',)
 
@@ -253,6 +256,10 @@ class TimeseriePngHandler(BaseHandler):
         adapter = FewsJdbc(None, layer_arguments=layer_arguments)
         identifiers = [{'location': location_id}]
         start_date, end_date = start_end_dates(request)
+        height = request.GET.get('height', 500)
+        width = request.GET.get('width', 500)
         return adapter.image(identifiers,
                              start_date,
-                             end_date)
+                             end_date,
+                             height=height,
+                             width= width)
