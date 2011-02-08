@@ -2,8 +2,8 @@ Changelog of lizard-fewsjdbc
 ===================================================
 
 
-1.0.2 (unreleased)
-------------------
+1.1 (2011-02-08)
+----------------
 
 - Adding better error handling to jdbc queries: they raise errors
   right away now instead of returning -1 or -2 and checking later on
