@@ -19,8 +19,7 @@ from lizard_map.symbol_manager import SymbolManager
 
 logger = logging.getLogger('lizard_fewsunblobbed.layers')
 
-LOCATION_CACHE_KEY = 'lizard_fewsjdbc.layers.location_cache_key'
-
+JDBC_API_URL_NAME = 'api_jdbcs'
 LAYER_STYLES = {
     "default": {'icon': 'meetpuntPeil.png',
                 'mask': ('meetpuntPeil_mask.png', ),
@@ -84,40 +83,18 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
     Registered as adapter_fewsjdbc.
     """
 
+    plugin_api_url_name = JDBC_API_URL_NAME
+
     def __init__(self, *args, **kwargs):
         super(FewsJdbc, self).__init__(
             *args, **kwargs)
         self.jdbc_source_slug = self.layer_arguments['slug']
         self.filterkey = self.layer_arguments['filter']
         self.parameterkey = self.layer_arguments['parameter']
-
         self.jdbc_source = JdbcSource.objects.get(slug=self.jdbc_source_slug)
 
     def _locations(self):
-        """
-        Query locations from jdbc source and return named locations in
-        a list.
-
-        {'location': '<location name>', 'longitude': <longitude>,
-        'latitude': <latitude>}
-        """
-        location_cache_key = ('%s::%s::%s' %
-                              (LOCATION_CACHE_KEY, self.filterkey,
-                               self.parameterkey))
-        named_locations = cache.get(location_cache_key)
-        if named_locations is None:
-            query = ("select longitude, latitude, "
-                     "location, locationid "
-                     "from filters "
-                     "where id='%s' and parameterid='%s'" %
-                     (self.filterkey, self.parameterkey))
-            locations = self.jdbc_source.query(query)
-            named_locations = named_list(
-                locations,
-                ['longitude', 'latitude',
-                 'location', 'locationid'])
-            cache.set(location_cache_key, named_locations)
-        return named_locations
+        return self.jdbc_source.get_locations(self.filterkey, self.parameterkey)
 
     def layer(self, layer_ids=None, webcolor=None, request=None):
         """Return layer and styles that render points.

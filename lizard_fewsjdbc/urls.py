@@ -17,6 +17,7 @@ urlpatterns = patterns(
         name="lizard_fewsjdbc.jdbc_source",
         ),
     (r'^map/', include('lizard_map.urls')),
+    (r'^api/', include('lizard_fewsjdbc.api.urls')),
     )
 
 

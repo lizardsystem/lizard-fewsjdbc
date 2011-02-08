@@ -17,8 +17,26 @@ from lizard_map.operations import unique_list
 JDBC_NONE = -999
 JDBC_DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
 FILTER_CACHE_KEY = 'lizard_fewsjdbc.models.filter_cache_key'
+LOCATION_CACHE_KEY = 'lizard_fewsjdbc.layers.location_cache_key'
 
 logger = logging.getLogger(__name__)
+
+
+class FewsJdbcNotAvailableError(gaierror):
+    """Wrapping of generic socket.gaierror into a clearer error."""
+    def __str__(self):
+        return 'FEWS Jdbc not available. ' + gaierror.__str__(self)
+
+
+class FewsJdbcQueryError(Exception):
+    """Proper exception instead of -1 or -2 ints that the query returns."""
+    def __init__(self, value, query=None):
+        self.value = value
+        self.query = query
+
+    def __str__(self):
+        return 'The FEWS jdbc query [%s] returned error code %s' % (
+            self.query, self.value)
 
 
 class JdbcSource(models.Model):
@@ -60,16 +78,19 @@ class JdbcSource(models.Model):
         Tries to connect to the Jdbc source and fire query. Returns
         list of lists.
 
-        Throws (socket.)gaierror if server is not reachable.
+        Throws socket.gaierror if server is not reachable.
         """
         if '"' in q:
             logger.warn(
                 "You used double quotes in the query. "
                 "Is it intended? Query: %s" % q)
-        sp = xmlrpclib.ServerProxy(self.jdbc_url)
-        sp.Ping.isAlive('', '')
+        try:
+            sp = xmlrpclib.ServerProxy(self.jdbc_url)
+            sp.Ping.isAlive('', '')
+        except gaierror, e:
+            # Re-raise as more recognizable error.
+            raise FewsJdbcNotAvailableError(e)
 
-        # sp.Config.get('', '', self.jdbc_tag_name)
         try:
             # Check if jdbc_tag_name is used
             sp.Config.get('', '', self.jdbc_tag_name)
@@ -77,7 +98,9 @@ class JdbcSource(models.Model):
             sp.Config.put('', '', self.jdbc_tag_name, self.connector_string)
 
         result = sp.Query.execute('', '', q, [self.jdbc_tag_name])
-
+        if isinstance(result, int):
+            raise FewsJdbcQueryError(result, q)
+        # logger.debug(q)
         return result
 
     @property
@@ -108,11 +131,13 @@ class JdbcSource(models.Model):
                 try:
                     filters = self.query(
                         "select id, name, parentid from filters;")
-                except gaierror:
-                    return [{'name': 'Jdbc2Ei server not available.'}]
-                if isinstance(filters, int):
-                    logger.error("JdbcSource returned an error: %s" % filters)
-                    return [{'name': 'Jdbc data source not available.'}]
+                except FewsJdbcNotAvailableError, e:
+                    return [{'name': 'Jdbc2Ei server not available.',
+                             'error': e}]
+                except FewsJdbcQueryError, e:
+                    logger.error("JdbcSource returned an error: %s" % e)
+                    return [{'name': 'Jdbc data source not available.',
+                             'error code': e}]
                 unique_filters = unique_list(filters)
                 named_filters = named_list(unique_filters,
                                            ['id', 'name', 'parentid'])
@@ -159,6 +184,32 @@ class JdbcSource(models.Model):
                                           ['name', 'parameterid', 'parameter'])
             cache.set(parameter_cache_key, named_parameters, 8 * 60 * 60)
         return named_parameters
+
+    def get_locations(self, filter_id, parameter_id):
+        """
+        Query locations from jdbc source and return named locations in
+        a list.
+
+        {'location': '<location name>', 'longitude': <longitude>,
+        'latitude': <latitude>}
+        """
+        location_cache_key = ('%s::%s::%s' %
+                              (LOCATION_CACHE_KEY, filter_id,
+                               parameter_id))
+        named_locations = cache.get(location_cache_key)
+        if named_locations is None:
+            query = ("select longitude, latitude, "
+                     "location, locationid "
+                     "from filters "
+                     "where id='%s' and parameterid='%s'" %
+                     (filter_id, parameter_id))
+            locations = self.query(query)
+            named_locations = named_list(
+                locations,
+                ['longitude', 'latitude',
+                 'location', 'locationid'])
+            cache.set(location_cache_key, named_locations)
+        return named_locations
 
     def get_timeseries(self, filter_id, location_id,
                        parameter_id, start_date, end_date):
