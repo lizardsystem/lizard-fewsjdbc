@@ -4,7 +4,7 @@ import csv
 from django.http import HttpResponse
 from piston.emitters import Emitter
 
-TIMESERIE_HEADERS = ('value', 'time')
+TIMESERIE_HEADERS = ('time', 'value')
 
 
 class BaseRowEmitter(Emitter):
