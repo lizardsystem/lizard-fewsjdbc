@@ -5,6 +5,9 @@ Changelog of lizard-fewsjdbc
 1.3 (unreleased)
 ----------------
 
+- Added sphinx documentation.  (See
+  http://doc.lizardsystem.nl/libs/lizard-fewsjdbc/ ).
+
 - Showing parameter name in csv/html column header.
 
 - Making explicit that the extracted datetime is GMT+1.
