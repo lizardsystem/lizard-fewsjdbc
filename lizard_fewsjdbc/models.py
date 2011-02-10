@@ -8,6 +8,7 @@ from socket import gaierror
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.db import models
+from django.conf import settings
 from django.utils.translation import ugettext as _
 
 from lizard_map.operations import named_list
@@ -101,7 +102,8 @@ class JdbcSource(models.Model):
         result = sp.Query.execute('', '', q, [self.jdbc_tag_name])
         if isinstance(result, int):
             raise FewsJdbcQueryError(result, q)
-        # logger.debug(q)
+        if settings.DEBUG:
+            logger.debug(q)
         return result
 
     @property
