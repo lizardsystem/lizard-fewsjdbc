@@ -251,7 +251,8 @@ class JdbcSource(models.Model):
             query_result, ['time', 'value', 'flag', 'detection', 'comment'])
         for row in result:
             date_time = row['time'].value
-            date_time_adjusted = '%s-%s-%s' % (
+            # Note: we're hardcoding GMT+1 below!!!
+            date_time_adjusted = '%s-%s-%s+01:00' % (
                 date_time[0:4], date_time[4:6], date_time[6:])
             row['time'] = iso8601.parse_date(date_time_adjusted)
         return result
