@@ -23,30 +23,35 @@ FILTER_URL_NAME = 'api_jdbc_filters'
 PARAMETER_URL_NAME = 'api_jdbc_parameters'
 LOCATION_URL_NAME = 'api_jdbc_locations'
 TIMESERIE_URL_NAME = 'api_jdbc_timeseries'
-DATE_FORMAT = '%Y-%m-%d'
+GET_PARAM_DATE_FORMAT = '%Y-%m-%d'
 
 
 def start_end_dates(request):
     start_date = DEFAULT_START
     end_date = DEFAULT_END
-    if 'start' in request.GET:
-        try:
-            date = time.strptime(request.GET['start'], DATE_FORMAT)
-            start_date = datetime.date(
-                year=date.tm_year,
-                month=date.tm_mon,
-                day=date.tm_mday)
-        except ValueError:
-            pass
-    if 'end' in request.GET:
-        try:
-            date = time.strptime(request.GET['end'], DATE_FORMAT)
-            end_date = datetime.date(
-                year=date.tm_year,
-                month=date.tm_mon,
-                day=date.tm_mday)
-        except ValueError:
-            pass
+    if 'period' in request.GET:
+        days_before = int(request.GET['period'])
+        start_date = end_date - datetime.timedelta(days_before)
+    else:
+        if 'start' in request.GET:
+            try:
+                date = time.strptime(request.GET['start'], GET_PARAM_DATE_FORMAT)
+                start_date = datetime.date(
+                    year=date.tm_year,
+                    month=date.tm_mon,
+                    day=date.tm_mday)
+            except ValueError:
+                pass
+        if 'end' in request.GET:
+            try:
+                date = time.strptime(request.GET['end'], GET_PARAM_DATE_FORMAT)
+                end_date = datetime.date(
+                    year=date.tm_year,
+                    month=date.tm_mon,
+                    day=date.tm_mday)
+            except ValueError:
+                pass
+
     if start_date > end_date:
         # Yes, Reinout made that happen...
         raise ValueError("Start date %s is later than end date %s ..." % (
@@ -191,6 +196,11 @@ class TimeserieHandler(BaseHandler):
 
     Start/end dates can be given as extra GET parameters by adding 
     ``?start=yyyy-mm-dd&end=yyyy-mm-dd`` to the URL.
+
+    An alternative is to pass a ``?period=7`` period parameter.  The
+    start date is set the given amount of days earlier than the
+    default end date (often "today").  The period parameter takes
+    precedence over the start/end date parameters.
 
     You can pass 'height' and 'width' GET parameters to the png
     representation url get the correct image size (in pixels).
