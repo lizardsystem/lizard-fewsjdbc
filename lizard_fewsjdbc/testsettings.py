@@ -1,6 +1,7 @@
 import os
 
 DEBUG = True
+LOG_JDBC_QUERIES = True
 TEMPLATE_DEBUG = True
 DATABASE_ENGINE = 'sqlite3'
 DATABASE_NAME = 'test.db'

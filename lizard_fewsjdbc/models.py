@@ -1,6 +1,7 @@
 # (c) Nelen & Schuurmans.  GPL licensed, see LICENSE.txt.
 import iso8601
 import logging
+import time
 import xmlrpclib
 from xml.parsers.expat import ExpatError
 from socket import gaierror
@@ -20,6 +21,7 @@ JDBC_DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
 FILTER_CACHE_KEY = 'lizard_fewsjdbc.models.filter_cache_key'
 PARAMETER_NAME_CACHE_KEY = 'lizard_fewsjdbc.models.parameter_name_cache_key'
 LOCATION_CACHE_KEY = 'lizard_fewsjdbc.layers.location_cache_key'
+LOG_JDBC_QUERIES = getattr(settings, 'LOG_JDBC_QUERIES', False)
 
 logger = logging.getLogger(__name__)
 
@@ -80,30 +82,44 @@ class JdbcSource(models.Model):
         Tries to connect to the Jdbc source and fire query. Returns
         list of lists.
 
-        Throws socket.gaierror if server is not reachable.
+        Throws FewsJdbcQueryError if the server is not reachable and a
+        FewsJdbcQueryError if the jdbc server returns a ``-1`` or
+        ``-2`` error code.
+        
+        Set ``LOG_JDBC_QUERIES = True`` in your django settings if you
+        want info-level logging of the jdbc queries including timing
+        data.
+
         """
         if '"' in q:
             logger.warn(
                 "You used double quotes in the query. "
                 "Is it intended? Query: %s" % q)
+        t1 = time.time()
         try:
             sp = xmlrpclib.ServerProxy(self.jdbc_url)
             sp.Ping.isAlive('', '')
         except gaierror, e:
             # Re-raise as more recognizable error.
             raise FewsJdbcNotAvailableError(e)
-
+        t2 = time.time()
         try:
             # Check if jdbc_tag_name is used
             sp.Config.get('', '', self.jdbc_tag_name)
         except ExpatError:
             sp.Config.put('', '', self.jdbc_tag_name, self.connector_string)
-
+        t3 = time.time()
         result = sp.Query.execute('', '', q, [self.jdbc_tag_name])
+        t4 = time.time()
         if isinstance(result, int):
             raise FewsJdbcQueryError(result, q)
-        if settings.DEBUG:
-            logger.debug(q)
+        if LOG_JDBC_QUERIES:
+            ping_time = 1000 * (t2 - t1)
+            tag_check_time = 1000 * (t3 - t2)
+            query_time = 1000 * (t4 - t3)
+            total_time = 1000 * (t4 - t1)
+            logger.info("%sms (%s ping, %s tag check, %s query): %s",
+                        total_time, ping_time, tag_check_time, query_time, q)
         return result
 
     @property
