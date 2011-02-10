@@ -51,12 +51,12 @@ Using the djangoapp in a site
 - Optionally set MAP_SETTINGS, DEFAULT_START_DAYS and DEFAULT_END_DAYS
   in your settings. See the lizard_map testsettings for examples.
 
-Make the database tables:
+Make the database tables::
 
     $> bin/django syncdb
 
-Load some config (optional):
+Load some config (optional)::
 
     $> bin/django loaddata lizard_fewsjdbc
 
-Add some references in your urls.py, i.e. (r'^', include('lizard_fewsjdbc.urls')).
+Add some references in your urls.py, i.e. ``(r'^', include('lizard_fewsjdbc.urls'))``.

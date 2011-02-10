@@ -1,13 +1,15 @@
 Overview
 ========
 
-TODO: Short one-paragraph intro.
+Lizard-map plugin for showing FEWS data through a jdbc connection.
+
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    project
    code
+   api
 
 
 .. include:: ../../README.rst
