@@ -2,7 +2,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-1.3 (unreleased)
+1.3 (2011-02-10)
 ----------------
 
 - Added sphinx documentation.  (See
