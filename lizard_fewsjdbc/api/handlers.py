@@ -230,6 +230,9 @@ class TimeserieHandler(BaseHandler):
             start_date, end_date)
         result['data'] = data
 
+        result['parameter_name'] = jdbc_source.get_parameter_name(parameter_id)
+        # ^^^ Not sure this is a great place to set this, but we need it for now.
+
         return result
 
 

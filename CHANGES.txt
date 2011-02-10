@@ -5,7 +5,7 @@ Changelog of lizard-fewsjdbc
 1.3 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Showing parameter name in csv/html column header.
 
 
 1.2 (2011-02-08)

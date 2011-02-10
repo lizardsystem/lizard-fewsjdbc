@@ -9,13 +9,31 @@ TIMESERIE_HEADERS = ('time', 'value')
 
 class BaseRowEmitter(Emitter):
 
+    @property
+    def extracted(self):
+        if not hasattr(self, '_extracted'):
+            self._extracted = self.construct()
+        return self._extracted
+
+
+    @property
     def rows(self):
-        data = self.construct()['data']
+        data = self.extracted['data']
         for timeserie in data:
             row = []
             for key in TIMESERIE_HEADERS:
                 row.append(timeserie[key])
             yield row
+
+    @property
+    def headers(self):
+        result = []
+        for header in TIMESERIE_HEADERS:
+            if header != 'value':
+                result.append(header)
+            else:
+                result.append(self.extracted['parameter_name'])
+        return result
 
 
 class TimeserieCsvEmitter(BaseRowEmitter):
@@ -25,8 +43,8 @@ class TimeserieCsvEmitter(BaseRowEmitter):
         response['Content-Disposition'] = 'attachment; filename=timeseries.csv'
         
         writer = csv.writer(response)
-        writer.writerow(TIMESERIE_HEADERS)
-        for row in self.rows():
+        writer.writerow(self.headers)        
+        for row in self.rows:
             writer.writerow(row)
         
         return response        
@@ -37,10 +55,10 @@ class TimeserieHtmlTableEmitter(BaseRowEmitter):
     def render(self, request):
         result = []
         result.append('<table><tr>')
-        for header in TIMESERIE_HEADERS:
+        for header in self.headers:
             result.append('<th>%s</th>' % header)
         result.append('</tr>')
-        for row in self.rows():
+        for row in self.rows:
             result.append('<tr><td>%s</td><td>%s</td></tr>' % (row[0], row[1]))
         result.append('</table>')
         return '\n'.join(result)

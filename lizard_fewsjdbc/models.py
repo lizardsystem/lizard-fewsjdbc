@@ -17,6 +17,7 @@ from lizard_map.operations import unique_list
 JDBC_NONE = -999
 JDBC_DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
 FILTER_CACHE_KEY = 'lizard_fewsjdbc.models.filter_cache_key'
+PARAMETER_NAME_CACHE_KEY = 'lizard_fewsjdbc.models.parameter_name_cache_key'
 LOCATION_CACHE_KEY = 'lizard_fewsjdbc.layers.location_cache_key'
 
 logger = logging.getLogger(__name__)
@@ -184,6 +185,26 @@ class JdbcSource(models.Model):
                                           ['name', 'parameterid', 'parameter'])
             cache.set(parameter_cache_key, named_parameters, 8 * 60 * 60)
         return named_parameters
+
+    def get_parameter_name(self, parameter_id, ignore_cache=False):
+        """
+        Return name of the parameter.
+
+        Uses cache.
+        """
+        parameter_name_cache_key = ('%s::%s::%s' %
+                                    (PARAMETER_NAME_CACHE_KEY, 
+                                     self.slug, 
+                                     str(parameter_id)))
+        name = cache.get(parameter_name_cache_key)
+
+        if name is None:
+            name_results = self.query(
+                ("select name "
+                 "from  parameters where id='%s'" % parameter_id))
+            name = name_results[0][0]
+            cache.set(parameter_name_cache_key, name, 8 * 60 * 60)
+        return name
 
     def get_locations(self, filter_id, parameter_id):
         """
