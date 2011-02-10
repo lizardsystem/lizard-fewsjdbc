@@ -8,6 +8,7 @@ TIMESERIE_HEADERS = ('time', 'value')
 
 
 class BaseRowEmitter(Emitter):
+    """Base class for the csv/html emitters: provide rows and headers."""
 
     @property
     def extracted(self):
@@ -37,6 +38,7 @@ class BaseRowEmitter(Emitter):
 
 
 class TimeserieCsvEmitter(BaseRowEmitter):
+    """Piston emitter for csv."""
 
     def render(self, request):
         response = HttpResponse(mimetype='text/csv')
@@ -51,6 +53,7 @@ class TimeserieCsvEmitter(BaseRowEmitter):
 
 
 class TimeserieHtmlTableEmitter(BaseRowEmitter):
+    """Piston emitter for a plain html table."""
 
     def render(self, request):
         result = []
