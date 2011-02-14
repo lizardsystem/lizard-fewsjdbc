@@ -5,7 +5,8 @@ Changelog of lizard-fewsjdbc
 1.4 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Swapped csv emitter for a csv handler: we cannot set the necessary
+  response headers in an emitter.
 
 
 1.3 (2011-02-10)

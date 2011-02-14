@@ -4,11 +4,13 @@ Handlers for the REST api provided through django-piston.
 
 
 """
+import csv
 import datetime
 import time
 import urllib
 
 import pkg_resources
+from django.http import HttpResponse
 from django.core.urlresolvers import reverse
 from piston.handler import BaseHandler
 from piston.doc import generate_doc
@@ -244,6 +246,28 @@ class TimeserieHandler(BaseHandler):
         # ^^^ Not sure this is a great place to set this, but we need it for now.
 
         return result
+
+
+class TimeserieCsvHandler(TimeserieHandler):
+    """Specific handler for csv output: emitter can't set response headers."""
+
+    def read(self, request, 
+             jdbc_source_slug, filter_id, parameter_id, location_id):
+        result = TimeserieHandler.read(
+            self, request, 
+            jdbc_source_slug, filter_id, parameter_id, location_id)
+        headers = ['time', result['parameter_name']]
+        response = HttpResponse(mimetype='text/csv')
+        response['Content-Disposition'] = 'attachment; filename=timeseries.csv'
+        
+        writer = csv.writer(response)
+        writer.writerow(headers)        
+        for timeserie in result['data']:
+            row = []
+            for key in ('time', 'value'):
+                row.append(timeserie[key])
+            writer.writerow(row)
+        return response
 
 
 class TimeseriePngHandler(BaseHandler):

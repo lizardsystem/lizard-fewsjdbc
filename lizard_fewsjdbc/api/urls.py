@@ -12,6 +12,7 @@ from lizard_fewsjdbc.api.handlers import PARAMETER_URL_NAME
 from lizard_fewsjdbc.api.handlers import ParameterHandler
 from lizard_fewsjdbc.api.handlers import TIMESERIE_URL_NAME
 from lizard_fewsjdbc.api.handlers import TimeserieHandler
+from lizard_fewsjdbc.api.handlers import TimeserieCsvHandler
 from lizard_fewsjdbc.api.handlers import TimeseriePngHandler
 from lizard_fewsjdbc.layers import JDBC_API_URL_NAME
 
@@ -24,6 +25,7 @@ parameter_handler = Resource(ParameterHandler, **ad)
 location_handler = Resource(LocationHandler, **ad)
 timeserie_handler = Resource(TimeserieHandler, **ad)
 timeserie_png_handler = Resource(TimeseriePngHandler, **ad)
+timeserie_csv_handler = Resource(TimeserieCsvHandler, **ad)
 
 _jdbc = r'(?P<jdbc_source_slug>[^/]+)/'
 _jdbc_filter = _jdbc + r'(?P<filter_id>[^/]+)/'
@@ -55,7 +57,6 @@ urlpatterns = patterns(
         {'emitter_format': 'jdbc_html_table'}, 
         name=TIMESERIE_URL_NAME + '_html'),
     url(r'^%scsv/$' % _jdbc_filter_parameter_location, 
-        timeserie_handler,
-        {'emitter_format': 'jdbc_csv'}, 
+        timeserie_csv_handler,
         name=TIMESERIE_URL_NAME + '_csv'),
     )

@@ -1,6 +1,4 @@
 # (c) Nelen & Schuurmans.  GPL licensed, see LICENSE.txt.
-import csv
-
 from django.http import HttpResponse
 from piston.emitters import Emitter
 
@@ -37,21 +35,6 @@ class BaseRowEmitter(Emitter):
         return result
 
 
-class TimeserieCsvEmitter(BaseRowEmitter):
-    """Piston emitter for csv."""
-
-    def render(self, request):
-        response = HttpResponse(mimetype='text/csv')
-        response['Content-Disposition'] = 'attachment; filename=timeseries.csv'
-        
-        writer = csv.writer(response)
-        writer.writerow(self.headers)        
-        for row in self.rows:
-            writer.writerow(row)
-        
-        return response        
-
-
 class TimeserieHtmlTableEmitter(BaseRowEmitter):
     """Piston emitter for a plain html table."""
 
@@ -67,5 +50,4 @@ class TimeserieHtmlTableEmitter(BaseRowEmitter):
         return '\n'.join(result)
 
 
-Emitter.register('jdbc_csv', TimeserieCsvEmitter, 'text/csv; charset=utf-8')
 Emitter.register('jdbc_html_table', TimeserieHtmlTableEmitter, 'text/html; charset=utf-8')
