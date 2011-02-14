@@ -2,7 +2,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-1.4 (unreleased)
+1.4 (2011-02-14)
 ----------------
 
 - Swapped csv emitter for a csv handler: we cannot set the necessary
