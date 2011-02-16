@@ -32,8 +32,10 @@ def start_end_dates(request):
     start_date = default_start()
     end_date = default_end()
     if 'period' in request.GET:
+        end_date = datetime.datetime.now() + datetime.timedelta(hours=1)
+        # ^^^ Now plus padding.
         days_before = int(request.GET['period'])
-        start_date = end_date - datetime.timedelta(days_before)
+        start_date = datetime.datetime.now() - datetime.timedelta(days_before)
     else:
         if 'start' in request.GET:
             try:

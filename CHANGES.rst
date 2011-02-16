@@ -5,7 +5,8 @@ Changelog of lizard-fewsjdbc
 1.6 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- When using "period" to select date ranges in the REST api, we count
+  from "now" instead of "0:00 today".
 
 
 1.5 (2011-02-16)
