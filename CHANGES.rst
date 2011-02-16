@@ -5,7 +5,7 @@ Changelog of lizard-fewsjdbc
 1.5 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Using latest lizard-map with a better date range handling.
 
 
 1.4 (2011-02-14)

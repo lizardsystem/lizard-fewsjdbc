@@ -15,8 +15,8 @@ from django.core.urlresolvers import reverse
 from piston.handler import BaseHandler
 from piston.doc import generate_doc
 from lizard_map.api.handlers import documentation
-from lizard_map.daterange import DEFAULT_START
-from lizard_map.daterange import DEFAULT_END
+from lizard_map.daterange import default_start
+from lizard_map.daterange import default_end
 
 from lizard_fewsjdbc.layers import FewsJdbc
 from lizard_fewsjdbc.models import JdbcSource
@@ -29,8 +29,8 @@ GET_PARAM_DATE_FORMAT = '%Y-%m-%d'
 
 
 def start_end_dates(request):
-    start_date = DEFAULT_START
-    end_date = DEFAULT_END
+    start_date = default_start()
+    end_date = default_end()
     if 'period' in request.GET:
         days_before = int(request.GET['period'])
         start_date = end_date - datetime.timedelta(days_before)
