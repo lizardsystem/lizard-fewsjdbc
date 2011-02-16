@@ -2,7 +2,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-1.6 (unreleased)
+1.6 (2011-02-16)
 ----------------
 
 - When using "period" to select date ranges in the REST api, we count
