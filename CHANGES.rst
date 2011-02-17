@@ -5,7 +5,7 @@ Changelog of lizard-fewsjdbc
 1.7 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Removed mandatory authentication from our experiemental REST api.
 
 
 1.6 (2011-02-16)
