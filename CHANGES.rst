@@ -2,7 +2,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-1.8 (unreleased)
+1.8 (2011-02-21)
 ----------------
 
 - Returning 404s now when there's no data to display for timeseries
