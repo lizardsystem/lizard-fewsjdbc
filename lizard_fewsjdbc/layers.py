@@ -7,6 +7,7 @@ import os
 
 from django.conf import settings
 from django.core.cache import cache
+from django.http import Http404
 
 from lizard_fewsjdbc.models import JdbcSource
 from lizard_map import coordinates
@@ -242,7 +243,8 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
               end_date,
               width=380.0,
               height=250.0,
-              layout_extra=None):
+              layout_extra=None,
+              raise_404_if_empty=False):
 
         line_styles = self.line_styles(identifiers)
 
@@ -253,13 +255,15 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         unit = self.jdbc_source.get_unit(self.parameterkey)
         graph.axes.set_ylabel(unit)
 
+        is_empty = True
         for identifier in identifiers:
             filter_id = self.filterkey
             location_id = identifier['location']
             parameter_id = self.parameterkey
             timeseries = self.jdbc_source.get_timeseries(
                 filter_id, location_id, parameter_id, start_date, end_date)
-
+            if timeseries:
+                is_empty = False
             # Plot data.
             dates = [row['time'] for row in timeseries]
             values = [row['value'] for row in timeseries]
@@ -267,6 +271,8 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
                             lw=1,
                             color=line_styles[str(identifier)]['color'],
                             label=parameter_id)
+        if is_empty and raise_404_if_empty:
+            raise Http404
 
         # if legend:
         #     graph.legend()

@@ -11,9 +11,11 @@ import urllib
 
 import pkg_resources
 from django.http import HttpResponse
+from django.http import Http404
 from django.core.urlresolvers import reverse
 from piston.handler import BaseHandler
 from piston.doc import generate_doc
+from piston.utils import rc
 from lizard_map.api.handlers import documentation
 from lizard_map.daterange import default_start
 from lizard_map.daterange import default_end
@@ -242,6 +244,11 @@ class TimeserieHandler(BaseHandler):
         data = jdbc_source.get_timeseries(
             filter_id, location_id, parameter_id,
             start_date, end_date)
+        if not data:
+            response = rc.NOT_FOUND
+            response.write(
+                "No data found for this filter/parameter/location combination")
+            return response
         result['data'] = data
 
         result['parameter_name'] = jdbc_source.get_parameter_name(parameter_id)
@@ -258,6 +265,11 @@ class TimeserieCsvHandler(TimeserieHandler):
         result = TimeserieHandler.read(
             self, request, 
             jdbc_source_slug, filter_id, parameter_id, location_id)
+        if isinstance(result, HttpResponse):
+            # Probably 404 response.  It would be handier if piston would handle
+            # 404 exceptions more properly.
+            return result
+            
         headers = ['time', result['parameter_name']]
         response = HttpResponse(mimetype='text/csv')
         response['Content-Disposition'] = 'attachment; filename=timeseries.csv'
@@ -297,8 +309,16 @@ class TimeseriePngHandler(BaseHandler):
         start_date, end_date = start_end_dates(request)
         height = request.GET.get('height', 500)
         width = request.GET.get('width', 500)
-        return adapter.image(identifiers,
-                             start_date,
-                             end_date,
-                             height=height,
-                             width= width)
+        try:
+            result = adapter.image(identifiers,
+                                   start_date,
+                                   end_date,
+                                   height=height,
+                                   width=width,
+                                   raise_404_if_empty=True)
+            return result
+        except Http404:
+            response = rc.NOT_FOUND
+            response.write(
+                "No data found for this filter/parameter/location combination")
+            return response

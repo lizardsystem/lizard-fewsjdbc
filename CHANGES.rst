@@ -5,7 +5,8 @@ Changelog of lizard-fewsjdbc
 1.8 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Returning 404s now when there's no data to display for timeseries
+  (html, csv, json, png).
 
 
 1.7 (2011-02-17)
