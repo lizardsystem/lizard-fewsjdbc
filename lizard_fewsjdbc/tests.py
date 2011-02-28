@@ -202,7 +202,8 @@ class TestModelMockQuery(TestCase):
 
         class MockTzInfo(datetime.tzinfo):
             def utcoffset(self, dt):
-                return datetime.timedelta(hours=0)
+                # Note: hardcoded to GMT+1.
+                return datetime.timedelta(hours=1)
         # time, value, flag, detection, comment; time has a property
         # 'value'
         self.mock_query_result = [
