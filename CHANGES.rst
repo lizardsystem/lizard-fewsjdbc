@@ -2,7 +2,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-1.9 (unreleased)
+1.9 (2011-03-09)
 ----------------
 
 - Enabled the 'ignore_cache' option.
