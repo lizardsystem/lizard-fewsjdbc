@@ -9,6 +9,8 @@ Changelog of lizard-fewsjdbc
 
 - Added management commands to pre-fill cache (user experience boost).
 
+- Added initial migration.
+
 
 1.8 (2011-02-21)
 ----------------
