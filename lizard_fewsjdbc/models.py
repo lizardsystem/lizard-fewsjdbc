@@ -85,7 +85,7 @@ class JdbcSource(models.Model):
         Throws FewsJdbcQueryError if the server is not reachable and a
         FewsJdbcQueryError if the jdbc server returns a ``-1`` or
         ``-2`` error code.
-        
+
         Set ``LOG_JDBC_QUERIES = True`` in your django settings if you
         want info-level logging of the jdbc queries including timing
         data.
@@ -141,7 +141,7 @@ class JdbcSource(models.Model):
         """
         filter_source_cache_key = FILTER_CACHE_KEY + '::' + self.slug
         filter_tree = cache.get(filter_source_cache_key)
-        if filter_tree is None:
+        if filter_tree is None or ignore_cache:
             # Building up the fews filter tree.
             if self.usecustomfilter:
                 named_filters = self._customfilter
@@ -211,8 +211,8 @@ class JdbcSource(models.Model):
         Uses cache.
         """
         parameter_name_cache_key = ('%s::%s::%s' %
-                                    (PARAMETER_NAME_CACHE_KEY, 
-                                     self.slug, 
+                                    (PARAMETER_NAME_CACHE_KEY,
+                                     self.slug,
                                      str(parameter_id)))
         name = cache.get(parameter_name_cache_key)
 

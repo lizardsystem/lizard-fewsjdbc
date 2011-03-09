@@ -60,3 +60,19 @@ Load some config (optional)::
     $> bin/django loaddata lizard_fewsjdbc
 
 Add some references in your urls.py, i.e. ``(r'^', include('lizard_fewsjdbc.urls'))``.
+
+
+Prefill cache
+-------------
+
+Add a crontab job to your deploy.cfg to run "bin/django
+fews_jdbc_cache" every 8 hours. This way visitors of the page
+will always get cached contents, which is a huge user experience
+boost.
+
+deploy.cfg::
+
+    [fews-jdbc-cronjob]
+    recipe = z3c.recipe.usercrontab
+    times = * */8 * * *
+    command = ${buildout:bin-directory}/django fews_jdbc_cache

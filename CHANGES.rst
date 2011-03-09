@@ -5,7 +5,9 @@ Changelog of lizard-fewsjdbc
 1.9 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Enabled the 'ignore_cache' option.
+
+- Added management commands to pre-fill cache (user experience boost).
 
 
 1.8 (2011-02-21)
