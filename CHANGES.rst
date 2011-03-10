@@ -5,7 +5,7 @@ Changelog of lizard-fewsjdbc
 1.10 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Added robustness to management fews_jdbc_cache command.
 
 
 1.9 (2011-03-09)

@@ -17,5 +17,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         for jdbc_source in JdbcSource.objects.all():
             logger.info('Processing %s ...' % jdbc_source)
-            jdbc_source.get_filter_tree(ignore_cache=True)
-        logger.info('Finished successfully.')
+            try:
+                jdbc_source.get_filter_tree(ignore_cache=True)
+            except:
+                logger.warn('Tried %s unsuccessfully.' % jdbc_source)
+        logger.info('Finished.')
