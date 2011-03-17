@@ -19,6 +19,7 @@ install_requires = [
     'django-nose',
     'iso8601',
     'pkginfo',
+    'south',
     ],
 
 tests_require = [
