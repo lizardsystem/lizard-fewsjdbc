@@ -2,8 +2,8 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-1.9.2 (unreleased)
-------------------
+1.10 (2011-03-17)
+-----------------
 
 - Corrected faulty migration step (filter_tree_root column was
   inexplicably missing).
