@@ -5,7 +5,12 @@ Changelog of lizard-fewsjdbc
 1.9.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Corrected faulty migration step (filter_tree_root column was
+  inexplicably missing).
+
+- Added south so that the tests also run the migrations, which ensures
+  that inexplicably missing migrations at least result in a very
+  opinionated reply from the test runner.
 
 
 1.9.1 (2011-03-10)
