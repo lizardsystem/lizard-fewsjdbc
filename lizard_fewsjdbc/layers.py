@@ -111,6 +111,9 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
 
         logger.debug("Number of point objects: %d" % len(named_locations))
         for named_location in named_locations:
+            logger.debug('layer coordinates %s %s' % (
+                    named_location['longitude'],
+                    named_location['latitude']))
             add_datasource_point(
                 layer.datasource, named_location['longitude'],
                 named_location['latitude'], 'Name', 'Info')
