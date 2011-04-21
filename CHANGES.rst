@@ -2,7 +2,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-1.11 (unreleased)
+1.11 (2011-04-21)
 -----------------
 
 - Removed unnecessary workspace_manager and date_range_form stuff. It
