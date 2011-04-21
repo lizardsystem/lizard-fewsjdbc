@@ -4,9 +4,6 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 
 from lizard_fewsjdbc.models import JdbcSource
-from lizard_map.daterange import current_start_end_dates
-from lizard_map.daterange import DateRangeForm
-from lizard_map.workspace import WorkspaceManager
 
 
 def homepage(request,

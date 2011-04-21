@@ -5,7 +5,7 @@ Changelog of lizard-fewsjdbc
 1.12 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Removed unused imports.
 
 
 1.11 (2011-04-21)
