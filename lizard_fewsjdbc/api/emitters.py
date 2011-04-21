@@ -1,5 +1,4 @@
 # (c) Nelen & Schuurmans.  GPL licensed, see LICENSE.txt.
-from django.http import HttpResponse
 from piston.emitters import Emitter
 
 TIMESERIE_HEADERS = ('time', 'value')
@@ -13,7 +12,6 @@ class BaseRowEmitter(Emitter):
         if not hasattr(self, '_extracted'):
             self._extracted = self.construct()
         return self._extracted
-
 
     @property
     def rows(self):
@@ -50,4 +48,6 @@ class TimeserieHtmlTableEmitter(BaseRowEmitter):
         return '\n'.join(result)
 
 
-Emitter.register('jdbc_html_table', TimeserieHtmlTableEmitter, 'text/html; charset=utf-8')
+Emitter.register('jdbc_html_table',
+                 TimeserieHtmlTableEmitter,
+                 'text/html; charset=utf-8')

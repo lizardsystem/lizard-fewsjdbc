@@ -9,12 +9,10 @@ import datetime
 import time
 import urllib
 
-import pkg_resources
 from django.http import HttpResponse
 from django.http import Http404
 from django.core.urlresolvers import reverse
 from piston.handler import BaseHandler
-from piston.doc import generate_doc
 from piston.utils import rc
 from lizard_map.api.handlers import documentation
 from lizard_map.daterange import default_start
@@ -41,7 +39,8 @@ def start_end_dates(request):
     else:
         if 'start' in request.GET:
             try:
-                date = time.strptime(request.GET['start'], GET_PARAM_DATE_FORMAT)
+                date = time.strptime(request.GET['start'],
+                                     GET_PARAM_DATE_FORMAT)
                 start_date = datetime.date(
                     year=date.tm_year,
                     month=date.tm_mon,
@@ -76,7 +75,7 @@ class JdbcHandler(BaseHandler):
         data = []
         for jdbc_source in JdbcSource.objects.all():
             url = request.build_absolute_uri(
-                reverse(FILTER_URL_NAME, 
+                reverse(FILTER_URL_NAME,
                         kwargs={'jdbc_source_slug': jdbc_source.slug}))
             data.append({'title': jdbc_source.name,
                          'url': url})
@@ -103,7 +102,7 @@ class FilterHandler(BaseHandler):
             node['title'] = item['name']
             if not 'children' in item:
                 # Some jdbc connection error.
-                result= [node]
+                result = [node]
                 return result
             if item['children']:
                 # We're a folder.
@@ -111,7 +110,7 @@ class FilterHandler(BaseHandler):
                     item['children'], request, jdbc_source_slug)
             else:
                 # We're an end node.
-                safe_id = urllib.quote(item['id'], '')  
+                safe_id = urllib.quote(item['id'], '')
                 # There can be slashes in the id, so we quote it.  The
                 # empty string means "no safe characters, like '/'".
                 url = request.build_absolute_uri(
@@ -127,7 +126,6 @@ class FilterHandler(BaseHandler):
         result = {}
         result['info'] = documentation(self.__class__)
         jdbc_source = JdbcSource.objects.get(slug=jdbc_source_slug)
-        data = []
         result['data'] = self._return_data(
             jdbc_source.get_filter_tree(),
             request, jdbc_source_slug)
@@ -147,15 +145,15 @@ class ParameterHandler(BaseHandler):
         data = []
         for parameter in jdbc_source.get_named_parameters(
             filter_id):
-             safe_parameter_id = urllib.quote(parameter['parameterid'], '')
-             url = request.build_absolute_uri(
-                 reverse(
-                     LOCATION_URL_NAME,
-                     kwargs={'jdbc_source_slug': jdbc_source_slug,
-                             'filter_id': safe_filter_id,
-                             'parameter_id': safe_parameter_id}))
-             data.append({'title': parameter['parameter'],
-                          'url': url})
+            safe_parameter_id = urllib.quote(parameter['parameterid'], '')
+            url = request.build_absolute_uri(
+                reverse(
+                    LOCATION_URL_NAME,
+                    kwargs={'jdbc_source_slug': jdbc_source_slug,
+                            'filter_id': safe_filter_id,
+                            'parameter_id': safe_parameter_id}))
+            data.append({'title': parameter['parameter'],
+                         'url': url})
         result['data'] = data
         return result
 
@@ -174,17 +172,17 @@ class LocationHandler(BaseHandler):
         jdbc_source = JdbcSource.objects.get(slug=jdbc_source_slug)
         data = []
         for location in jdbc_source.get_locations(filter_id, parameter_id):
-             safe_location_id = urllib.quote(location['locationid'], '')
+            safe_location_id = urllib.quote(location['locationid'], '')
              # TODO: add geojson coordinates!!!
-             url = request.build_absolute_uri(
-                 reverse(
-                     TIMESERIE_URL_NAME,
-                     kwargs={'jdbc_source_slug': jdbc_source_slug,
-                             'filter_id': safe_filter_id,
-                             'parameter_id': safe_parameter_id,
-                             'location_id': safe_location_id}))
-             data.append({'title': location['location'],
-                          'url': url})
+            url = request.build_absolute_uri(
+                reverse(
+                    TIMESERIE_URL_NAME,
+                    kwargs={'jdbc_source_slug': jdbc_source_slug,
+                            'filter_id': safe_filter_id,
+                            'parameter_id': safe_parameter_id,
+                            'location_id': safe_location_id}))
+            data.append({'title': location['location'],
+                         'url': url})
         result['data'] = data
         return result
 
@@ -200,7 +198,7 @@ class TimeserieHandler(BaseHandler):
     See the 'alternative_representations' for urls for csv/png/html
     output.
 
-    Start/end dates can be given as extra GET parameters by adding 
+    Start/end dates can be given as extra GET parameters by adding
     ``?start=yyyy-mm-dd&end=yyyy-mm-dd`` to the URL.
 
     An alternative is to pass a ``?period=7`` period parameter.  The
@@ -214,7 +212,7 @@ class TimeserieHandler(BaseHandler):
     """
     allowed_methods = ('GET',)
 
-    def read(self, request, 
+    def read(self, request,
              jdbc_source_slug, filter_id, parameter_id, location_id):
         safe_filter_id = filter_id
         filter_id = urllib.unquote(filter_id)
@@ -227,16 +225,16 @@ class TimeserieHandler(BaseHandler):
 
         alternative_representations = []
         for format in ('csv', 'png', 'html'):
-             url = request.build_absolute_uri(
-                 reverse(
-                     TIMESERIE_URL_NAME + '_' + format,
-                     kwargs={'jdbc_source_slug': jdbc_source_slug,
-                             'filter_id': safe_filter_id,
-                             'parameter_id': safe_parameter_id,
-                             'location_id': safe_location_id}))
-             alternative_representations.append(
-                 {'url': url,
-                  'format': format})
+            url = request.build_absolute_uri(
+                reverse(
+                    TIMESERIE_URL_NAME + '_' + format,
+                    kwargs={'jdbc_source_slug': jdbc_source_slug,
+                            'filter_id': safe_filter_id,
+                            'parameter_id': safe_parameter_id,
+                            'location_id': safe_location_id}))
+            alternative_representations.append(
+                {'url': url,
+                 'format': format})
         result['alternative_representations'] = alternative_representations
 
         jdbc_source = JdbcSource.objects.get(slug=jdbc_source_slug)
@@ -252,7 +250,8 @@ class TimeserieHandler(BaseHandler):
         result['data'] = data
 
         result['parameter_name'] = jdbc_source.get_parameter_name(parameter_id)
-        # ^^^ Not sure this is a great place to set this, but we need it for now.
+        # ^^^ Not sure this is a great place to set this, but we need it for
+        # now.
 
         return result
 
@@ -260,22 +259,22 @@ class TimeserieHandler(BaseHandler):
 class TimeserieCsvHandler(TimeserieHandler):
     """Specific handler for csv output: emitter can't set response headers."""
 
-    def read(self, request, 
+    def read(self, request,
              jdbc_source_slug, filter_id, parameter_id, location_id):
         result = TimeserieHandler.read(
-            self, request, 
+            self, request,
             jdbc_source_slug, filter_id, parameter_id, location_id)
         if isinstance(result, HttpResponse):
-            # Probably 404 response.  It would be handier if piston would handle
-            # 404 exceptions more properly.
+            # Probably 404 response.  It would be handier if piston would
+            # handle 404 exceptions more properly.
             return result
-            
+
         headers = ['time', result['parameter_name']]
         response = HttpResponse(mimetype='text/csv')
         response['Content-Disposition'] = 'attachment; filename=timeseries.csv'
-        
+
         writer = csv.writer(response)
-        writer.writerow(headers)        
+        writer.writerow(headers)
         for timeserie in result['data']:
             row = []
             for key in ('time', 'value'):
@@ -287,13 +286,13 @@ class TimeserieCsvHandler(TimeserieHandler):
 class TimeseriePngHandler(BaseHandler):
     """Show a location's timeseries data as a png image.
 
-    Start/end dates can be given as extra GET parameters by adding 
+    Start/end dates can be given as extra GET parameters by adding
     ``?start=yyyy-mm-dd&end=yyyy-mm-dd`` to the URL.
 
     """
     allowed_methods = ('GET',)
 
-    def read(self, request, 
+    def read(self, request,
              jdbc_source_slug, filter_id, parameter_id, location_id):
         filter_id = urllib.unquote(filter_id)
         parameter_id = urllib.unquote(parameter_id)

@@ -15,6 +15,7 @@ from lizard_fewsjdbc.api.handlers import TimeserieCsvHandler
 from lizard_fewsjdbc.api.handlers import TimeseriePngHandler
 from lizard_fewsjdbc.layers import JDBC_API_URL_NAME
 
+emitters  # pyflakes; needs to be imported to register something.
 jdbc_handler = Resource(JdbcHandler)
 filter_handler = Resource(FilterHandler)
 parameter_handler = Resource(ParameterHandler)
@@ -26,33 +27,34 @@ timeserie_csv_handler = Resource(TimeserieCsvHandler)
 _jdbc = r'(?P<jdbc_source_slug>[^/]+)/'
 _jdbc_filter = _jdbc + r'(?P<filter_id>[^/]+)/'
 _jdbc_filter_parameter = _jdbc_filter + r'(?P<parameter_id>[^/]+)/'
-_jdbc_filter_parameter_location = _jdbc_filter_parameter + r'(?P<location_id>[^/]+)/'
+_jdbc_filter_parameter_location = (
+    _jdbc_filter_parameter + r'(?P<location_id>[^/]+)/')
 
 urlpatterns = patterns(
     '',
     url(r'^$',
-        jdbc_handler, 
+        jdbc_handler,
         name=JDBC_API_URL_NAME),
-    url(r'^%s$' % _jdbc, 
-        filter_handler, 
+    url(r'^%s$' % _jdbc,
+        filter_handler,
         name=FILTER_URL_NAME),
-    url(r'^%s$' % _jdbc_filter, 
-        parameter_handler, 
+    url(r'^%s$' % _jdbc_filter,
+        parameter_handler,
         name=PARAMETER_URL_NAME),
-    url(r'^%s$' % _jdbc_filter_parameter, 
-        location_handler, 
+    url(r'^%s$' % _jdbc_filter_parameter,
+        location_handler,
         name=LOCATION_URL_NAME),
-    url(r'^%s$' % _jdbc_filter_parameter_location, 
-        timeserie_handler, 
+    url(r'^%s$' % _jdbc_filter_parameter_location,
+        timeserie_handler,
         name=TIMESERIE_URL_NAME),
-    url(r'^%stimeseries.png$' % _jdbc_filter_parameter_location, 
+    url(r'^%stimeseries.png$' % _jdbc_filter_parameter_location,
         timeserie_png_handler,
         name=TIMESERIE_URL_NAME + '_png'),
-    url(r'^%shtml/$' % _jdbc_filter_parameter_location, 
+    url(r'^%shtml/$' % _jdbc_filter_parameter_location,
         timeserie_handler,
-        {'emitter_format': 'jdbc_html_table'}, 
+        {'emitter_format': 'jdbc_html_table'},
         name=TIMESERIE_URL_NAME + '_html'),
-    url(r'^%scsv/$' % _jdbc_filter_parameter_location, 
+    url(r'^%scsv/$' % _jdbc_filter_parameter_location,
         timeserie_csv_handler,
         name=TIMESERIE_URL_NAME + '_csv'),
     )

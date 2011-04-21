@@ -6,7 +6,6 @@ import math
 import os
 
 from django.conf import settings
-from django.core.cache import cache
 from django.http import Http404
 
 from lizard_fewsjdbc.models import JdbcSource
@@ -15,7 +14,6 @@ from lizard_map import workspace
 from lizard_map.adapter import Graph
 from lizard_map.mapnik_helper import add_datasource_point
 from lizard_map.models import ICON_ORIGINALS
-from lizard_map.operations import named_list
 from lizard_map.symbol_manager import SymbolManager
 
 logger = logging.getLogger('lizard_fewsunblobbed.layers')
@@ -95,7 +93,8 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         self.jdbc_source = JdbcSource.objects.get(slug=self.jdbc_source_slug)
 
     def _locations(self):
-        return self.jdbc_source.get_locations(self.filterkey, self.parameterkey)
+        return self.jdbc_source.get_locations(self.filterkey,
+                                              self.parameterkey)
 
     def layer(self, layer_ids=None, webcolor=None, request=None):
         """Return layer and styles that render points.
@@ -140,7 +139,6 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         named_locations = self._locations()
         wgs0coord_x, wgs0coord_y = coordinates.rd_to_wgs84(0.0, 0.0)
 
-        result = []
         for named_location in named_locations:
             x = named_location['longitude']
             y = named_location['latitude']
@@ -159,7 +157,7 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
             else:
                 logger.warn("Location (%s, %s) at RD coordinates 0,0" %
                             (named_location['location'],
-                             named_location['locationid']));
+                             named_location['locationid']))
         west_transformed, north_transformed = coordinates.wgs84_to_google(
             west, north)
         east_transformed, south_transformed = coordinates.wgs84_to_google(
