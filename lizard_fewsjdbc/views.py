@@ -18,11 +18,6 @@ def homepage(request,
     Overview of all Jdbc Sources.
     """
 
-    workspace_manager = WorkspaceManager(request)
-    workspaces = workspace_manager.load_or_create()
-    date_range_form = DateRangeForm(
-        current_start_end_dates(request, for_form=True))
-
     if crumbs_prepend is not None:
         crumbs = list(crumbs_prepend)
     else:
@@ -35,9 +30,7 @@ def homepage(request,
         template,
         {'javascript_hover_handler': javascript_hover_handler,
          'javascript_click_handler': javascript_click_handler,
-         'date_range_form': date_range_form,
          'jdbc_sources': JdbcSource.objects.all(),
-         'workspaces': workspaces,
          'crumbs': crumbs},
         context_instance=RequestContext(request))
 
@@ -52,10 +45,6 @@ def jdbc_source(request,
     FEWS JDBC browser view. Filter list and parameter list is cached.
     """
 
-    workspace_manager = WorkspaceManager(request)
-    workspaces = workspace_manager.load_or_create()
-    date_range_form = DateRangeForm(
-        current_start_end_dates(request, for_form=True))
     filter_id = request.GET.get('filter_id', None)
     ignore_cache = request.GET.get('ignore_cache', False)
     jdbc_source = JdbcSource.objects.get(slug=jdbc_source_slug)
@@ -90,11 +79,9 @@ def jdbc_source(request,
         template,
         {'javascript_hover_handler': javascript_hover_handler,
          'javascript_click_handler': javascript_click_handler,
-         'date_range_form': date_range_form,
          'tree_items': filter_tree,
          'parameters': fews_parameters,
          'filter': fews_filter,
          'jdbc_source_slug': jdbc_source_slug,
-         'workspaces': workspaces,
          'crumbs': crumbs},
         context_instance=RequestContext(request))

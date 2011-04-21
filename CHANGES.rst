@@ -5,7 +5,8 @@ Changelog of lizard-fewsjdbc
 1.11 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Removed unnecessary workspace_manager and date_range_form stuff. It
+  is also incompatible with map >= 1.71.
 
 
 1.10 (2011-03-17)
