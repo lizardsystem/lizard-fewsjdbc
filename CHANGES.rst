@@ -5,6 +5,8 @@ Changelog of lizard-fewsjdbc
 1.12 (unreleased)
 -----------------
 
+- Unpinned map and ui.
+
 - Removed unused imports.
 
 
