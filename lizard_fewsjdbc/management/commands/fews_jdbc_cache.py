@@ -2,7 +2,7 @@
 
 """
 
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 import logging
 
 from lizard_fewsjdbc.models import JdbcSource
