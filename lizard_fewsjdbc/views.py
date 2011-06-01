@@ -7,8 +7,6 @@ from lizard_fewsjdbc.models import JdbcSource
 
 
 def homepage(request,
-             javascript_click_handler='popup_click_handler',
-             javascript_hover_handler='popup_hover_handler',
              template="lizard_fewsjdbc/homepage.html",
              crumbs_prepend=None):
     """
@@ -25,17 +23,13 @@ def homepage(request,
 
     return render_to_response(
         template,
-        {'javascript_hover_handler': javascript_hover_handler,
-         'javascript_click_handler': javascript_click_handler,
-         'jdbc_sources': JdbcSource.objects.all(),
+        {'jdbc_sources': JdbcSource.objects.all(),
          'crumbs': crumbs},
         context_instance=RequestContext(request))
 
 
 def jdbc_source(request,
                 jdbc_source_slug,
-                javascript_click_handler='popup_click_handler',
-                javascript_hover_handler='popup_hover_handler',
                 template="lizard_fewsjdbc/jdbc_source.html",
                 crumbs_prepend=None):
     """
@@ -74,9 +68,7 @@ def jdbc_source(request,
 
     return render_to_response(
         template,
-        {'javascript_hover_handler': javascript_hover_handler,
-         'javascript_click_handler': javascript_click_handler,
-         'tree_items': filter_tree,
+        {'tree_items': filter_tree,
          'parameters': fews_parameters,
          'filter': fews_filter,
          'jdbc_source_slug': jdbc_source_slug,

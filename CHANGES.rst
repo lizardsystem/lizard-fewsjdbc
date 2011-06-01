@@ -5,7 +5,8 @@ Changelog of lizard-fewsjdbc
 1.12 (unreleased)
 -----------------
 
-- Unpinned map and ui.
+- Requiring lizard-map >= 1.80 as we don't have to specify click/hover map
+  javascript handlers anymore. And hovering is switched off by default now.
 
 - Removed unused imports.
 
