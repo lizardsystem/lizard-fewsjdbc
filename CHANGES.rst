@@ -5,6 +5,10 @@ Changelog of lizard-fewsjdbc
 1.12 (unreleased)
 -----------------
 
+- Depending on lizard-ui > 1.64 as that allows us to not pass along the full
+  filter tree when viewing one specific filter item: it saves on the transfer
+  time.
+
 - Requiring lizard-map >= 1.80 as we don't have to specify click/hover map
   javascript handlers anymore. And hovering is switched off by default now.
 

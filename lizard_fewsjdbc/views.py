@@ -40,13 +40,14 @@ def jdbc_source(request,
     ignore_cache = request.GET.get('ignore_cache', False)
     jdbc_source = JdbcSource.objects.get(slug=jdbc_source_slug)
 
-    filter_tree = jdbc_source.get_filter_tree(ignore_cache=ignore_cache)
-
     # If the page is called with option filter_id, add parameter variables.
     fews_parameters = None
     fews_filter = None
 
-    if filter_id is not None:
+    if filter_id is None:
+        filter_tree = jdbc_source.get_filter_tree(ignore_cache=ignore_cache)
+    else:
+        filter_tree = None
         named_parameters = jdbc_source.get_named_parameters(
             filter_id, ignore_cache=ignore_cache)
 
