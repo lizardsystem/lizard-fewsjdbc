@@ -2,7 +2,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-1.12 (unreleased)
+1.12 (2011-06-03)
 -----------------
 
 - Depending on lizard-ui > 1.64 as that allows us to not pass along the full
