@@ -71,8 +71,8 @@ class JdbcSource(models.Model):
             "{'id':'id2','name':'name2','parentid':'id'}]"))
 
     class Meta:
-        verbose_name = _("Jdbc Source")
-        verbose_name_plural = _("Jdbc Sources")
+        verbose_name = _("Jdbc source")
+        verbose_name_plural = _("Jdbc sources")
 
     def __unicode__(self):
         return u'%s' % self.name

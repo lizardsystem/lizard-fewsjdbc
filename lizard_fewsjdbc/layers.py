@@ -195,7 +195,8 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
                      'identifier': {'location': named_location['locationid']},
                      'google_coords': (x, y),
                      'object': None})
-        return result
+        result.sort(key=lambda item: item['distance'])
+        return result[:3]  # Max 3.
 
     def values(self, identifier, start_date, end_date):
         timeseries = self.jdbc_source.get_timeseries(
@@ -221,7 +222,7 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         dict_locations = {}
         for named_location in self._locations():
             dict_locations[named_location['locationid']] = named_location
-
+        location_name = dict_locations[location]['location']
         identifier = {'location': location}
         if layout is not None:
             identifier['layout'] = layout
@@ -231,7 +232,7 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
             dict_locations[location]['latitude'])
 
         return {
-            'name': dict_locations[location]['location'],
+            'name': location_name,
             'shortname': dict_locations[location]['location'],
             'workspace_item': self.workspace_item,
             'identifier': identifier,
@@ -248,7 +249,7 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
               raise_404_if_empty=False):
 
         line_styles = self.line_styles(identifiers)
-
+        named_locations = self._locations()
         today = datetime.datetime.now()
         graph = Graph(start_date, end_date,
                       width=width, height=height, today=today)
@@ -260,23 +261,33 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         for identifier in identifiers:
             filter_id = self.filterkey
             location_id = identifier['location']
+            location_name = [
+                location['location'] for location in named_locations
+                if location['locationid'] == location_id][0]
+
             parameter_id = self.parameterkey
+            #parameter_name = self.jdbc_source.get_parameter_name(parameter_id)
             timeseries = self.jdbc_source.get_timeseries(
                 filter_id, location_id, parameter_id, start_date, end_date)
             if timeseries:
                 is_empty = False
-            # Plot data.
+            # Plot data if available.
             dates = [row['time'] for row in timeseries]
             values = [row['value'] for row in timeseries]
-            graph.axes.plot(dates, values,
-                            lw=1,
-                            color=line_styles[str(identifier)]['color'],
-                            label=parameter_id)
+            if values:
+                graph.axes.plot(dates, values,
+                                lw=1,
+                                color=line_styles[str(identifier)]['color'],
+                                label=location_name)
         if is_empty and raise_404_if_empty:
             raise Http404
 
-        # if legend:
-        #     graph.legend()
+        if identifiers:
+            layout = identifiers[0].get('layout')
+            if layout:
+                if layout.get('legend'):
+                    # Ok, this 'if' tree is a bit rediculously deep.
+                    graph.legend(force_legend_below=True)
 
         graph.add_today()
         return graph.http_png()
