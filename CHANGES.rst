@@ -2,7 +2,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-1.13 (unreleased)
+1.13 (2011-06-10)
 -----------------
 
 - Showing legend in the graph (plus, the legend is always below the graph).
