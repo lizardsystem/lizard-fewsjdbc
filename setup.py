@@ -14,7 +14,7 @@ install_requires = [
     'django-staticfiles',
     'django-extensions',
     'django-piston',
-    'lizard-map >= 1.80',
+    'lizard-map >= 1.85',
     'lizard-ui >= 1.64',
     'django-nose',
     'iso8601',
