@@ -5,7 +5,11 @@ Changelog of lizard-fewsjdbc
 1.13 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Showing legend in the graph (plus, the legend is always below the graph).
+
+- Using the location name in the legend.
+
+- Limiting the number of search results to three.
 
 
 1.12 (2011-06-03)
