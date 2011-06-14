@@ -9,6 +9,7 @@ from django.conf import settings
 from django.http import Http404
 
 from lizard_fewsjdbc.models import JdbcSource
+from lizard_fewsjdbc.models import FewsJdbcQueryError
 from lizard_map import coordinates
 from lizard_map import workspace
 from lizard_map.adapter import Graph
@@ -106,7 +107,11 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
 
         layer.datasource = mapnik.PointDatasource()
 
-        named_locations = self._locations()
+        try:
+            named_locations = self._locations()
+        except FewsJdbcQueryError:
+            logger.exception('Problem querying locations from jdbc2ei.')
+            return [], {}
 
         logger.debug("Number of point objects: %d" % len(named_locations))
         for named_location in named_locations:
