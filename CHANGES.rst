@@ -2,7 +2,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-1.14 (unreleased)
+1.14 (2011-06-16)
 -----------------
 
 - Added try/except in adapter.layer to prevent the function from crashing.
