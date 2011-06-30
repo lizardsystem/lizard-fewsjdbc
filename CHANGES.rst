@@ -5,7 +5,7 @@ Changelog of lizard-fewsjdbc
 1.15 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Removed force_legend_below and border in adapter.image graph.
 
 
 1.14 (2011-06-16)

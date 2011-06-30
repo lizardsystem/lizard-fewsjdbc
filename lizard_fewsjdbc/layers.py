@@ -292,7 +292,9 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
             if layout:
                 if layout.get('legend'):
                     # Ok, this 'if' tree is a bit rediculously deep.
-                    graph.legend(force_legend_below=True)
+                    #graph.legend(force_legend_below=True)
+                    graph.legend()
+                    graph.axes.legend_.draw_frame(False)
 
         graph.add_today()
         return graph.http_png()
