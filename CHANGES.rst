@@ -5,6 +5,10 @@ Changelog of lizard-fewsjdbc
 1.15 (unreleased)
 -----------------
 
+- Implemented ignore_cache in get_named_parameters and
+  get_parameter_name. Previously the functions ignored the
+  ignore_cache parameter.
+
 - Removed force_legend_below and border in adapter.image graph.
 
 

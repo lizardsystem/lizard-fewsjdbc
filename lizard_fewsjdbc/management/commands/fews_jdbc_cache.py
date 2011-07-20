@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 class Command(BaseCommand):
     args = ''
-    help = 'Populate fews jdbc cache for better user experience'
+    help = 'Populate fews jdbc filter cache for better user experience'
 
     def handle(self, *args, **options):
         for jdbc_source in JdbcSource.objects.all():

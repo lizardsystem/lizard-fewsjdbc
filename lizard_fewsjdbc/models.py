@@ -194,7 +194,7 @@ class JdbcSource(models.Model):
                                (FILTER_CACHE_KEY, self.slug, str(filter_id)))
         named_parameters = cache.get(parameter_cache_key)
 
-        if named_parameters is None:
+        if ignore_cache or named_parameters is None:
             parameter_result = self.query(
                 ("select name, parameterid, parameter "
                  "from filters where id='%s'" % filter_id))
@@ -216,7 +216,7 @@ class JdbcSource(models.Model):
                                      str(parameter_id)))
         name = cache.get(parameter_name_cache_key)
 
-        if name is None:
+        if ignore_cache or name is None:
             name_results = self.query(
                 ("select name "
                  "from  parameters where id='%s'" % parameter_id))
