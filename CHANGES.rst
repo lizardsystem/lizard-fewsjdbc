@@ -2,7 +2,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-1.15 (unreleased)
+1.15 (2011-07-26)
 -----------------
 
 - Implemented ignore_cache in get_named_parameters and
