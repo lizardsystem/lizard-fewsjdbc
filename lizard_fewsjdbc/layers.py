@@ -327,7 +327,9 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         returns symbol
 
         """
-        output_filename = fews_symbol_name(self.filterkey, nodata=False)
+        _, output_filename = fews_symbol_name(
+            self.jdbc_source, self.filterkey, '',
+            self.parameterkey, nodata=False)
         return '%sgenerated_icons/%s' % (settings.MEDIA_URL, output_filename)
 
     def html(self, snippet_group=None, identifiers=None, layout_options=None):
