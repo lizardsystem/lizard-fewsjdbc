@@ -480,6 +480,24 @@ class TestIconStyle(TestCase):
             IconStyle.style(jdbc_source, 'filterx', 'loc1', 'par1'),
             expected)
 
+    def test_not_found(self):
+        """Do not crash when corresponding iconstyle is notavailable,
+        just return default.
+        """
+        IconStyle(jdbc_source=None,
+                  fews_filter='filter1', fews_location='', fews_parameter='',
+                  icon='filter1.png', mask='mask.png', color='00ffff').save()
+
+        expected = (
+            '::::::',
+            {'icon': 'meetpuntPeil.png', 'mask': ('meetpuntPeil_mask.png', ),
+             'color': (0.0, 0.5, 1.0, 1.0)})
+
+        jdbc_source = JdbcSource.objects.all()[0]
+        self.assertEqual(
+            IconStyle.style(jdbc_source, 'filterx', 'loc1', 'par1'),
+            expected)
+
 
 class TestAdapter(TestCase):
 

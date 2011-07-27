@@ -432,20 +432,22 @@ class IconStyle(models.Model):
         if styles is None or lookup is None:
             styles, lookup = cls._styles_lookup(ignore_cache)
 
-        if not lookup:
-            # Default, this only occurs when the database is empty
+
+        try:
+            level1 = lookup.get(jdbc_source.id, lookup[None])
+            level2 = level1.get(fews_filter, level1[None])
+            level3 = level2.get(fews_location, level2[None])
+            found_key = level3.get(fews_parameter, level3[None])
+            result = styles[found_key]
+        except KeyError:
+            # Default, this only occurs when '::::::' is not defined
             return '::::::', {
                 'icon': 'meetpuntPeil.png',
                 'mask': ('meetpuntPeil_mask.png', ),
                 'color': (0.0, 0.5, 1.0, 1.0)
                 }
 
-        level1 = lookup.get(jdbc_source.id, lookup[None])
-        level2 = level1.get(fews_filter, level1[None])
-        level3 = level2.get(fews_location, level2[None])
-        found_key = level3.get(fews_parameter, level3[None])
-
-        return found_key, styles[found_key]
+        return found_key, result
 
 
 # For Django 1.3:
