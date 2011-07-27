@@ -8,6 +8,7 @@ import os
 from django.conf import settings
 from django.http import Http404
 
+from lizard_fewsjdbc.models import IconStyle
 from lizard_fewsjdbc.models import JdbcSource
 from lizard_fewsjdbc.models import FewsJdbcQueryError
 from lizard_map import coordinates
@@ -32,17 +33,23 @@ LAYER_STYLES = {
 EPSILON = 0.0001
 
 
-def fews_symbol_name(filterkey, nodata=False):
+def fews_symbol_name(
+    jdbc_source, filterkey, locationkey, parameterkey, nodata=False,
+    styles=None, lookup=None):
     """
     Find fews symbol name.
     Copied from lizard_fewsunblobbed.
     """
 
     # determine icon layout by looking at filter.id
-    if str(filterkey) in LAYER_STYLES:
-        icon_style = copy.deepcopy(LAYER_STYLES[str(filterkey)])
-    else:
-        icon_style = copy.deepcopy(LAYER_STYLES['default'])
+    # style_name = 'adf'
+    # if str(filterkey) in LAYER_STYLES:
+    #     icon_style = copy.deepcopy(LAYER_STYLES[str(filterkey)])
+    # else:
+    #     icon_style = copy.deepcopy(LAYER_STYLES['default'])
+
+    style_name, icon_style = IconStyle.style(
+        jdbc_source, filterkey, locationkey, parameterkey, styles, lookup)
 
     #make icon grey
     if nodata:
@@ -55,27 +62,32 @@ def fews_symbol_name(filterkey, nodata=False):
     output_filename = symbol_manager.get_symbol_transformed(
         icon_style['icon'], **icon_style)
 
-    return output_filename
+    return style_name, output_filename
 
 
-def fews_point_style(filterkey, nodata=False):
+def fews_point_style(
+    jdbc_source, filterkey, locationkey, parameterkey, nodata=False,
+    styles=None, lookup=None):
     """
     Make mapnik point_style for fews point with given filterkey.
     Copied from lizard_fewsunblobbed.
     """
-    output_filename = fews_symbol_name(filterkey, nodata)
+    point_style_name, output_filename = fews_symbol_name(
+        jdbc_source, filterkey, locationkey, parameterkey,
+        nodata, styles, lookup)
     output_filename_abs = os.path.join(
         settings.MEDIA_ROOT, 'generated_icons', output_filename)
 
     # use filename in mapnik pointsymbolizer
-    point_looks = mapnik.PointSymbolizer(output_filename_abs, 'png', 16, 16)
+    point_looks = mapnik.PointSymbolizer(
+        str(output_filename_abs), 'png', 16, 16)
     point_looks.allow_overlap = True
     layout_rule = mapnik.Rule()
     layout_rule.symbols.append(point_looks)
     point_style = mapnik.Style()
     point_style.rules.append(layout_rule)
 
-    return point_style
+    return point_style_name, point_style
 
 
 class FewsJdbc(workspace.WorkspaceItemAdapter):
@@ -113,20 +125,31 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
             logger.exception('Problem querying locations from jdbc2ei.')
             return [], {}
 
+        fews_styles, fews_style_lookup = IconStyle._styles_lookup()
+
         logger.debug("Number of point objects: %d" % len(named_locations))
         for named_location in named_locations:
-            logger.debug('layer coordinates %s %s' % (
+            logger.debug('layer coordinates %s %s %s' % (
+                    named_location['locationid'],
                     named_location['longitude'],
                     named_location['latitude']))
             add_datasource_point(
                 layer.datasource, named_location['longitude'],
                 named_location['latitude'], 'Name', 'Info')
 
-        point_style = fews_point_style(self.filterkey, nodata=False)
-        # generate "unique" point style name and append to layer
-        style_name = str("Style with data %s::%s" %
-                         (self.filterkey, self.parameterkey))
-        styles[style_name] = point_style
+            point_style_name, point_style = fews_point_style(
+                self.jdbc_source,
+                self.filterkey,
+                named_location['locationid'],
+                self.parameterkey,
+                nodata=False,
+                styles=fews_styles,
+                lookup=fews_style_lookup)
+            # generate "unique" point style name and append to layer
+            # if the same style occurs multiple times, it will overwrite old.
+            style_name = str("Lizard-FewsJdbc::%s" % (point_style_name))
+            styles[style_name] = point_style
+
         layer.styles.append(style_name)
 
         layers = [layer, ]

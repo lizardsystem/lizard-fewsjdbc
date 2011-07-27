@@ -9,12 +9,16 @@ from socket import gaierror
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.db import models
+from django.db.models.signals import post_save
+from django.db.models.signals import post_delete
 from django.conf import settings
 from django.utils.translation import ugettext as _
 
 from lizard_map.operations import named_list
 from lizard_map.operations import tree_from_list
 from lizard_map.operations import unique_list
+from lizard_map.models import ColorField
+
 
 JDBC_NONE = -999
 JDBC_DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
@@ -290,3 +294,171 @@ class JdbcSource(models.Model):
     def get_absolute_url(self):
         return reverse('lizard_fewsjdbc.jdbc_source',
                        kwargs={'jdbc_source_slug': self.slug})
+
+
+class IconStyle(models.Model):
+    """
+    Customizable icon styles where all "selector fields" are optional.
+
+    The styles are cached for performance.
+    """
+    CACHE_KEY = 'lizard_fewsjdbc.IconStyle'
+
+    # Selector fields.
+    jdbc_source = models.ForeignKey(JdbcSource, null=True, blank=True)
+    fews_filter = models.CharField(max_length=40, null=True, blank=True)
+    fews_location = models.CharField(max_length=40, null=True, blank=True)
+    fews_parameter = models.CharField(max_length=40, null=True, blank=True)
+
+    # Icon properties.
+    icon = models.CharField(max_length=40)
+    mask = models.CharField(max_length=40)
+    color = ColorField()
+
+    class Meta:
+        verbose_name = _("Icon style")
+        verbose_name_plural = _("Icon styles")
+
+    def __unicode__(self):
+        return u'%s' % (self._key)
+
+    @property
+    def _key(self):
+        return '%s::%s::%s::%s' % (
+            self.jdbc_source.id if self.jdbc_source else '',
+            self.fews_filter,
+            self.fews_location,
+            self.fews_parameter)
+
+    @classmethod
+    def _styles(cls):
+        """
+        Return styles in a symbol manager style in a dict.
+
+        The dict key consist of
+        "jdbc_source_id::fews_filter::fews_location::fews_parameter"
+        """
+        result = {}
+        for icon_style in cls.objects.all():
+            result[icon_style._key] = {
+                'icon': icon_style.icon,
+                'mask': (icon_style.mask, ),
+                'color': icon_style.color.to_tuple()
+                }
+        return result
+
+    @classmethod
+    def _lookup(cls):
+        """
+        Return style lookup dictionary.
+
+        This lookup dictionary is cached and it is rebuild every time
+        the IconStyle table changes.
+
+        The structure (always) has 4 levels and is used to lookup icon
+        styles with fallback in a fast way:
+
+        level 0 (highest) {None: {level1}, <jdbc_source_id>: {level1},
+        ... }
+
+        level 1 {None: {level2}, "<fews_filter_id>": {level2}, ...}
+
+        level 2 {None: {level3}, "<fews_location_id>": {level3}, ...}
+
+        level 3 {None: icon_key, "<fews_parameter_id>": icon_key, ...}
+        """
+
+        lookup = {}
+
+        # Insert style into lookup
+        for style in cls.objects.all():
+            level0 = style.jdbc_source.id if style.jdbc_source else None
+            level1 = style.fews_filter if style.fews_filter else None
+            level2 = style.fews_location if style.fews_location else None
+            level3 = (style.fews_parameter
+                      if style.fews_parameter else None)
+            if level0 not in lookup:
+                lookup[level0] = {}
+            if level1 not in lookup[level0]:
+                lookup[level0][level1] = {}
+            if level2 not in lookup[level0][level1]:
+                lookup[level0][level1][level2] = {}
+            if level3 not in lookup[level0][level1][level2]:
+                lookup[level0][level1][level2][level3] = style._key
+            # Every 'breach' needs a 'None' / default side.
+            if None not in lookup:
+                lookup[None] = {}
+            if None not in lookup[level0]:
+                lookup[level0][None] = {}
+            if None not in lookup[level0][level1]:
+                lookup[level0][level1][None] = {}
+            if None not in lookup[level0][level1][level2]:
+                lookup[level0][level1][level2][None] = '%s::%s::%s::' % (
+                    level0 if level0 else '',
+                    level1 if level1 else '',
+                    level2 if level2 else '')
+        return lookup
+
+    @classmethod
+    def _styles_lookup(cls, ignore_cache=False):
+        cache_lookup = cache.get(cls.CACHE_KEY)
+
+        if cache_lookup is None or ignore_cache:
+            # Calculate styles and lookup and store in cache.
+            styles = cls._styles()
+            lookup = cls._lookup()
+            cache.set(cls.CACHE_KEY, (styles, lookup))
+        else:
+            # The cache has a 2-tuple (styles, lookup) stored.
+            styles, lookup = cache_lookup
+
+        return styles, lookup
+
+    @classmethod
+    def style(
+        cls,
+        jdbc_source, fews_filter,
+        fews_location, fews_parameter,
+        styles=None, lookup=None, ignore_cache=False):
+        """
+        Return the best corresponding icon style and return in format:
+
+        'xx::yy::zz::aa',
+        {'icon': 'icon.png',
+         'mask': 'mask.png',
+         'color': (1,1,1,0)
+         }
+        """
+        if styles is None or lookup is None:
+            styles, lookup = cls._styles_lookup(ignore_cache)
+
+        if not lookup:
+            # Default, this only occurs when the database is empty
+            return '::::::', {
+                'icon': 'meetpuntPeil.png',
+                'mask': ('meetpuntPeil_mask.png', ),
+                'color': (0.0, 0.5, 1.0, 1.0)
+                }
+
+        level1 = lookup.get(jdbc_source.id, lookup[None])
+        level2 = level1.get(fews_filter, level1[None])
+        level3 = level2.get(fews_location, level2[None])
+        found_key = level3.get(fews_parameter, level3[None])
+
+        return found_key, styles[found_key]
+
+
+# For Django 1.3:
+# @receiver(post_save, sender=Setting)
+# @receiver(post_delete, sender=Setting)
+def icon_style_post_save_delete(sender, **kwargs):
+    """
+    Invalidates cache after saving or deleting an IconStyle.
+    """
+    logger.debug('Changed IconStyle. Invalidating cache for %s...' %
+                 sender.CACHE_KEY)
+    cache.delete(sender.CACHE_KEY)
+
+
+post_save.connect(icon_style_post_save_delete, sender=IconStyle)
+post_delete.connect(icon_style_post_save_delete, sender=IconStyle)
