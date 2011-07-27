@@ -8,7 +8,7 @@ class JdbcSourceAdmin(admin.ModelAdmin):
 
 class IconStyleAdmin(admin.ModelAdmin):
     list_display = (
-        'jdbc_source', 'fews_filter', 'fews_location',
+        '__unicode__', 'jdbc_source', 'fews_filter', 'fews_location',
         'fews_parameter', 'icon', 'color')
     list_filter = (
         'jdbc_source', 'fews_filter', 'fews_location',

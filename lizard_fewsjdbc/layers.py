@@ -84,6 +84,11 @@ def fews_point_style(
     point_looks.allow_overlap = True
     layout_rule = mapnik.Rule()
     layout_rule.symbols.append(point_looks)
+
+    # We use 'class' to filter the correct style for the locations
+    layout_rule.filter = mapnik.Filter(
+        "[style] = '%s'" % str(point_style_name))
+
     point_style = mapnik.Style()
     point_style.rules.append(layout_rule)
 
@@ -133,9 +138,6 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
                     named_location['locationid'],
                     named_location['longitude'],
                     named_location['latitude']))
-            add_datasource_point(
-                layer.datasource, named_location['longitude'],
-                named_location['latitude'], 'Name', 'Info')
 
             point_style_name, point_style = fews_point_style(
                 self.jdbc_source,
@@ -145,12 +147,20 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
                 nodata=False,
                 styles=fews_styles,
                 lookup=fews_style_lookup)
+
+            # Put style in point, filters work on these styles.
+            add_datasource_point(
+                layer.datasource, named_location['longitude'],
+                named_location['latitude'], 'style', str(point_style_name))
+
             # generate "unique" point style name and append to layer
             # if the same style occurs multiple times, it will overwrite old.
             style_name = str("Lizard-FewsJdbc::%s" % (point_style_name))
             styles[style_name] = point_style
 
-        layer.styles.append(style_name)
+        # Add all style names to the layer styles.
+        for style_name in styles.keys():
+            layer.styles.append(style_name)
 
         layers = [layer, ]
         return layers, styles
@@ -326,6 +336,8 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         """
         returns symbol
 
+        TODO: the identifier is always None, so individual symbols
+        cannot be retrieved.
         """
         _, output_filename = fews_symbol_name(
             self.jdbc_source, self.filterkey, '',
