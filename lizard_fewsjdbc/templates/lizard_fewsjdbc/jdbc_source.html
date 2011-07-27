@@ -21,11 +21,11 @@
       id="parameter-pane">
     {% for parameter in parameters %}
     <li class="workspace-acceptable file"
-        data-name="{{ filter.name }} - {{ parameter.name }} - {{ jdbc_source_slug }}"
+        data-name="{{ parameter.name }} ({{ parameter.filter_name }}, {{ jdbc_source_slug }})"
         data-adapter-class="adapter_fewsjdbc"
-        data-adapter-layer-json='{"slug": "{{ jdbc_source_slug }}", "filter": "{{ filter.id }}", "parameter": "{{ parameter.id }}"}'
-        data-filter-id="{{ filter.id }}">
-      {{ parameter.name }}
+        data-adapter-layer-json='{"slug": "{{ jdbc_source_slug }}", "filter": "{{ parameter.filter_id }}", "parameter": "{{ parameter.id }}"}'
+        data-filter-id="{{ parameter.filter_id }}">
+      {{ parameter.name }} ({{ parameter.filter_name }})
     </li>
     {% empty %}
     <li>Geen parameters gevonden/geladen.</li>

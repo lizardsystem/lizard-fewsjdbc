@@ -79,22 +79,22 @@ class TestIntegration(TestCase):
         """
         Working jdbc source with custom filters.
         """
-        self.mock_query_result['filter'] = [
-            ['id1', 'name1', JDBC_NONE],
-            ['id2', 'name2', 'id1'],
-            ['id3', 'name3', 'id1'],
-            ['id4', 'name4', 'id2'],
-            ]
+        # self.mock_query_result['filter'] = [
+        #     ['id1', 'name1', JDBC_NONE, 'filtername1'],
+        #     ['id2', 'name2', 'id1', 'filtername2'],
+        #     ['id3', 'name3', 'id1', 'filtername3'],
+        #     ['id4', 'name4', 'id2', 'filtername4'],
+        #     ]
         self.mock_query_result['parameter'] = [
-            ['name1', 'parameterid1', 'parameter1'],
-            ['name2', 'parameterid2', 'parameter2'],
-            ['name3', 'parameterid3', 'parameter3'],
+            ['name1', 'parameterid1', 'parameter1', 'name1'],
+            ['name2', 'parameterid2', 'parameter2', 'name2'],
+            ['name3', 'parameterid3', 'parameter3', 'name3'],
             ]
 
         c = Client()
         url = reverse('lizard_fewsjdbc.jdbc_source',
                       kwargs={'jdbc_source_slug': 'wro'})
-        url += '?filter_id=Hoofd_waterstand_webserver'
+        url += '?filter_id=Hoofd_waterstand_webserver&ignore_cache=True'
         response = c.get(url)
         self.assertEqual(response.status_code, 200)
 
@@ -156,7 +156,7 @@ class TestModelMockQuery(TestCase):
             ['id4', 'name4', 'id2'],
             ]
         result = self.jdbc_source.get_filter_tree(ignore_cache=True)
-        url_base = '/fews_jdbc/assen/?filter_id=%s'
+        url_base = '/fews_jdbc/assen/?filter_id=%s&ignore_cache=True'
         result_good = [
             {'id': 'id1', 'name': 'name1',
              'url': url_base % 'id1',
@@ -187,11 +187,11 @@ class TestModelMockQuery(TestCase):
             ]
         result = self.jdbc_source.get_named_parameters('id1')
         result_good = [
-            {'name': 'name1', 'parameterid': 'parameterid1',
+            {'filter_name': 'name1', 'parameterid': 'parameterid1',
              'parameter': 'parameter1'},
-            {'name': 'name2', 'parameterid': 'parameterid2',
+            {'filter_name': 'name2', 'parameterid': 'parameterid2',
              'parameter': 'parameter2'},
-            {'name': 'name3', 'parameterid': 'parameterid3',
+            {'filter_name': 'name3', 'parameterid': 'parameterid3',
              'parameter': 'parameter3'},
             ]
         self.assertEqual(result, result_good)

@@ -5,8 +5,13 @@ Changelog of lizard-fewsjdbc
 1.16 (unreleased)
 -----------------
 
+- When clicking on a parent filter, the result is now the listing of
+  the parameters from filters below. #3029.
+
 - Added IconStyle model and migration. Icons are now configurable. It
   will revert to a default when nothing is configurated.
+
+Note: Clear cache when upgrading to this tag.
 
 
 1.15 (2011-07-26)

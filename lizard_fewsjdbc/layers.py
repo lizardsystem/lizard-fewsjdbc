@@ -304,7 +304,6 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
                 if location['locationid'] == location_id][0]
 
             parameter_id = self.parameterkey
-            #parameter_name = self.jdbc_source.get_parameter_name(parameter_id)
             timeseries = self.jdbc_source.get_timeseries(
                 filter_id, location_id, parameter_id, start_date, end_date)
             if timeseries:
@@ -327,7 +326,9 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
                     # Ok, this 'if' tree is a bit rediculously deep.
                     #graph.legend(force_legend_below=True)
                     graph.legend()
-                    graph.axes.legend_.draw_frame(False)
+                    # If there is not data, graph.axes.legend_ is None
+                    if graph.axes.legend_ is not None:
+                        graph.axes.legend_.draw_frame(False)
 
         graph.add_today()
         return graph.http_png()

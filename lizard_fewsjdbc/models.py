@@ -47,6 +47,30 @@ class FewsJdbcQueryError(Exception):
             self.query, self.value)
 
 
+def lowest_filters(id_value, tree, below_id_value=False):
+    """Return all ids from descendants from id_value without children.
+
+    Input is a hierarchical tree structure with at least 'id' and
+    'children'.
+    """
+    result = []
+    for child in tree:
+        if below_id_value:
+            below_id = True
+        else:
+            if id_value == child['id']:
+                below_id = True
+            else:
+                below_id = False
+        result += lowest_filters(
+            id_value, child['children'],
+            below_id_value=below_id)
+        if not child['children'] and below_id:
+            result += [child['id'], ]
+
+    return result
+
+
 class JdbcSource(models.Model):
     """
     Uses Jdbc2Ei to connect to a Jdbc source. Works only for Jdbc2Ei
@@ -174,6 +198,7 @@ class JdbcSource(models.Model):
                 url = reverse(url_name,
                               kwargs={'jdbc_source_slug': self.slug})
                 url += '?filter_id=%s' % named_filter['id']
+                url += '&ignore_cache=True' if ignore_cache else ''
                 named_filter['url'] = url
             # Make the tree.
             filter_tree = tree_from_list(
@@ -192,41 +217,27 @@ class JdbcSource(models.Model):
         'parameterid': <parameterid1>, 'parameter': <parameter1>},
         ...]
 
-        Uses cache.
+        Uses cache. The parameters are parameters from the lowest
+        filter below given filter_id.
         """
         parameter_cache_key = ('%s::%s::%s' %
                                (FILTER_CACHE_KEY, self.slug, str(filter_id)))
         named_parameters = cache.get(parameter_cache_key)
 
+        filter_names = lowest_filters(filter_id, self.get_filter_tree())
+        filter_query = " or ".join(
+            ["id='%s'" % filter_name for filter_name in filter_names])
+
         if ignore_cache or named_parameters is None:
             parameter_result = self.query(
-                ("select name, parameterid, parameter "
-                 "from filters where id='%s'" % filter_id))
+                ("select name, parameterid, parameter, id "
+                 "from filters where %s" % filter_query))
             unique_parameters = unique_list(parameter_result)
-            named_parameters = named_list(unique_parameters,
-                                          ['name', 'parameterid', 'parameter'])
+            named_parameters = named_list(
+                unique_parameters,
+                ['filter_name', 'parameterid', 'parameter', 'filter_id'])
             cache.set(parameter_cache_key, named_parameters, 8 * 60 * 60)
         return named_parameters
-
-    def get_parameter_name(self, parameter_id, ignore_cache=False):
-        """
-        Return name of the parameter.
-
-        Uses cache.
-        """
-        parameter_name_cache_key = ('%s::%s::%s' %
-                                    (PARAMETER_NAME_CACHE_KEY,
-                                     self.slug,
-                                     str(parameter_id)))
-        name = cache.get(parameter_name_cache_key)
-
-        if ignore_cache or name is None:
-            name_results = self.query(
-                ("select name "
-                 "from  parameters where id='%s'" % parameter_id))
-            name = name_results[0][0]
-            cache.set(parameter_name_cache_key, name, 8 * 60 * 60)
-        return name
 
     def get_locations(self, filter_id, parameter_id):
         """

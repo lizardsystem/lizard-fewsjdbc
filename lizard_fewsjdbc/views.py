@@ -53,10 +53,12 @@ def jdbc_source(request,
 
         if named_parameters:
             fews_parameters = [
-                {'name': named_parameter['parameter'],
-                 'id': named_parameter['parameterid']}
+                {'name': '%s' % named_parameter['parameter'],
+                 'id': named_parameter['parameterid'],
+                 'filter_id': named_parameter['filter_id'],
+                 'filter_name': named_parameter['filter_name']}
                 for named_parameter in named_parameters]
-            fews_filter = {'name': named_parameters[0]['name'],
+            fews_filter = {'name': named_parameters[0]['filter_name'],
                            'id': filter_id}
 
     if crumbs_prepend is not None:
@@ -65,7 +67,8 @@ def jdbc_source(request,
         crumbs = [{'name': 'home', 'url': '/'}]
     crumbs.append({'name': jdbc_source.name,
                    'title': 'metingen %s' % jdbc_source.name,
-                   'url': jdbc_source.get_absolute_url()})
+                   'url': jdbc_source.get_absolute_url() +
+                          '?ignore_cache=True' if ignore_cache else ''})
 
     return render_to_response(
         template,
