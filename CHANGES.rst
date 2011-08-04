@@ -5,6 +5,8 @@ Changelog of lizard-fewsjdbc
 1.16 (unreleased)
 -----------------
 
+- Added min/max/avg/label/horizontal lines to adapter.image function.
+
 - When clicking on a parent filter, the result is now the listing of
   the parameters from filters below. #3029.
 

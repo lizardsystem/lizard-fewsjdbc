@@ -286,6 +286,66 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
               layout_extra=None,
               raise_404_if_empty=False):
 
+        """
+        Visualize timeseries in a graph.
+
+        Legend is always drawn.
+
+        TODO: option x-label does not work. Graph is too high?
+        TODO: y_min, y_max does not work.
+        """
+
+        def apply_layout(layout, title, y_min, y_max, legend):
+            """Applies layout options. Returns title,
+            y_min, y_max, graph, legend
+
+            From lizard-fewsunblobbed"""
+
+            if "title" in layout:
+                title = layout['title']
+            if "y_min" in layout:
+                y_min = float(layout['y_min'])
+            if "y_max" in layout:
+                y_max = float(layout['y_max'])
+            if "legend" in layout:
+                legend = layout['legend']
+            if "y_label" in layout:
+                graph.axes.set_ylabel(layout['y_label'])
+            if "x_label" in layout:
+                graph.set_xlabel(layout['x_label'])
+            return title, y_min, y_max, legend
+
+        def apply_lines(identifier, values, location_name):
+            """Adds lines that are defined in layout. Uses function
+            variable graph, line_styles.
+
+            Inspired by fewsunblobbed"""
+
+            layout = identifier['layout']
+
+            if "line_min" in layout:
+                graph.axes.axhline(
+                    min(values),
+                    color=line_styles[str(identifier)]['color'],
+                    lw=line_styles[str(identifier)]['min_linewidth'],
+                    ls=line_styles[str(identifier)]['min_linestyle'],
+                    label='Minimum %s' % location_name)
+            if "line_max" in layout:
+                graph.axes.axhline(
+                    max(values),
+                    color=line_styles[str(identifier)]['color'],
+                    lw=line_styles[str(identifier)]['max_linewidth'],
+                    ls=line_styles[str(identifier)]['max_linestyle'],
+                    label='Maximum %s' % location_name)
+            if "line_avg" in layout and values:
+                average = sum(values) / len(values)
+                graph.axes.axhline(
+                    average,
+                    color=line_styles[str(identifier)]['color'],
+                    lw=line_styles[str(identifier)]['avg_linewidth'],
+                    ls=line_styles[str(identifier)]['avg_linestyle'],
+                    label='Gemiddelde %s' % location_name)
+
         line_styles = self.line_styles(identifiers)
         named_locations = self._locations()
         today = datetime.datetime.now()
@@ -294,6 +354,11 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         graph.axes.grid(True)
         unit = self.jdbc_source.get_unit(self.parameterkey)
         graph.axes.set_ylabel(unit)
+
+        # Draw extra's (from fewsunblobbed)
+        title = None
+        y_min, y_max = None, None
+        legend = None
 
         is_empty = True
         for identifier in identifiers:
@@ -316,6 +381,13 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
                                 lw=1,
                                 color=line_styles[str(identifier)]['color'],
                                 label=location_name)
+            # Apply custom layout parameters.
+            if 'layout' in identifier:
+                layout = identifier['layout']
+                title, y_min, y_max, legend = apply_layout(
+                    layout, title, y_min, y_max, legend)
+                apply_lines(identifier, values, location_name)
+
         if is_empty and raise_404_if_empty:
             raise Http404
 
@@ -329,6 +401,32 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
                     # If there is not data, graph.axes.legend_ is None
                     if graph.axes.legend_ is not None:
                         graph.axes.legend_.draw_frame(False)
+
+        # Extra layout parameters. From lizard-fewsunblobbed.
+        if y_min is None:
+            y_min, _ = graph.axes.get_ylim()
+        if y_max is None:
+            _, y_max = graph.axes.get_ylim()
+
+        if layout_extra:
+            title, y_min, y_max, legend = apply_layout(
+                layout_extra, title, y_min, y_max, legend)
+
+        if title:
+            graph.suptitle(title)
+
+        # TODO: set_ylim does not work.
+        graph.axes.set_ylim(y_min, y_max)
+
+        # Copied from lizard-fewsunblobbed.
+        if "horizontal_lines" in layout_extra:
+            for horizontal_line in layout_extra['horizontal_lines']:
+                graph.axes.axhline(
+                    horizontal_line['value'],
+                    ls=horizontal_line['style']['linestyle'],
+                    color=horizontal_line['style']['color'],
+                    lw=horizontal_line['style']['linewidth'],
+                    label=horizontal_line['name'])
 
         graph.add_today()
         return graph.http_png()

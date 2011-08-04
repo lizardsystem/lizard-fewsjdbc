@@ -361,7 +361,7 @@ class IconStyle(models.Model):
     @classmethod
     def _lookup(cls):
         """
-        Return style lookup dictionary.
+        Return style lookup dictionary based on class objects.
 
         This lookup dictionary is cached and it is rebuild every time
         the IconStyle table changes.
