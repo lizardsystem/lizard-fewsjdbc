@@ -2,7 +2,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-1.16 (unreleased)
+1.16 (2011-08-04)
 -----------------
 
 - Added min/max/avg/label/horizontal lines to adapter.image function.
