@@ -5,7 +5,9 @@ Changelog of lizard-fewsjdbc
 1.17 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Added version dependency to lizard_map and lizard_ui.
+
+- Added option for admin IconStyles.
 
 
 1.16 (2011-08-04)

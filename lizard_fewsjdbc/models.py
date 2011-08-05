@@ -18,6 +18,7 @@ from lizard_map.operations import named_list
 from lizard_map.operations import tree_from_list
 from lizard_map.operations import unique_list
 from lizard_map.models import ColorField
+from lizard_map.symbol_manager import list_image_file_names
 
 
 JDBC_NONE = -999
@@ -26,6 +27,7 @@ FILTER_CACHE_KEY = 'lizard_fewsjdbc.models.filter_cache_key'
 PARAMETER_NAME_CACHE_KEY = 'lizard_fewsjdbc.models.parameter_name_cache_key'
 LOCATION_CACHE_KEY = 'lizard_fewsjdbc.layers.location_cache_key'
 LOG_JDBC_QUERIES = getattr(settings, 'LOG_JDBC_QUERIES', False)
+
 
 logger = logging.getLogger(__name__)
 
@@ -322,9 +324,9 @@ class IconStyle(models.Model):
     fews_parameter = models.CharField(max_length=40, null=True, blank=True)
 
     # Icon properties.
-    icon = models.CharField(max_length=40)
-    mask = models.CharField(max_length=40)
-    color = ColorField()
+    icon = models.CharField(max_length=40, choices=list_image_file_names())
+    mask = models.CharField(max_length=40, choices=list_image_file_names())
+    color = ColorField(help_text="Use color format ffffff or 333333")
 
     class Meta:
         verbose_name = _("Icon style")
