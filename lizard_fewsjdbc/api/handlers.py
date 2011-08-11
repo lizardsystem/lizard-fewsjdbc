@@ -29,8 +29,8 @@ GET_PARAM_DATE_FORMAT = '%Y-%m-%d'
 
 
 def start_end_dates(request):
-    start_date = default_start()
-    end_date = default_end()
+    start_date = datetime.datetime.now() + default_start()
+    end_date = datetime.datetime.now() + default_end()
     if 'period' in request.GET:
         end_date = datetime.datetime.now() + datetime.timedelta(hours=1)
         # ^^^ Now plus padding.
@@ -249,7 +249,9 @@ class TimeserieHandler(BaseHandler):
             return response
         result['data'] = data
 
-        result['parameter_name'] = jdbc_source.get_parameter_name(parameter_id)
+        # TODO: fix this parameter_name, get_parameter_name does not exist
+        # result['parameter_name'] = jdbc_source.get_parameter_name(parameter_id)
+        result['parameter_name'] = parameter_id
         # ^^^ Not sure this is a great place to set this, but we need it for
         # now.
 

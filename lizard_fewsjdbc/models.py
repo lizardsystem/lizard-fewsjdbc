@@ -274,6 +274,8 @@ class JdbcSource(models.Model):
         ExTimeSeries WHERE filterId = 'MFPS' AND parameterId =
         'H.meting' AND locationId = 'BW_NZ_04' AND time BETWEEN
         '2007-01-01 13:00:00' AND '2008-01-10 13:00:00'
+
+        Apparently only used by the API.
         """
         q = ("select time, value, flag, detection, comment from "
              "extimeseries where filterid='%s' and locationid='%s' "

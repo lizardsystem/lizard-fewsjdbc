@@ -5,6 +5,8 @@ Changelog of lizard-fewsjdbc
 1.17 (unreleased)
 -----------------
 
+- Fixed API timeseries request #3156.
+
 - Added version dependency to lizard_map and lizard_ui.
 
 - Added option for admin IconStyles.
