@@ -2,7 +2,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-1.17 (unreleased)
+1.17 (2011-08-17)
 -----------------
 
 - Fixed API timeseries request #3156.
