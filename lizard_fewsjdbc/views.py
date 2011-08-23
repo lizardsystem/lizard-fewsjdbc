@@ -41,7 +41,7 @@ def jdbc_source(request,
     jdbc_source = JdbcSource.objects.get(slug=jdbc_source_slug)
 
     # If the page is called with option filter_id, add parameter variables.
-    fews_parameters = None
+    workspace_acceptables = None
     fews_filter = None
 
     if filter_id is None:
@@ -52,11 +52,25 @@ def jdbc_source(request,
             filter_id, ignore_cache=ignore_cache)
 
         if named_parameters:
-            fews_parameters = [
-                {'name': '%s' % named_parameter['parameter'],
+            workspace_acceptables = [
+                {'name': '%s (%s, %s)' % (
+                        named_parameter['parameter'],
+                        named_parameter['filter_name'],
+                        jdbc_source_slug),
+                 'shortname': '%s (%s)' % (
+                        named_parameter['parameter'],
+                        named_parameter['filter_name']),
+                 #'name': '%s' % named_parameter['parameter'],
                  'id': named_parameter['parameterid'],
                  'filter_id': named_parameter['filter_id'],
-                 'filter_name': named_parameter['filter_name']}
+                 'filter_name': named_parameter['filter_name'],
+                 'adapter_class': 'adapter_fewsjdbc',
+                 'adapter_layer_json': (
+                        '{"slug": "%s", "filter": "%s", '
+                        '"parameter": "%s"}') % (
+                        jdbc_source_slug, named_parameter['filter_id'],
+                        named_parameter['parameterid'])
+                 }
                 for named_parameter in named_parameters]
             fews_filter = {'name': named_parameters[0]['filter_name'],
                            'id': filter_id}
@@ -73,7 +87,7 @@ def jdbc_source(request,
     return render_to_response(
         template,
         {'tree_items': filter_tree,
-         'parameters': fews_parameters,
+         'workspace_acceptables': workspace_acceptables,
          'filter': fews_filter,
          'jdbc_source_slug': jdbc_source_slug,
          'crumbs': crumbs},

@@ -19,23 +19,20 @@
   <h2>2: Parameters</h2>
   <ul class="without-bullets pane"
       id="parameter-pane">
-    {% for parameter in parameters %}
-    <li class="workspace-acceptable file"
-        data-name="{{ parameter.name }} ({{ parameter.filter_name }}, {{ jdbc_source_slug }})"
-        data-adapter-class="adapter_fewsjdbc"
-        data-adapter-layer-json='{"slug": "{{ jdbc_source_slug }}", "filter": "{{ parameter.filter_id }}", "parameter": "{{ parameter.id }}"}'
-        data-filter-id="{{ parameter.filter_id }}">
-      {{ parameter.name }} ({{ parameter.filter_name }})
+    {% for workspace_acceptable in workspace_acceptables %}
+    <li class="workspace-acceptable file{% selected_if_in_workspace workspace_acceptable.adapter_class workspace_acceptable.adapter_layer_json workspace_edit %}"
+        data-name="{{ workspace_acceptable.name }}"
+        data-adapter-class="{{ workspace_acceptable.adapter_class }}"
+        data-adapter-layer-json='{{ workspace_acceptable.adapter_layer_json }}'
+        data-filter-id="{{ workspace_acceptable.filter_id }}">
+      {{ workspace_acceptable.shortname }}
     </li>
     {% empty %}
     <li>Geen parameters gevonden/geladen.</li>
     {% endfor %}
   </ul>
 </div>
-{% for workspace in workspaces.user %}
-  {% workspace workspace %}
-{% empty %}
-No workspace
-{% endfor %}
+
+{% workspace_edit workspace_edit %}
 
 {% endblock sidebar %}
