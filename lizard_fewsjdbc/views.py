@@ -31,6 +31,7 @@ def homepage(request,
 def jdbc_source(request,
                 jdbc_source_slug,
                 template="lizard_fewsjdbc/jdbc_source.html",
+                adapter_class="adapter_fewsjdbc",
                 crumbs_prepend=None):
     """
     FEWS JDBC browser view. Filter list and parameter list is cached.
@@ -76,5 +77,6 @@ def jdbc_source(request,
          'parameters': fews_parameters,
          'filter': fews_filter,
          'jdbc_source_slug': jdbc_source_slug,
+         'adapter_class': adapter_class,
          'crumbs': crumbs},
         context_instance=RequestContext(request))
