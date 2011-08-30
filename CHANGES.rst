@@ -2,7 +2,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-1.18 (unreleased)
+1.18 (2011-08-30)
 -----------------
 
 - Added adapter_class as an option to the jdbc_source view. This is
