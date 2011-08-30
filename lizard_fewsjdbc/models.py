@@ -169,7 +169,8 @@ class JdbcSource(models.Model):
 
         Uses cache.
         """
-        filter_source_cache_key = FILTER_CACHE_KEY + '::' + self.slug
+        filter_source_cache_key = '%s::%s::%s' % (
+            url_name, FILTER_CACHE_KEY, self.slug)
         filter_tree = cache.get(filter_source_cache_key)
         if filter_tree is None or ignore_cache:
             # Building up the fews filter tree.

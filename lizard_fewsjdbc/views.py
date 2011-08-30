@@ -31,6 +31,7 @@ def homepage(request,
 def jdbc_source(request,
                 jdbc_source_slug,
                 template="lizard_fewsjdbc/jdbc_source.html",
+                filter_url_name="lizard_fewsjdbc.jdbc_source",
                 adapter_class="adapter_fewsjdbc",
                 crumbs_prepend=None):
     """
@@ -46,7 +47,9 @@ def jdbc_source(request,
     fews_filter = None
 
     if filter_id is None:
-        filter_tree = jdbc_source.get_filter_tree(ignore_cache=ignore_cache)
+        filter_tree = jdbc_source.get_filter_tree(
+            filter_url_name,
+            ignore_cache=ignore_cache)
     else:
         filter_tree = None
         named_parameters = jdbc_source.get_named_parameters(

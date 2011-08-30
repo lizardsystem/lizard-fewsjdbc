@@ -5,7 +5,7 @@ Changelog of lizard-fewsjdbc
 1.18 (unreleased)
 -----------------
 
-- Added adapter_class as an option for jdbc_source view. This is
+- Added adapter_class as an option to the jdbc_source view. This is
   done for reusability of the view.
 
 
