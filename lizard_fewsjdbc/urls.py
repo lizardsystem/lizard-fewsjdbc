@@ -3,17 +3,19 @@ from django.conf.urls.defaults import *
 from django.conf import settings
 from django.contrib import admin
 
+import lizard_fewsjdbc.views
+
 
 admin.autodiscover()
 
 urlpatterns = patterns(
     '',
     url(r'^$',
-        'lizard_fewsjdbc.views.homepage',
+        lizard_fewsjdbc.views.HomepageView.as_view(),
         name="lizard_fewsjdbc.homepage",
         ),
     url(r'^fews_jdbc/(?P<jdbc_source_slug>.*)/$',
-        'lizard_fewsjdbc.views.jdbc_source',
+        lizard_fewsjdbc.views.JdbcSourceView.as_view(),
         name="lizard_fewsjdbc.jdbc_source",
         ),
     (r'^map/', include('lizard_map.urls')),

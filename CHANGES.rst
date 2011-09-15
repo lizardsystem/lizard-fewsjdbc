@@ -5,7 +5,11 @@ Changelog of lizard-fewsjdbc
 1.18 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Implemented class based views.
+
+- Upgraded to Lizard 3.
+
+- Added error check in jdbc_source.get_filter_tree.
 
 
 1.17 (2011-08-17)

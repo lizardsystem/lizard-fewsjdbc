@@ -24,10 +24,6 @@
   </ul>
 </div>
 
-{% for workspace in workspaces.user %}
-  {% workspace workspace %}
-{% empty %}
-No workspace
-{% endfor %}
+{% workspace_edit workspace_edit %}
 
 {% endblock %}
