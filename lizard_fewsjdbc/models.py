@@ -288,6 +288,25 @@ class JdbcSource(models.Model):
         result = named_list(
             query_result, ['time', 'value', 'flag', 'detection', 'comment'])
         for row in result:
+
+            # Expecting dateTime.iso8601 in extended format with time zone
+            # indication, for example: 2011-08-28T00:00:00Z. These lines
+            # are here so we can eventually change the Jdbc2Ei service. 
+
+            try:
+                row['time'] = iso8601.parse_date(row['time'].value)
+                continue
+            except TypeError:
+                pass
+
+            # Expecting dateTime.iso8601 in mixed format without time zone
+            # indication, for example: 20110828T00:00:00. Newer versions of
+            # Jdbc2Ei will suffix a 'Z', which luckily doesn't break the
+            # parsing and will result in a datetime having UTC instead of
+            # GMT+1, as it should be. The code below is due to be phased out
+            # some day and is only kept here for backwards compatibility
+            # with previous versions of Jdbc2Ei.
+
             date_time = row['time'].value
             # Note: we're hardcoding GMT+1 below!!!
             date_time_adjusted = '%s-%s-%s+01:00' % (
@@ -447,7 +466,6 @@ class IconStyle(models.Model):
         """
         if styles is None or lookup is None:
             styles, lookup = cls._styles_lookup(ignore_cache)
-
 
         try:
             level1 = lookup.get(jdbc_source.id, lookup[None])
