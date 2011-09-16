@@ -2,7 +2,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-1.19 (unreleased)
+1.19 (2011-09-16)
 -----------------
 
 - Fixed timezone bug in Jdbc2Ei and adapted JdbcSource.get_timeseries
