@@ -5,7 +5,9 @@ Changelog of lizard-fewsjdbc
 1.19 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Fixed timezone bug in Jdbc2Ei. JdbcSource.get_timeseries now returns UTC
+  and is prepared for future improvements of Jdbc2Ei. See:
+  https://office.nelen-schuurmans.nl/trac/ticket/3231
 
 
 1.18 (2011-08-30)
