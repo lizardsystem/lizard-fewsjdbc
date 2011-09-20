@@ -2,7 +2,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-1.20 (unreleased)
+1.20 (2011-09-20)
 -----------------
 
 - Raising WorkspaceItemError if the jdbc source doesn't exist. This way,
