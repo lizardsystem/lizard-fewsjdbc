@@ -6,10 +6,12 @@ import xmlrpclib
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.client import Client
+from lizard_map.models import WorkspaceItemError
 
 from lizard_fewsjdbc.models import JDBC_NONE
 from lizard_fewsjdbc.models import JdbcSource
 from lizard_fewsjdbc.models import IconStyle
+from lizard_fewsjdbc.layers import FewsJdbc
 
 
 class TestIntegration(TestCase):
@@ -501,5 +503,13 @@ class TestIconStyle(TestCase):
 
 class TestAdapter(TestCase):
 
-    def test_dummy(self):
-        pass
+    def test_bails_out(self):
+        """If the jdbc source doesn't exist, raise a ws item error."""
+
+        self.assertRaises(WorkspaceItemError,
+                          FewsJdbc,
+                          None,
+                          layer_arguments={
+                'slug': 'nonexisting',
+                'filter': None,
+                'parameter': None})

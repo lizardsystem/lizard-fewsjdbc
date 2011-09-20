@@ -5,7 +5,9 @@ Changelog of lizard-fewsjdbc
 1.20 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Raising WorkspaceItemError if the jdbc source doesn't exist. This way,
+  existing lizard sessions don't get stuck with an 'error 500' if a jdbc
+  source is renamed or removed.
 
 
 1.19 (2011-09-16)

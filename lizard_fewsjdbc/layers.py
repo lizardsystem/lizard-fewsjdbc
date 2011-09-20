@@ -1,4 +1,3 @@
-import copy
 import datetime
 import logging
 import mapnik
@@ -7,16 +6,17 @@ import os
 
 from django.conf import settings
 from django.http import Http404
-
-from lizard_fewsjdbc.models import IconStyle
-from lizard_fewsjdbc.models import JdbcSource
-from lizard_fewsjdbc.models import FewsJdbcQueryError
 from lizard_map import coordinates
 from lizard_map import workspace
 from lizard_map.adapter import Graph
 from lizard_map.mapnik_helper import add_datasource_point
 from lizard_map.models import ICON_ORIGINALS
+from lizard_map.models import WorkspaceItemError
 from lizard_map.symbol_manager import SymbolManager
+
+from lizard_fewsjdbc.models import IconStyle
+from lizard_fewsjdbc.models import JdbcSource
+from lizard_fewsjdbc.models import FewsJdbcQueryError
 
 logger = logging.getLogger('lizard_fewsunblobbed.layers')
 
@@ -108,7 +108,11 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         self.jdbc_source_slug = self.layer_arguments['slug']
         self.filterkey = self.layer_arguments['filter']
         self.parameterkey = self.layer_arguments['parameter']
-        self.jdbc_source = JdbcSource.objects.get(slug=self.jdbc_source_slug)
+        try:
+            self.jdbc_source = JdbcSource.objects.get(slug=self.jdbc_source_slug)
+        except JdbcSource.DoesNotExist:
+            raise WorkspaceItemError(
+                "Jdbc source %s doesn't exist." % self.jdbc_source_slug)
 
     def _locations(self):
         return self.jdbc_source.get_locations(self.filterkey,
