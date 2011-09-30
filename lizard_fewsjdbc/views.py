@@ -1,6 +1,7 @@
 # (c) Nelen & Schuurmans.  GPL licensed, see LICENSE.txt.
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
+from django.shortcuts import get_object_or_404
 from django.template import RequestContext
 
 from lizard_fewsjdbc.models import JdbcSource
@@ -40,7 +41,7 @@ def jdbc_source(request,
 
     filter_id = request.GET.get('filter_id', None)
     ignore_cache = request.GET.get('ignore_cache', False)
-    jdbc_source = JdbcSource.objects.get(slug=jdbc_source_slug)
+    jdbc_source = get_object_or_404(JdbcSource, slug=jdbc_source_slug)
 
     # If the page is called with option filter_id, add parameter variables.
     fews_parameters = None
