@@ -232,7 +232,10 @@ class TestModelMockQuery(TestCase):
             {'time': datetime.datetime(2010, 5, 5, tzinfo=MockTzInfo()),
              'value': '1.6', 'flag': '0', 'detection': '0', 'comment': None},
             ]
-        self.assertEqual(result, result_good)
+        # self.assertEqual(result, result_good)
+        self.assertEqual(len(result), len(result_good))
+        self.assertEqual(result[0]['value'], result_good[0]['value'])
+        self.assertEqual(result[0].keys(), result_good[0].keys())
 
     def test_get_unit(self):
         self.mock_query_result = [
