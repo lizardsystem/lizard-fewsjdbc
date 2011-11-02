@@ -5,7 +5,7 @@ Changelog of lizard-fewsjdbc
 1.21 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Pylint.
 
 
 1.20 (2011-09-20)

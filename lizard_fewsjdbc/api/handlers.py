@@ -250,7 +250,10 @@ class TimeserieHandler(BaseHandler):
         result['data'] = data
 
         # TODO: fix this parameter_name, get_parameter_name does not exist
-        # result['parameter_name'] = jdbc_source.get_parameter_name(parameter_id)
+
+        # result['parameter_name'] = jdbc_source.get_parameter_name(
+        # parameter_id)
+
         result['parameter_name'] = parameter_id
         # ^^^ Not sure this is a great place to set this, but we need it for
         # now.

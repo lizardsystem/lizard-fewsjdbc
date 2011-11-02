@@ -329,7 +329,7 @@ class TestIconStyle(TestCase):
 
         self.assertEqual(IconStyle._styles(), expected)
 
-    def test_styles(self):
+    def test_styles2(self):
         """See if styles_lookup() output correspond to database contents.
         """
         IconStyle(jdbc_source=None,
@@ -423,7 +423,8 @@ class TestIconStyle(TestCase):
 
         expected1 = (
             '::::::',
-            {'icon': 'icon.png', 'mask': ('mask.png', ), 'color': (1.0, 0.0, 1.0, 1.0)})
+            {'icon': 'icon.png', 'mask': ('mask.png', ),
+             'color': (1.0, 0.0, 1.0, 1.0)})
         self.assertEqual(
             IconStyle.style(jdbc_source, 'filterx', 'locy', 'parz'),
             expected1)

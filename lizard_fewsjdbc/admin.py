@@ -6,6 +6,7 @@ from lizard_fewsjdbc.models import JdbcSource
 class JdbcSourceAdmin(admin.ModelAdmin):
     list_display = ('__unicode__', 'filter_tree_root')
 
+
 class IconStyleAdmin(admin.ModelAdmin):
     list_display = (
         '__unicode__', 'jdbc_source', 'fews_filter', 'fews_location',
