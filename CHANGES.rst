@@ -9,6 +9,7 @@ Changelog of lizard-fewsjdbc
 
 - Turned views into class based views, changed templates accordingly.
 
+- Changed buildout.cfg to work with the latest KGS (currently including lizard-ui 3.6, used to be pinned to 2.1.5)
 
 1.20 (2011-09-20)
 -----------------
