@@ -7,23 +7,25 @@
 {% block sidebar %}
 <div class="sidebarbox sidebarbox-stretched"
      id="accordion">
-  <h2>1: Filters{% if filter %} ({{ filter.name }}){% endif %}{% block linkback %}{% endblock %}</h2>
+  <h2>1: Filters{% if view.filter %} ({{ view.filter.name }}){% endif %}{% block linkback %}{% endblock %}</h2>
   <ul class="automatic-tree filetree pane accordion-load-next"
       data-next-pane-id="#parameter-pane"
       id="filter-pane">
     {# variables tree_template and tree_items must be set #}
     {% with "lizard_ui/tree_snippet.html" as tree_template %}
+     {% with view.tree_items as tree_items %}
       {% include tree_template %}
+     {% endwith %}
     {% endwith %}
   </ul>
   <h2>2: Parameters</h2>
   <ul class="without-bullets pane"
       id="parameter-pane">
-    {% for parameter in parameters %}
+    {% for parameter in view.parameters %}
     <li class="workspace-acceptable file"
-        data-name="{{ parameter.name }} ({{ parameter.filter_name }}, {{ jdbc_source_slug }})"
-        data-adapter-class="{{ adapter_class }}"
-        data-adapter-layer-json='{"slug": "{{ jdbc_source_slug }}", "filter": "{{ parameter.filter_id }}", "parameter": "{{ parameter.id }}"}'
+        data-name="{{ parameter.name }} ({{ parameter.filter_name }}, {{ view.jdbc_source_slug }})"
+        data-adapter-class="{{ view.adapter_class }}"
+        data-adapter-layer-json='{"slug": "{{ view.jdbc_source_slug }}", "filter": "{{ parameter.filter_id }}", "parameter": "{{ parameter.id }}"}'
         data-filter-id="{{ parameter.filter_id }}">
       {{ parameter.name }} ({{ parameter.filter_name }})
     </li>
@@ -32,10 +34,8 @@
     {% endfor %}
   </ul>
 </div>
-{% for workspace in workspaces.user %}
-  {% workspace workspace %}
-{% empty %}
-No workspace
-{% endfor %}
+
+{% workspace_edit view.workspace_edit %}
+{% collage_edit view.collage_edit %}
 
 {% endblock sidebar %}

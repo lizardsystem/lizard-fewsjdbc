@@ -5,7 +5,9 @@ Changelog of lizard-fewsjdbc
 1.21 (unreleased)
 -----------------
 
-- Pylint.
+- Upgraded to lizard-map 3.3.
+
+- Turned views into class based views, changed templates accordingly.
 
 
 1.20 (2011-09-20)
