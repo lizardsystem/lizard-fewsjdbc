@@ -2,7 +2,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-1.21 (unreleased)
+1.21 (2011-11-04)
 -----------------
 
 - Upgraded to lizard-map 3.3.
