@@ -240,6 +240,7 @@ class JdbcSource(models.Model):
                 unique_parameters,
                 ['filter_name', 'parameterid', 'parameter', 'filter_id'])
             cache.set(parameter_cache_key, named_parameters, 8 * 60 * 60)
+
         return named_parameters
 
     def get_locations(self, filter_id, parameter_id):

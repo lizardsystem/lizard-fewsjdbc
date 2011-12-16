@@ -1,11 +1,10 @@
 # (c) Nelen & Schuurmans.  GPL licensed, see LICENSE.txt.
 from django.core.urlresolvers import reverse
-from django.shortcuts import render_to_response
 from django.shortcuts import get_object_or_404
-from django.template import RequestContext
 
 from lizard_fewsjdbc.models import JdbcSource
 from lizard_map.views import AppView
+
 
 class HomepageView(AppView):
     """Class based view for the fewsjdbc homepage.
@@ -20,14 +19,17 @@ class HomepageView(AppView):
     def crumbs(self):
         """TODO: This doesn't actually do anything yet.
 
-        The crumbs are rendered in lizard_ui and at the present moment that doesn't expect a class based view."""
-        return [ {'name': 'home', 'url': '/'},
-                 {'name': 'metingen',
-                   'title': 'metingen',
-                   'url': reverse('lizard_fewsjdbc.homepage')} ]
+        The crumbs are rendered in lizard_ui and at the present moment
+        that doesn't expect a class based view."""
+        return [{'name': 'home', 'url': '/'},
+                {'name': 'metingen',
+                  'title': 'metingen',
+                  'url': reverse('lizard_fewsjdbc.homepage')}]
+
 
 class JdbcSourceView(AppView):
-    """Class based view for the fewsjdbc filters/parameters blocks contained in a given jdbc source."""
+    """Class based view for the fewsjdbc filters/parameters blocks
+    contained in a given jdbc source."""
 
     template_name = "lizard_fewsjdbc/jdbc_source.html"
     filter_url_name = "lizard_fewsjdbc.jdbc_source"
@@ -37,7 +39,8 @@ class JdbcSourceView(AppView):
         """This method is overridden in order to get at the GET parameters."""
 
         self.jdbc_source_slug = kwargs.get('jdbc_source_slug', '')
-        self.jdbc_source = get_object_or_404(JdbcSource, slug=self.jdbc_source_slug)
+        self.jdbc_source = get_object_or_404(JdbcSource,
+                                             slug=self.jdbc_source_slug)
         self.filter_id = request.GET.get('filter_id', None)
         self.ignore_cache = request.GET.get('ignore_cache', False)
 
@@ -75,4 +78,3 @@ class JdbcSourceView(AppView):
             if named_parameters:
                 return {'name': named_parameters[0]['filter_name'],
                         'id': self.filter_id}
-
