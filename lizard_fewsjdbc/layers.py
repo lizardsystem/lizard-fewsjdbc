@@ -449,7 +449,18 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         return '%sgenerated_icons/%s' % (settings.MEDIA_URL, output_filename)
 
     def html(self, snippet_group=None, identifiers=None, layout_options=None):
+        """Overridden so we can put a description of parameter and
+        filter in the popup title."""
+
+        extra_kwargs = {
+            'parameter':
+                self.jdbc_source.get_parameter_name(self.parameterkey),
+            'filter': self.jdbc_source.get_filter_name(self.filterkey)
+            }
+
         return super(FewsJdbc, self).html_default(
             snippet_group=snippet_group,
             identifiers=identifiers,
-            layout_options=layout_options)
+            layout_options=layout_options,
+            template='lizard_fewsjdbc/popup.html',
+            extra_render_kwargs=extra_kwargs)

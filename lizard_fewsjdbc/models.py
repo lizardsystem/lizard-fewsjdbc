@@ -243,6 +243,24 @@ class JdbcSource(models.Model):
 
         return named_parameters
 
+    def get_filter_name(self, filter_id):
+        """Return the filter name corresponding to the given filter
+        id."""
+        result = self.query("select name from filters where id='%s'"
+                            % (filter_id,))
+
+        if result:
+            return result[0][0]
+
+    def get_parameter_name(self, parameter_id):
+        """Return parameter name corresponding to the given parameter
+        id."""
+        result = self.query(("select parameter from filters where " +
+                            "parameterid = '%s'") % (parameter_id,))
+
+        if result:
+            return result[0][0]
+
     def get_locations(self, filter_id, parameter_id):
         """
         Query locations from jdbc source and return named locations in

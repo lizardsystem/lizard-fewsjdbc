@@ -5,7 +5,7 @@ Changelog of lizard-fewsjdbc
 1.22 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Added parameter and filter names to popup.
 
 
 1.21 (2011-11-04)
