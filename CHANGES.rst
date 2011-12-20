@@ -5,7 +5,9 @@ Changelog of lizard-fewsjdbc
 1.23 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Made it possible to scale graphs manually.
+
+- Made sure legend is always visible.
 
 
 1.22 (2011-12-19)

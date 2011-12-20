@@ -396,18 +396,23 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         if is_empty and raise_404_if_empty:
             raise Http404
 
-        if identifiers:
-            layout = identifiers[0].get('layout')
-            if layout:
-                if layout.get('legend'):
-                    # Ok, this 'if' tree is a bit rediculously deep.
-                    #graph.legend(force_legend_below=True)
-                    graph.legend()
-                    # If there is not data, graph.axes.legend_ is None
-                    if graph.axes.legend_ is not None:
-                        graph.axes.legend_.draw_frame(False)
+        # Originally legend was only turned on if layout.get('legend')
+        # was true. However, as far as I can see there is no way for
+        # that to become set anymore. Since a legend should always be
+        # drawn, we simply put the following:
+        graph.legend()
+
+        # If there is data, don't draw a frame around the legend
+        if graph.axes.legend_ is not None:
+            graph.axes.legend_.draw_frame(False)
+        else:
+            # TODO: If there isn't, draw a message. Give a hint that
+            # using another time period might help.
+            pass
 
         # Extra layout parameters. From lizard-fewsunblobbed.
+        y_min_manual = y_min is not None
+        y_max_manual = y_max is not None
         if y_min is None:
             y_min, _ = graph.axes.get_ylim()
         if y_max is None:
@@ -420,8 +425,7 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         if title:
             graph.suptitle(title)
 
-        # TODO: set_ylim does not work.
-        graph.axes.set_ylim(y_min, y_max)
+        graph.set_ylim(y_min, y_max, y_min_manual, y_max_manual)
 
         # Copied from lizard-fewsunblobbed.
         if "horizontal_lines" in layout_extra:
