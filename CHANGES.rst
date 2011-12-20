@@ -2,7 +2,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-1.23 (unreleased)
+1.23 (2011-12-20)
 -----------------
 
 - Made it possible to scale graphs manually.
