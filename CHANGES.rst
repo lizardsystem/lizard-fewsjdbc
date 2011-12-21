@@ -2,7 +2,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-1.24 (unreleased)
+1.24 (2011-12-21)
 -----------------
 
 - Made parameters have the css class 'selected' if they are already
