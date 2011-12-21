@@ -64,6 +64,10 @@ class JdbcSourceView(AppView):
             if named_parameters:
                 return [
                     {'name': '%s' % named_parameter['parameter'],
+                     'workspace_name': ('%s (%s, %s)' % 
+                                        (named_parameter['parameter'],
+                                        named_parameter['filter_name'],
+                                        self.jdbc_source_slug)),
                      'id': named_parameter['parameterid'],
                      'filter_id': named_parameter['filter_id'],
                      'filter_name': named_parameter['filter_name']}

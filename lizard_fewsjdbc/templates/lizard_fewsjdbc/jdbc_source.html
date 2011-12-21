@@ -22,8 +22,8 @@
   <ul class="without-bullets pane"
       id="parameter-pane">
     {% for parameter in view.parameters %}
-    <li class="workspace-acceptable file"
-        data-name="{{ parameter.name }} ({{ parameter.filter_name }}, {{ view.jdbc_source_slug }})"
+    <li class="workspace-acceptable file {% if_in_workspace_edit view.workspace_edit parameter.workspace_name 'selected' %}"
+        data-name="{{ parameter.workspace_name }}"
         data-adapter-class="{{ view.adapter_class }}"
         data-adapter-layer-json='{"slug": "{{ view.jdbc_source_slug }}", "filter": "{{ parameter.filter_id }}", "parameter": "{{ parameter.id }}"}'
         data-filter-id="{{ parameter.filter_id }}">

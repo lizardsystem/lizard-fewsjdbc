@@ -5,7 +5,8 @@ Changelog of lizard-fewsjdbc
 1.24 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Made parameters have the css class 'selected' if they are already
+  present in the workspace.
 
 
 1.23 (2011-12-20)
