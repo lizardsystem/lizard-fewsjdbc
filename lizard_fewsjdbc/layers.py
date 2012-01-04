@@ -213,6 +213,9 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
             'south': south_transformed,
             'east': east_transformed}
 
+    def has_extent(self):
+        return True
+
     def search(self, google_x, google_y, radius=None):
         """Return list of dict {'distance': <float>, 'timeserie':
         <timeserie>} of closest fews point that matches x, y, radius.
@@ -269,6 +272,7 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
 
         # TODO: do the list -> dict conversion only once
         dict_locations = {}
+
         for named_location in self._locations():
             dict_locations[named_location['locationid']] = named_location
         location_name = dict_locations[location]['location']
