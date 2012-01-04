@@ -1,3 +1,4 @@
+
 Changelog of lizard-fewsjdbc
 ============================
 
@@ -5,7 +6,7 @@ Changelog of lizard-fewsjdbc
 1.25 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Hack that seems to fix an issue with location() in layers.py
 
 
 1.24 (2011-12-21)

@@ -261,6 +261,12 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
             identifier, aggregate_functions, start_date, end_date)
 
     def location(self, location, layout=None):
+        # Hack; recently we had bugs relating to this function because
+        # locations were passed in that had non-breaking space characters
+        # ('\xa0') appended to them that caused the location_name not
+        # to be found. This might fix it.
+        location = location.strip()
+
         # TODO: do the list -> dict conversion only once
         dict_locations = {}
         for named_location in self._locations():
