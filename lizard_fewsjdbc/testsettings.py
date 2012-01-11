@@ -15,6 +15,7 @@ INSTALLED_APPS = [
     'south',
     'django_extensions',
     'django_nose',
+    'djangorestframework',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

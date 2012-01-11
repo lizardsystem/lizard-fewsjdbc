@@ -6,7 +6,8 @@ Changelog of lizard-fewsjdbc
 1.26 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Created (the start of) a new REST API using djangorestframework (in
+  lizard_fewsjdbc/restapi/).
 
 
 1.25 (2012-01-04)

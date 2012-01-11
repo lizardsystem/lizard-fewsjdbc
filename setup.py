@@ -13,7 +13,7 @@ install_requires = [
     'Django',
     'django-staticfiles',
     'django-extensions',
-    'django-piston',
+    'djangorestframework',
     'lizard-map >= 3.10',
     'lizard-ui >= 3.6',
     'django-nose',
