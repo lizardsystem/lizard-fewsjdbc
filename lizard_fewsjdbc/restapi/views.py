@@ -1,16 +1,18 @@
+import time
 import datetime
 
 from django.core.urlresolvers import reverse
 
-from djangorestframework.mixins import ResponseMixin
 from djangorestframework.response import Response
 from djangorestframework.views import View
 
 from lizard_fewsjdbc.models import JdbcSource
-from lizard_fewsjdbc.restapi.renderers import RENDERERS
 
 from lizard_map.daterange import default_start
 from lizard_map.daterange import default_end
+
+GET_PARAM_DATE_FORMAT = '%Y-%m-%d'
+
 
 def start_end_dates(request):
     start_date = default_start(datetime.datetime.now())
@@ -48,13 +50,15 @@ def start_end_dates(request):
                 start_date, end_date))
     return start_date, end_date
 
+
 class JdbcRestView(View):
     jdbc_source_slug = None
     allowed_methods = ('GET',)
-    
+
     @property
     def jdbc_source(self):
         return JdbcSource.objects.get(slug=self.jdbc_source_slug)
+
 
 class HomeView(JdbcRestView):
     def get(self, request):
@@ -75,7 +79,8 @@ class HomeView(JdbcRestView):
                 else:
                     # Item is a leaf
                     del item["children"]
-                    item["url"] = reverse('filter_view', kwargs={'filter_id': item["id"]})
+                    item["url"] = reverse('filter_view',
+                                          kwargs={'filter_id': item["id"]})
 
                     # Rename
                     item["filter_id"] = item["id"]
@@ -85,9 +90,9 @@ class HomeView(JdbcRestView):
 
         clean_filter_tree(filtertree)
 
-        return Response(200, {'filter_tree': filtertree })
+        return Response(200, {'filter_tree': filtertree})
 
-    
+
 class FilterView(JdbcRestView):
     def get(self, request, filter_id):
         parameters = self.jdbc_source.get_named_parameters(filter_id)
@@ -100,13 +105,16 @@ class FilterView(JdbcRestView):
             # Add url
             parameter["url"] = reverse('parameter_view',
                                        kwargs={'filter_id': filter_id,
-                                               'parameter_id': parameter["parameterid"]})
+                                               'parameter_id':
+                                                   parameter["parameterid"]})
 
         return Response(200, {
                 'filter_id': filter_id,
-                'filter_url': reverse('filter_view', kwargs={'filter_id': filter_id}),
+                'filter_url': reverse('filter_view',
+                                      kwargs={'filter_id': filter_id}),
                 'parameters': parameters
                 })
+
 
 class ParameterView(JdbcRestView):
     def get(self, request, filter_id, parameter_id):
@@ -117,33 +125,47 @@ class ParameterView(JdbcRestView):
             location["url"] = reverse('location_view',
                                       kwargs={'filter_id': filter_id,
                                               'parameter_id': parameter_id,
-                                              'location_id': location["locationid"]})
+                                              'location_id':
+                                                  location["locationid"]})
 
         return Response(200, {
                 'filter_id': filter_id,
-                'filter_url': reverse('filter_view', kwargs={'filter_id': filter_id}),
+                'filter_url': reverse('filter_view',
+                                      kwargs={'filter_id': filter_id}),
                 'parameter_id': parameter_id,
-                'parameter_url': reverse('parameter_view', kwargs={'filter_id': filter_id,
-                                                                   'parameter_id': parameter_id}),
+                'parameter_url': reverse('parameter_view',
+                                         kwargs={'filter_id': filter_id,
+                                                 'parameter_id':
+                                                     parameter_id}),
                 'locations': locations
                 })
+
 
 class LocationView(JdbcRestView):
     def get(self, request, filter_id, parameter_id, location_id):
         start_date, end_date = start_end_dates(request)
 
-        timeseries = self.jdbc_source.get_timeseries(filter_id, location_id, parameter_id, start_date, end_date)
+        timeseries = self.jdbc_source.get_timeseries(filter_id,
+                                                     location_id,
+                                                     parameter_id,
+                                                     start_date,
+                                                     end_date)
 
         return Response(200, {
                 'filter_id': filter_id,
-                'filter_url': reverse('filter_view', kwargs={'filter_id': filter_id}),
+                'filter_url': reverse('filter_view',
+                                      kwargs={'filter_id': filter_id}),
                 'parameter_id': parameter_id,
-                'parameter_url': reverse('parameter_view', kwargs={'filter_id': filter_id,
-                                                                   'parameter_id': parameter_id}),
+                'parameter_url': reverse('parameter_view',
+                                         kwargs={'filter_id': filter_id,
+                                                 'parameter_id':
+                                                     parameter_id}),
                 'location_id': location_id,
-                'location_url': reverse('location_view', kwargs={'filter_id': filter_id,
-                                                                 'parameter_id': parameter_id,
-                                                                 'location_id': location_id}),
+                'location_url': reverse('location_view',
+                                        kwargs={'filter_id': filter_id,
+                                                'parameter_id':
+                                                    parameter_id,
+                                                'location_id':
+                                                    location_id}),
                 'timeseries': timeseries
                 })
-        
