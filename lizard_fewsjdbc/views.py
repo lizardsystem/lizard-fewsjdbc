@@ -5,26 +5,16 @@ from django.shortcuts import get_object_or_404
 from lizard_fewsjdbc.models import JdbcSource
 from lizard_map.views import AppView
 
+import logging
+logger = logging.getLogger(__name__)
 
 class HomepageView(AppView):
-    """Class based view for the fewsjdbc homepage.
-
-    TODO: crumbs don't work yet."""
+    """Class based view for the fewsjdbc homepage."""
 
     template_name = 'lizard_fewsjdbc/homepage.html'
 
     def jdbc_sources(self):
         return JdbcSource.objects.all()
-
-    def crumbs(self):
-        """TODO: This doesn't actually do anything yet.
-
-        The crumbs are rendered in lizard_ui and at the present moment
-        that doesn't expect a class based view."""
-        return [{'name': 'home', 'url': '/'},
-                {'name': 'metingen',
-                  'title': 'metingen',
-                  'url': reverse('lizard_fewsjdbc.homepage')}]
 
 
 class JdbcSourceView(AppView):
@@ -57,12 +47,12 @@ class JdbcSourceView(AppView):
 
     def parameters(self):
         """If there is a filter chosen, show its parameters."""
-        if self.filter_id is not None:
+        if not hasattr(self, '_parameters') and self.filter_id is not None:
             named_parameters = self.jdbc_source.get_named_parameters(
                 self.filter_id, ignore_cache=self.ignore_cache)
 
             if named_parameters:
-                return [
+                self._parameters = [
                     {'name': '%s' % named_parameter['parameter'],
                      'workspace_name': ('%s (%s, %s)' %
                                         (named_parameter['parameter'],
@@ -72,13 +62,50 @@ class JdbcSourceView(AppView):
                      'filter_id': named_parameter['filter_id'],
                      'filter_name': named_parameter['filter_name']}
                     for named_parameter in named_parameters]
+        if hasattr(self, '_parameters'):
+            return self._parameters
 
     def filter(self):
         """Return the current filter."""
-        if self.filter_id is not None:
+        if not hasattr(self, '_filter') and self.filter_id is not None:
             named_parameters = self.jdbc_source.get_named_parameters(
                 self.filter_id, ignore_cache=self.ignore_cache)
 
             if named_parameters:
-                return {'name': named_parameters[0]['filter_name'],
+                self._filter = {'name': named_parameters[0]['filter_name'],
                         'id': self.filter_id}
+        if hasattr(self, '_filter'):
+            return self._filter
+
+    def crumbs(self):
+        crumbs = super(JdbcSourceView, self).crumbs()
+
+        if self.jdbc_source_slug:
+            # Sometimes people link from the app screens directly to some
+            # JDBC source. In that case, it shouldn't be part of the breadcrumbs.
+            # If they don't, people first saw the HomepageView and chose a 
+            # source there, in that case we should show it.
+            #
+            # We can tell the difference because our super() search for an app
+            # screen that was used to get to this point. If the source slug
+            # is part of self.url_after_app, then the source slug wasn't used in
+            # the app's url.
+
+            if self.jdbc_source_slug in self.url_after_app:
+                crumbs += [{
+                    'url': reverse('lizard_fewsjdbc.jdbc_source',
+                                   kwargs={'jdbc_source_slug': self.jdbc_source_slug}),
+                    'description': self.jdbc_source.name,
+                    'title': self.jdbc_source.name}]
+
+            # If there is a filter selected, we can add it to the URL too
+            f = self.filter()
+            if f:
+                crumbs += [{
+                        'url': ('%s?filter_id=%s' % (reverse('lizard_fewsjdbc.jdbc_source',
+                                                             kwargs={'jdbc_source_slug': self.jdbc_source_slug}),
+                                                     f['id'])),
+                        'description': f['name'],
+                        'title': f['name']}]
+
+        return crumbs

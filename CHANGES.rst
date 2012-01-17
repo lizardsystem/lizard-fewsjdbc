@@ -9,6 +9,7 @@ Changelog of lizard-fewsjdbc
 - Created (the start of) a new REST API using djangorestframework (in
   lizard_fewsjdbc/restapi/).
 
+- Added support for jdbc sources in breadcrumbs
 
 1.25 (2012-01-04)
 -----------------

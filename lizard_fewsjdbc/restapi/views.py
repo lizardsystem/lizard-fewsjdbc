@@ -3,9 +3,11 @@ import datetime
 
 from django.core.urlresolvers import reverse
 
+from djangorestframework.renderers import DocumentingTemplateRenderer
 from djangorestframework.response import Response
 from djangorestframework.views import View
 
+from lizard_fewsjdbc.restapi.renderers import RENDERERS
 from lizard_fewsjdbc.models import JdbcSource
 
 from lizard_map.daterange import default_start
@@ -51,98 +53,89 @@ def start_end_dates(request):
     return start_date, end_date
 
 
-class JdbcRestView(View):
+class JdbcRestAPIView(View):
+    # Override the following in the site that is using the API.
     jdbc_source_slug = None
-    allowed_methods = ('GET',)
 
+    title = "Lizard FewsJDBC REST API"
+    name = "Lizard FewsJDBC REST API"
+    ##
+
+    allowed_methods = ('GET', 'OPTIONS')
+    renderers = RENDERERS
+    
     @property
     def jdbc_source(self):
         return JdbcSource.objects.get(slug=self.jdbc_source_slug)
 
+    def get(self, request, filter_id=None, parameter_id=None, location_id=None):
+        # These are stored so that subclasses can use them in
+        # functions called by the template.
+        self.filter_id = filter_id
+        self.parameter_id = parameter_id
+        self.location_id = location_id
 
-class HomeView(JdbcRestView):
-    def get(self, request):
+        self.breadcrumblist = [('Startpunt', reverse('fewsjdbc.restapi.home_view'))]
+        if filter_id is None:
+            return self.get_home(request)
+
+        self.breadcrumblist.append((filter_id, reverse('fewsjdbc.restapi.filter_view',
+                                                       kwargs={'filter_id': filter_id})))
+        if parameter_id is None:
+            return self.get_filter(request, filter_id)
+
+        self.breadcrumblist.append((parameter_id, reverse('fewsjdbc.restapi.parameter_view',
+                                                          kwargs={'filter_id': filter_id,
+                                                                  'parameter_id': parameter_id})))
+        if location_id is None:
+            return self.get_parameter(request, filter_id, parameter_id)
+        
+        self.breadcrumblist.append((location_id, reverse('fewsjdbc.restapi.location_view',
+                                                         kwargs={'filter_id': filter_id,
+                                                                 'parameter_id': parameter_id,
+                                                                 'location_id': location_id})))
+        return self.get_location(request, filter_id, parameter_id, location_id)
+
+    def get_home(self, request):
         filtertree = self.jdbc_source.get_filter_tree()
 
-        def clean_filter_tree(filtertree):
-            for item in filtertree:
-                # Not needed
-                del item["parentid"]
+        items = dict()
 
+        def items_in_filter_tree(items, filtertree):
+            for item in filtertree:
                 if item["children"]:
                     # Item is a node
-                    clean_filter_tree(item["children"])
-                    # Not needed
-                    del item["id"]
-                    del item["name"]
-                    del item["url"]
+                    items_in_filter_tree(items, item["children"])
                 else:
-                    # Item is a leaf
-                    del item["children"]
-                    item["url"] = reverse('filter_view',
-                                          kwargs={'filter_id': item["id"]})
+                    items[item["id"]] = reverse('fewsjdbc.restapi.filter_view',
+                                                kwargs={'filter_id': item["id"]})
 
-                    # Rename
-                    item["filter_id"] = item["id"]
-                    del item["id"]
-                    item["filter_name"] = item["name"]
-                    del item["name"]
+        items_in_filter_tree(items, filtertree)
 
-        clean_filter_tree(filtertree)
+        return Response(200, items)
 
-        return Response(200, {'filter_tree': filtertree})
-
-
-class FilterView(JdbcRestView):
-    def get(self, request, filter_id):
+    def get_filter(self, request, filter_id):
         parameters = self.jdbc_source.get_named_parameters(filter_id)
 
-        for parameter in parameters:
-            # These are superfluous
-            del parameter["filter_id"]
-            del parameter["filter_name"]
-
-            # Add url
-            parameter["url"] = reverse('parameter_view',
-                                       kwargs={'filter_id': filter_id,
-                                               'parameter_id':
-                                                   parameter["parameterid"]})
-
-        return Response(200, {
-                'filter_id': filter_id,
-                'filter_url': reverse('filter_view',
-                                      kwargs={'filter_id': filter_id}),
-                'parameters': parameters
-                })
-
-
-class ParameterView(JdbcRestView):
-    def get(self, request, filter_id, parameter_id):
+        return Response(200, { parameter["parameter"]: reverse('fewsjdbc.restapi.parameter_view',
+                                                               kwargs={'filter_id': filter_id,
+                                                                       'parameter_id':
+                                                                           parameter["parameterid"]})
+                               for parameter in parameters })
+    
+    def get_parameter(self, request, filter_id, parameter_id):
         locations = self.jdbc_source.get_locations(filter_id, parameter_id)
 
-        for location in locations:
-            # Add url
-            location["url"] = reverse('location_view',
-                                      kwargs={'filter_id': filter_id,
-                                              'parameter_id': parameter_id,
-                                              'location_id':
-                                                  location["locationid"]})
-
         return Response(200, {
-                'filter_id': filter_id,
-                'filter_url': reverse('filter_view',
-                                      kwargs={'filter_id': filter_id}),
-                'parameter_id': parameter_id,
-                'parameter_url': reverse('parameter_view',
-                                         kwargs={'filter_id': filter_id,
-                                                 'parameter_id':
-                                                     parameter_id}),
-                'locations': locations
+                location["location"]: reverse('fewsjdbc.restapi.location_view',
+                                              kwargs={'filter_id': filter_id,
+                                                      'parameter_id': parameter_id,
+                                                      'location_id':
+                                                          location["locationid"]})
+                for location in locations
                 })
 
-
-class LocationView(JdbcRestView):
-    def get(self, request, filter_id, parameter_id, location_id):
+    def get_location(self, request, filter_id, parameter_id, location_id):
         start_date, end_date = start_end_dates(request)
 
         timeseries = self.jdbc_source.get_timeseries(filter_id,
@@ -151,21 +144,4 @@ class LocationView(JdbcRestView):
                                                      start_date,
                                                      end_date)
 
-        return Response(200, {
-                'filter_id': filter_id,
-                'filter_url': reverse('filter_view',
-                                      kwargs={'filter_id': filter_id}),
-                'parameter_id': parameter_id,
-                'parameter_url': reverse('parameter_view',
-                                         kwargs={'filter_id': filter_id,
-                                                 'parameter_id':
-                                                     parameter_id}),
-                'location_id': location_id,
-                'location_url': reverse('location_view',
-                                        kwargs={'filter_id': filter_id,
-                                                'parameter_id':
-                                                    parameter_id,
-                                                'location_id':
-                                                    location_id}),
-                'timeseries': timeseries
-                })
+        return Response(200, timeseries)
