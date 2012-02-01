@@ -133,14 +133,17 @@ class JdbcSource(models.Model):
             # Re-raise as more recognizable error.
             raise FewsJdbcNotAvailableError(e)
         t2 = time.time()
+
         try:
             # Check if jdbc_tag_name is used
             sp.Config.get('', '', self.jdbc_tag_name)
         except ExpatError:
             sp.Config.put('', '', self.jdbc_tag_name, self.connector_string)
+
         t3 = time.time()
         result = sp.Query.execute('', '', q, [self.jdbc_tag_name])
         t4 = time.time()
+        
         if isinstance(result, int):
             raise FewsJdbcQueryError(result, q)
         if LOG_JDBC_QUERIES:
@@ -165,7 +168,9 @@ class JdbcSource(models.Model):
 
         [{'name': <name>, 'url': <url>, children: [...]}]
 
-        url, children is optional.
+        url, children is optional. If url_name is set to None, no url property
+        will be set in the filter tree (useful if the standard fewsjdbc urls don't
+        exist, for instance when only the REST API is used).
 
         Uses cache.
         """
@@ -180,7 +185,7 @@ class JdbcSource(models.Model):
             else:
                 try:
                     filters = self.query(
-                        "select id, name, parentid from filters;")
+                        "select distinct id, name, parentid from filters;")
                 except FewsJdbcNotAvailableError, e:
                     return [{'name': 'Jdbc2Ei server not available.',
                              'error': e}]
@@ -188,6 +193,7 @@ class JdbcSource(models.Model):
                     logger.error("JdbcSource returned an error: %s" % e)
                     return [{'name': 'Jdbc data source not available.',
                              'error code': e}]
+
                 unique_filters = unique_list(filters)
                 named_filters = named_list(unique_filters,
                                            ['id', 'name', 'parentid'])
@@ -196,13 +202,14 @@ class JdbcSource(models.Model):
                 else:
                     root_parent = JDBC_NONE
 
-            # Add url per filter.
-            for named_filter in named_filters:
-                url = reverse(url_name,
-                              kwargs={'jdbc_source_slug': self.slug})
-                url += '?filter_id=%s' % named_filter['id']
-                url += '&ignore_cache=True' if ignore_cache else ''
-                named_filter['url'] = url
+            # Add url per filter. Only if url_name is actually present.
+            if url_name:
+                for named_filter in named_filters:
+                    url = reverse(url_name,
+                                  kwargs={'jdbc_source_slug': self.slug})
+                    url += '?filter_id=%s' % named_filter['id']
+                    url += '&ignore_cache=True' if ignore_cache else ''
+                    named_filter['url'] = url
             # Make the tree.
             filter_tree = tree_from_list(
                 named_filters,
@@ -214,7 +221,7 @@ class JdbcSource(models.Model):
             cache.set(filter_source_cache_key, filter_tree, 8 * 60 * 60)
         return filter_tree
 
-    def get_named_parameters(self, filter_id, ignore_cache=False):
+    def get_named_parameters(self, filter_id, ignore_cache=False, find_lowest=True):
         """
         Get named parameters given filter_id: [{'name': <filter>,
         'parameterid': <parameterid1>, 'parameter': <parameter1>},
@@ -222,12 +229,22 @@ class JdbcSource(models.Model):
 
         Uses cache. The parameters are parameters from the lowest
         filter below given filter_id.
+
+        If find_lowest is True, then this function first searches for all the leaf
+        filter nodes below this one, and then returns the parameters of those. If
+        find_lowest is set to False (for instance because filter_id is already
+        known to be a leaf), only parameters directly connected to this filter are
+        returned.
         """
         parameter_cache_key = ('%s::%s::%s' %
                                (FILTER_CACHE_KEY, self.slug, str(filter_id)))
         named_parameters = cache.get(parameter_cache_key)
 
-        filter_names = lowest_filters(filter_id, self.get_filter_tree())
+        if find_lowest:
+            filter_names = lowest_filters(filter_id, self.get_filter_tree())
+        else:
+            filter_names = (filter_id,)
+
         filter_query = " or ".join(
             ["id='%s'" % filter_name for filter_name in filter_names])
 
@@ -303,7 +320,9 @@ class JdbcSource(models.Model):
              (filter_id, location_id, parameter_id,
               start_date.strftime(JDBC_DATE_FORMAT),
               end_date.strftime(JDBC_DATE_FORMAT)))
+
         query_result = self.query(q)
+
         result = named_list(
             query_result, ['time', 'value', 'flag', 'detection', 'comment'])
         for row in result:

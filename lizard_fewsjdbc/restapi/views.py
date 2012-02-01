@@ -1,5 +1,6 @@
 import time
 import datetime
+import logging
 
 from django.core.urlresolvers import reverse
 
@@ -15,6 +16,7 @@ from lizard_map.daterange import default_end
 
 GET_PARAM_DATE_FORMAT = '%Y-%m-%d'
 
+logger = logging.getLogger(__name__)
 
 def start_end_dates(request):
     start_date = default_start(datetime.datetime.now())
@@ -74,7 +76,7 @@ class JdbcRestAPIView(View):
         self.filter_id = filter_id
         self.parameter_id = parameter_id
         self.location_id = location_id
-
+        
         self.breadcrumblist = [('Startpunt', reverse('fewsjdbc.restapi.home_view'))]
         if filter_id is None:
             return self.get_home(request)
@@ -97,10 +99,10 @@ class JdbcRestAPIView(View):
         return self.get_location(request, filter_id, parameter_id, location_id)
 
     def get_home(self, request):
-        filtertree = self.jdbc_source.get_filter_tree()
+        filtertree = self.jdbc_source.get_filter_tree(url_name=None)
 
         items = dict()
-
+        
         def items_in_filter_tree(items, filtertree):
             for item in filtertree:
                 if item["children"]:
@@ -115,7 +117,7 @@ class JdbcRestAPIView(View):
         return Response(200, items)
 
     def get_filter(self, request, filter_id):
-        parameters = self.jdbc_source.get_named_parameters(filter_id)
+        parameters = self.jdbc_source.get_named_parameters(filter_id, find_lowest=False)
 
         return Response(200, { parameter["parameter"]: reverse('fewsjdbc.restapi.parameter_view',
                                                                kwargs={'filter_id': filter_id,
@@ -137,7 +139,7 @@ class JdbcRestAPIView(View):
 
     def get_location(self, request, filter_id, parameter_id, location_id):
         start_date, end_date = start_end_dates(request)
-
+        
         timeseries = self.jdbc_source.get_timeseries(filter_id,
                                                      location_id,
                                                      parameter_id,
