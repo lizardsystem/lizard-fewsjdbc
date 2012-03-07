@@ -175,6 +175,7 @@ class JdbcSource(models.Model):
 
         Uses cache.
         """
+        logger.debug("Here")
         filter_source_cache_key = '%s::%s::%s' % (
             url_name, FILTER_CACHE_KEY, self.slug)
         filter_tree = cache.get(filter_source_cache_key)
@@ -203,6 +204,7 @@ class JdbcSource(models.Model):
                 else:
                     root_parent = JDBC_NONE
 
+            logger.debug(named_filters)
             # Add url per filter. Only if url_name is actually present.
             if url_name:
                 for named_filter in named_filters:

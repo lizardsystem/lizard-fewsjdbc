@@ -6,7 +6,11 @@ Changelog of lizard-fewsjdbc
 1.27 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Added optional argument to the fews_jdbc_cache management command.
+  Without it, the command creates a filtertree with URLs in it to the
+  'lizard_fewsjdbc.jdbc_source' view, but if that's not available the
+  command would crash. Give argument 'None' to turn the URLs off, or
+  a name to another view.
 
 
 1.26 (2012-01-17)
