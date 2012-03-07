@@ -8,6 +8,7 @@ from lizard_map.views import AppView
 import logging
 logger = logging.getLogger(__name__)
 
+
 class HomepageView(AppView):
     """Class based view for the fewsjdbc homepage."""
 
@@ -81,20 +82,22 @@ class JdbcSourceView(AppView):
         crumbs = super(JdbcSourceView, self).crumbs()
 
         if self.jdbc_source_slug:
-            # Sometimes people link from the app screens directly to some
-            # JDBC source. In that case, it shouldn't be part of the breadcrumbs.
-            # If they don't, people first saw the HomepageView and chose a 
-            # source there, in that case we should show it.
+            # Sometimes people link from the app screens directly to
+            # some JDBC source. In that case, it shouldn't be part of
+            # the breadcrumbs.  If they don't, people first saw the
+            # HomepageView and chose a source there, in that case we
+            # should show it.
             #
-            # We can tell the difference because our super() search for an app
-            # screen that was used to get to this point. If the source slug
-            # is part of self.url_after_app, then the source slug wasn't used in
-            # the app's url.
+            # We can tell the difference because our super() search
+            # for an app screen that was used to get to this point. If
+            # the source slug is part of self.url_after_app, then the
+            # source slug wasn't used in the app's url.
 
             if self.jdbc_source_slug in self.url_after_app:
                 crumbs += [{
                     'url': reverse('lizard_fewsjdbc.jdbc_source',
-                                   kwargs={'jdbc_source_slug': self.jdbc_source_slug}),
+                                   kwargs={'jdbc_source_slug':
+                                               self.jdbc_source_slug}),
                     'description': self.jdbc_source.name,
                     'title': self.jdbc_source.name}]
 
@@ -102,9 +105,12 @@ class JdbcSourceView(AppView):
             f = self.filter()
             if f:
                 crumbs += [{
-                        'url': ('%s?filter_id=%s' % (reverse('lizard_fewsjdbc.jdbc_source',
-                                                             kwargs={'jdbc_source_slug': self.jdbc_source_slug}),
-                                                     f['id'])),
+                        'url': ('%s?filter_id=%s' %
+                                (reverse(
+                                    'lizard_fewsjdbc.jdbc_source',
+                                    kwargs={'jdbc_source_slug':
+                                                self.jdbc_source_slug}),
+                                 f['id'])),
                         'description': f['name'],
                         'title': f['name']}]
 

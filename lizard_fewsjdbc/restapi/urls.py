@@ -20,6 +20,7 @@ def make_patterns(subclassed_view=views.JdbcRestAPIView):
             name='fewsjdbc.restapi.filter_view'),
         url(r'^%s$' % _jdbc_filter_parameter, subclassed_view.as_view(),
             name='fewsjdbc.restapi.parameter_view'),
-        url(r'^%s$' % _jdbc_filter_parameter_location, subclassed_view.as_view(),
+        url(r'^%s$' % _jdbc_filter_parameter_location,
+            subclassed_view.as_view(),
             name='fewsjdbc.restapi.location_view'),
         )

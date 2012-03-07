@@ -143,7 +143,7 @@ class JdbcSource(models.Model):
         t3 = time.time()
         result = sp.Query.execute('', '', q, [self.jdbc_tag_name])
         t4 = time.time()
-        
+
         if isinstance(result, int):
             raise FewsJdbcQueryError(result, q)
         if LOG_JDBC_QUERIES:
@@ -168,9 +168,10 @@ class JdbcSource(models.Model):
 
         [{'name': <name>, 'url': <url>, children: [...]}]
 
-        url, children is optional. If url_name is set to None, no url property
-        will be set in the filter tree (useful if the standard fewsjdbc urls don't
-        exist, for instance when only the REST API is used).
+        url, children is optional. If url_name is set to None, no url
+        property will be set in the filter tree (useful if the
+        standard fewsjdbc urls don't exist, for instance when only the
+        REST API is used).
 
         Uses cache.
         """
@@ -221,7 +222,8 @@ class JdbcSource(models.Model):
             cache.set(filter_source_cache_key, filter_tree, 8 * 60 * 60)
         return filter_tree
 
-    def get_named_parameters(self, filter_id, ignore_cache=False, find_lowest=True):
+    def get_named_parameters(self, filter_id, ignore_cache=False,
+                             find_lowest=True):
         """
         Get named parameters given filter_id: [{'name': <filter>,
         'parameterid': <parameterid1>, 'parameter': <parameter1>},
@@ -230,10 +232,11 @@ class JdbcSource(models.Model):
         Uses cache. The parameters are parameters from the lowest
         filter below given filter_id.
 
-        If find_lowest is True, then this function first searches for all the leaf
-        filter nodes below this one, and then returns the parameters of those. If
-        find_lowest is set to False (for instance because filter_id is already
-        known to be a leaf), only parameters directly connected to this filter are
+        If find_lowest is True, then this function first searches for
+        all the leaf filter nodes below this one, and then returns the
+        parameters of those. If find_lowest is set to False (for
+        instance because filter_id is already known to be a leaf),
+        only parameters directly connected to this filter are
         returned.
         """
         parameter_cache_key = ('%s::%s::%s' %
