@@ -105,7 +105,6 @@ class JdbcRestAPIView(View):
 
     def get_home(self, request):
         filtertree = self.jdbc_source.get_filter_tree(url_name=None)
-        logger.debug(filtertree)
         items = dict()
 
         def items_in_filter_tree(items, filtertree):

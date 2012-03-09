@@ -26,6 +26,7 @@ JDBC_DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
 FILTER_CACHE_KEY = 'lizard_fewsjdbc.models.filter_cache_key'
 PARAMETER_NAME_CACHE_KEY = 'lizard_fewsjdbc.models.parameter_name_cache_key'
 LOCATION_CACHE_KEY = 'lizard_fewsjdbc.layers.location_cache_key'
+CACHE_TIMEOUT = 8 * 60 * 60  # Default is 8 hours
 LOG_JDBC_QUERIES = getattr(settings, 'LOG_JDBC_QUERIES', False)
 
 
@@ -161,7 +162,8 @@ class JdbcSource(models.Model):
 
     def get_filter_tree(self,
                         url_name='lizard_fewsjdbc.jdbc_source',
-                        ignore_cache=False):
+                        ignore_cache=False,
+                        cache_timeout=CACHE_TIMEOUT):
         """
         Gets filter tree from Jdbc source. Also adds url per filter
         which links to url_name.
@@ -173,9 +175,10 @@ class JdbcSource(models.Model):
         standard fewsjdbc urls don't exist, for instance when only the
         REST API is used).
 
-        Uses cache.
+        Uses cache unless ignore_cache == True. cache_timeout gives
+        an alternative timeout duration for the cache, in seconds.
         """
-        logger.debug("Here")
+
         filter_source_cache_key = '%s::%s::%s' % (
             url_name, FILTER_CACHE_KEY, self.slug)
         filter_tree = cache.get(filter_source_cache_key)
@@ -221,18 +224,20 @@ class JdbcSource(models.Model):
                 children_field='children',
                 root_parent=root_parent)
 
-            cache.set(filter_source_cache_key, filter_tree, 8 * 60 * 60)
+            cache.set(filter_source_cache_key, filter_tree, cache_timeout)
         return filter_tree
 
     def get_named_parameters(self, filter_id, ignore_cache=False,
-                             find_lowest=True):
+                             find_lowest=True,
+                             url_name='lizard_fewsjdbc.jdbc_source',
+                             cache_timeout=CACHE_TIMEOUT):
         """
         Get named parameters given filter_id: [{'name': <filter>,
         'parameterid': <parameterid1>, 'parameter': <parameter1>},
         ...]
 
-        Uses cache. The parameters are parameters from the lowest
-        filter below given filter_id.
+        The parameters are parameters from the lowest filter below
+        given filter_id.
 
         If find_lowest is True, then this function first searches for
         all the leaf filter nodes below this one, and then returns the
@@ -240,13 +245,17 @@ class JdbcSource(models.Model):
         instance because filter_id is already known to be a leaf),
         only parameters directly connected to this filter are
         returned.
+
+        Uses cache unless ignore_cache == True. cache_timeout gives
+        an alternative timeout duration for the cache, in seconds.
         """
         parameter_cache_key = ('%s::%s::%s' %
                                (FILTER_CACHE_KEY, self.slug, str(filter_id)))
         named_parameters = cache.get(parameter_cache_key)
 
         if find_lowest:
-            filter_names = lowest_filters(filter_id, self.get_filter_tree())
+            filter_names = lowest_filters(
+                filter_id, self.get_filter_tree(url_name=url_name))
         else:
             filter_names = (filter_id,)
 
@@ -261,7 +270,7 @@ class JdbcSource(models.Model):
             named_parameters = named_list(
                 unique_parameters,
                 ['filter_name', 'parameterid', 'parameter', 'filter_id'])
-            cache.set(parameter_cache_key, named_parameters, 8 * 60 * 60)
+            cache.set(parameter_cache_key, named_parameters, cache_timeout)
 
         return named_parameters
 
@@ -283,13 +292,17 @@ class JdbcSource(models.Model):
         if result:
             return result[0][0]
 
-    def get_locations(self, filter_id, parameter_id):
+    def get_locations(self, filter_id, parameter_id,
+                      cache_timeout=CACHE_TIMEOUT):
         """
         Query locations from jdbc source and return named locations in
         a list.
 
         {'location': '<location name>', 'longitude': <longitude>,
         'latitude': <latitude>}
+
+        cache_timeout gives an alternative timeout duration for the
+        cache, in seconds.
         """
         location_cache_key = ('%s::%s::%s' %
                               (LOCATION_CACHE_KEY, filter_id,
@@ -306,7 +319,7 @@ class JdbcSource(models.Model):
                 locations,
                 ['longitude', 'latitude',
                  'location', 'locationid'])
-            cache.set(location_cache_key, named_locations)
+            cache.set(location_cache_key, named_locations, cache_timeout)
         return named_locations
 
     def get_timeseries(self, filter_id, location_id,
