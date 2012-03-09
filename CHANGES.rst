@@ -3,7 +3,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-1.28 (unreleased)
+1.28 (2012-03-09)
 -----------------
 
 - Added two more arguments to the fews_jdbc_cache command:
