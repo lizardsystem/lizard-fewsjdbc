@@ -3,10 +3,10 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-1.29 (unreleased)
+1.29 (2012-03-12)
 -----------------
 
-- Nothing changed yet.
+- Changed the layout and titles of the REST API pages.
 
 
 1.28 (2012-03-09)
