@@ -103,50 +103,105 @@ class JdbcRestAPIView(View):
                                           'location_id': location_id})))
         return self.get_location(request, filter_id, parameter_id, location_id)
 
+    def get_subfilters(self, filter_id):
+        filters = self.jdbc_source.get_filter_tree(url_name=None)
+
+        if filter_id is None:
+            return filters
+
+        while filters:
+            f = filters.pop(0)
+
+            if f["id"] == filter_id:
+                return f["children"]
+            if f["children"]:
+                filters.extend(f["children"])
+
+        return None
+
     def get_home(self, request):
-        filtertree = self.jdbc_source.get_filter_tree(url_name=None)
-        items = dict()
+        """Get start page or page with a node (nonleaf) filter"""
 
-        def items_in_filter_tree(items, filtertree):
-            for item in filtertree:
-                if item["children"]:
-                    # Item is a node
-                    items_in_filter_tree(items, item["children"])
-                else:
-                    items[item["id"]] = reverse('fewsjdbc.restapi.filter_view',
-                                                kwargs={'filter_id':
-                                                            item["id"]})
+        items = {
+            'filterid': self.filter_id,
+            'filtertype': "node",
+            'subfilters': [],
+            }
 
-        items_in_filter_tree(items, filtertree)
+        subfilters = self.get_subfilters(self.filter_id)
+
+        for item in subfilters:
+            if "children" in item and item["children"]:
+                items['subfilters'].append({
+                        "name": item["name"],
+                        "id": item["id"],
+                        "url": reverse('fewsjdbc.restapi.filter_view',
+                                       kwargs={'filter_id':
+                                                   item["id"]})})
+            else:
+                items['subfilters'].append({
+                        "name": item["name"],
+                        "id": item["id"],
+                        "url": reverse('fewsjdbc.restapi.filter_view',
+                                       kwargs={'filter_id':
+                                                   item["id"]})
+                        })
+
+        if self.filter_id:
+            self.name = 'Filter "%s"' % (self.filter_id,)
+        else:
+            self.name = "Startpunt"
 
         return Response(200, items)
 
     def get_filter(self, request, filter_id):
+        subfilters = self.get_subfilters(self.filter_id)
+        if subfilters:
+            # Not a leaf -- more like the start page
+            return self.get_home(request)
+
+        self.name = 'Parameters voor filter "%s"' % (self.filter_id,)
+
         parameters = (self.jdbc_source.
                       get_named_parameters(filter_id, find_lowest=False))
 
-        filter = {}
+        filter = []
         for parameter in parameters:
-            filter[parameter["parameter"]] = (
-                reverse('fewsjdbc.restapi.parameter_view',
-                        kwargs={'filter_id': filter_id,
-                                'parameter_id': parameter["parameterid"]}))
-        return Response(200, filter)
+            filter.append({
+                    "name": parameter["parameter"],
+                    "id": parameter["parameterid"],
+                    "url": reverse('fewsjdbc.restapi.parameter_view',
+                                   kwargs={'filter_id': filter_id,
+                                           'parameter_id': parameter["parameterid"]})})
+        return Response(200, {
+                'filterid': filter_id,
+                'filtertype': "leaf",
+                'parameters': filter,
+                })
 
     def get_parameter(self, request, filter_id, parameter_id):
         locations = self.jdbc_source.get_locations(filter_id, parameter_id)
 
-        parameter = {}
+        self.name = ('Locaties voor filter "%s" en parameter "%s"' %
+                     (filter_id, parameter_id))
+
+        parameter = []
         for location in locations:
-            parameter[location["location"]] = (
-                reverse('fewsjdbc.restapi.location_view',
+            parameter.append({
+                    "name": location["location"],
+                    "id": location["locationid"],
+                    "url": reverse('fewsjdbc.restapi.location_view',
                         kwargs={'filter_id': filter_id,
                                 'parameter_id': parameter_id,
-                                'location_id': location["locationid"]}))
+                                'location_id': location["locationid"]})})
+
         return Response(200, parameter)
 
     def get_location(self, request, filter_id, parameter_id, location_id):
         start_date, end_date = start_end_dates(request)
+
+        self.name = ('Tijdserie voor filter "%s", parameter "%s" en locatie "%s"' %
+                     (filter_id, parameter_id, location_id))
 
         timeseries = self.jdbc_source.get_timeseries(filter_id,
                                                      location_id,

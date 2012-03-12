@@ -15,17 +15,7 @@ class JdbcDocumentingHTMLRenderer(DocumentingHTMLRenderer):
     template = "lizard_fewsjdbc/restapi.html"
 
 
-class JdbcDocumentingXHTMLRenderer(DocumentingXHTMLRenderer):
-    template = "lizard_fewsjdbc/restapi.html"
-
-
-class JdbcDocumentingPlainTextRenderer(DocumentingPlainTextRenderer):
-    template = "lizard_fewsjdbc/restapi.html"
-
-
 RENDERERS = (JSONRenderer,
              JSONPRenderer,
              JdbcDocumentingHTMLRenderer,
-             JdbcDocumentingXHTMLRenderer,
-             JdbcDocumentingPlainTextRenderer,
              XMLRenderer)
