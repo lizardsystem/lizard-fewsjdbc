@@ -23,8 +23,6 @@ def start_end_dates(request):
     end_date = default_end(datetime.datetime.now())
 
     if 'period' in request.GET:
-        end_date = datetime.datetime.now() + datetime.timedelta(hours=1)
-        # ^^^ Now plus padding.
         days_before = int(request.GET['period'])
         start_date = datetime.datetime.now() - datetime.timedelta(days_before)
     else:
@@ -32,7 +30,7 @@ def start_end_dates(request):
             try:
                 date = time.strptime(request.GET['start'],
                                      GET_PARAM_DATE_FORMAT)
-                start_date = datetime.date(
+                start_date = datetime.datetime(
                     year=date.tm_year,
                     month=date.tm_mon,
                     day=date.tm_mday)
@@ -41,17 +39,19 @@ def start_end_dates(request):
         if 'end' in request.GET:
             try:
                 date = time.strptime(request.GET['end'], GET_PARAM_DATE_FORMAT)
-                end_date = datetime.date(
+                end_date = datetime.datetime(
                     year=date.tm_year,
                     month=date.tm_mon,
-                    day=date.tm_mday)
+                    day=date.tm_mday,
+                    hour=23,
+                    minute=59)
             except ValueError:
                 pass
 
-    if start_date > end_date:
+#    if start_date > end_date:
         # Yes, Reinout made that happen...
-        raise ValueError("Start date %s is later than end date %s ..." % (
-                start_date, end_date))
+#        raise ValueError("Start date %s is later than end date %s ..." % (
+#                start_date, end_date))
     return start_date, end_date
 
 
