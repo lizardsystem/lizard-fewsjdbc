@@ -3,10 +3,15 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-1.30 (unreleased)
+1.30 (2012-03-13)
 -----------------
 
-- Nothing changed yet.
+- Improved functionality of start_end_dates in the REST API:
+  - Removed padding from start and end time
+  - 'end' date now gives data up to and including 23:59 on that date
+
+- Added a command to show filters and parameters of a given jdbc
+  source.
 
 
 1.29 (2012-03-12)
