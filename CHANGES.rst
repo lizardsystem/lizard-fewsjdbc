@@ -6,8 +6,13 @@ Changelog of lizard-fewsjdbc
 1.31 (2012-03-20)
 -----------------
 
-- Nothing changed yet.
+- Removed 'ignore_cache=True' from filter URLs created while the
+  ignore cache variable is True. Just that the cache is currently
+  being refreshed doesn't mean that the newly cached URLs should
+  ignore the cache.
 
+- Fixed bug in fews_jdbc_cache command where it would crash if -d was
+  used without an url_name.
 
 1.30 (2012-03-13)
 -----------------
