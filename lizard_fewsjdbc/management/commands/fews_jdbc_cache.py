@@ -73,7 +73,6 @@ URLs, or give None as an argument to not generate any URLs.'''
                     url_name = args[0]
             else:
                 default_url_name = True
-
             try:
                 if default_url_name:
                     tree = jdbc_source.get_filter_tree(
@@ -84,8 +83,12 @@ URLs, or give None as an argument to not generate any URLs.'''
                         cache_timeout=self.timeout)
 
                 if options['deep']:
-                    params = self.load_parameters(jdbc_source, tree,
-                                                  url_name, default_url_name)
+                    if default_url_name:
+                        params = self.load_parameters(jdbc_source, tree,
+                                                      default_url_name)
+                    else:
+                        params = self.load_parameters(jdbc_source, tree,
+                                                      url_name, default_url_name)
 
                     for filter_id, param_id in params:
                         logger.debug(
