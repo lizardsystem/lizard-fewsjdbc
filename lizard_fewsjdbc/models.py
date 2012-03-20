@@ -214,7 +214,13 @@ class JdbcSource(models.Model):
                     url = reverse(url_name,
                                   kwargs={'jdbc_source_slug': self.slug})
                     url += '?filter_id=%s' % named_filter['id']
-                    url += '&ignore_cache=True' if ignore_cache else ''
+
+                    # There used to be a line here that added 'ignore_cache=True'
+                    # to the URL if ignore_cache is true. However, the variable
+                    # controls whether we currently ignore the cache, not whether
+                    # the URLs we build ignore it. In normal circumstances, the
+                    # cache should not be ignored.
+
                     named_filter['url'] = url
             # Make the tree.
             filter_tree = tree_from_list(
