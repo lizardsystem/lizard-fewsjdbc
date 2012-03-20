@@ -305,9 +305,6 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         Visualize timeseries in a graph.
 
         Legend is always drawn.
-
-        TODO: option x-label does not work. Graph is too high?
-        TODO: y_min, y_max does not work.
         """
 
         def apply_layout(layout, title, y_min, y_max, legend):
