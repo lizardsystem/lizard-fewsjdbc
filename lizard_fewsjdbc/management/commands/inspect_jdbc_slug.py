@@ -3,6 +3,8 @@
 """
 
 from django.core.management.base import BaseCommand
+from django.core.management.base import CommandError
+
 import logging
 
 from lizard_fewsjdbc.models import JdbcSource
@@ -56,24 +58,25 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         if not args:
-            print "No JDBC source slug given. Available slugs:"
-            for source in JdbcSource.objects.all():
-                print source.slug
-            return
+            slugs = "\n  ".join(
+                source.slug for source in JdbcSource.objects.all())
+            raise CommandError(
+                "No JDBC source slug given. Available slugs:\n" +
+                "  " + slugs)
+
+        slug = args[0]
 
         try:
-            self.jdbc_source = JdbcSource.objects.get(slug=args[0])
+            self.jdbc_source = JdbcSource.objects.get(slug=slug)
         except JdbcSource.DoesNotExist:
-            print "JDBC source slug not found."
-            return
-
-        logger.info('Trying %s ...' % self.jdbc_source)
+            raise CommandError("JDBC source slug '%s' not configured." % slug)
 
         try:
             tree = self.jdbc_source.get_filter_tree(ignore_cache=True)
             self.print_tree(tree)
 
         except Exception as e:
-            logger.warn(e)
-            logger.warn('Tried %s unsuccessfully.' % self.jdbc_source)
-            logger.info('Finished.')
+            error = (str(e) +
+                     ('\nTried %s unsuccessfully.\n' % self.jdbc_source) +
+                     "Finished.")
+            raise CommandError(error)
