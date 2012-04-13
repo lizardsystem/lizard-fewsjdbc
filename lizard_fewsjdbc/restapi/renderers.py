@@ -1,8 +1,6 @@
 from djangorestframework.renderers import JSONRenderer
 from djangorestframework.renderers import JSONPRenderer
 from djangorestframework.renderers import DocumentingHTMLRenderer
-from djangorestframework.renderers import DocumentingXHTMLRenderer
-from djangorestframework.renderers import DocumentingPlainTextRenderer
 from djangorestframework.renderers import XMLRenderer
 
 # We subclass the documenting renderers so that we can have our own

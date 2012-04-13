@@ -167,12 +167,17 @@ class JdbcRestAPIView(View):
 
         filter = []
         for parameter in parameters:
-            filter.append({
+            filter.append(
+                {
                     "name": parameter["parameter"],
                     "id": parameter["parameterid"],
-                    "url": reverse('fewsjdbc.restapi.parameter_view',
-                                   kwargs={'filter_id': filter_id,
-                                           'parameter_id': parameter["parameterid"]})})
+                    "url": reverse(
+                        'fewsjdbc.restapi.parameter_view',
+                        kwargs={
+                            'filter_id': filter_id,
+                            'parameter_id': parameter["parameterid"]
+                            })
+                    })
         return Response(200, {
                 'filterid': filter_id,
                 'filtertype': "leaf",
@@ -200,8 +205,9 @@ class JdbcRestAPIView(View):
     def get_location(self, request, filter_id, parameter_id, location_id):
         start_date, end_date = start_end_dates(request)
 
-        self.name = ('Tijdserie voor filter "%s", parameter "%s" en locatie "%s"' %
-                     (filter_id, parameter_id, location_id))
+        self.name = (
+            'Tijdserie voor filter "%s", parameter "%s" en locatie "%s"' %
+            (filter_id, parameter_id, location_id))
 
         timeseries = self.jdbc_source.get_timeseries(filter_id,
                                                      location_id,

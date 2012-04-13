@@ -84,18 +84,21 @@ URLs, or give None as an argument to not generate any URLs.'''
 
                 if options['deep']:
                     if default_url_name:
-                        params = self.load_parameters(jdbc_source, tree,
-                                                      default_url_name)
+                        params = self.load_parameters(
+                            jdbc_source, tree,
+                            default_url_name)
                     else:
-                        params = self.load_parameters(jdbc_source, tree,
-                                                      url_name, default_url_name)
+                        params = self.load_parameters(
+                            jdbc_source, tree,
+                            url_name, default_url_name)
 
                     for filter_id, param_id in params:
                         logger.debug(
                             "Getting locations: %s, %s" %
                             (filter_id, param_id))
-                        jdbc_source.get_locations(filter_id, param_id,
-                                                  cache_timeout=self.timeout)
+                        jdbc_source.get_locations(
+                            filter_id, param_id,
+                            cache_timeout=self.timeout)
 
             except Exception as e:
                 logger.warn(e)

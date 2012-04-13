@@ -207,7 +207,6 @@ class JdbcSource(models.Model):
                 else:
                     root_parent = JDBC_NONE
 
-            logger.debug(named_filters)
             # Add url per filter. Only if url_name is actually present.
             if url_name:
                 for named_filter in named_filters:
@@ -215,11 +214,12 @@ class JdbcSource(models.Model):
                                   kwargs={'jdbc_source_slug': self.slug})
                     url += '?filter_id=%s' % named_filter['id']
 
-                    # There used to be a line here that added 'ignore_cache=True'
-                    # to the URL if ignore_cache is true. However, the variable
-                    # controls whether we currently ignore the cache, not whether
-                    # the URLs we build ignore it. In normal circumstances, the
-                    # cache should not be ignored.
+                    # There used to be a line here that added
+                    # 'ignore_cache=True' to the URL if ignore_cache
+                    # is true. However, the variable controls whether
+                    # we currently ignore the cache, not whether the
+                    # URLs we build ignore it. In normal
+                    # circumstances, the cache should not be ignored.
 
                     named_filter['url'] = url
             # Make the tree.
