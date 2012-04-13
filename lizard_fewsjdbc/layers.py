@@ -102,6 +102,11 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
 
     plugin_api_url_name = JDBC_API_URL_NAME
 
+    ##
+    # Functions overriding WorkspaceItemAdapter
+    # in order
+    ##
+
     def __init__(self, *args, **kwargs):
         super(FewsJdbc, self).__init__(
             *args, **kwargs)
@@ -114,10 +119,6 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         except JdbcSource.DoesNotExist:
             raise WorkspaceItemError(
                 "Jdbc source %s doesn't exist." % self.jdbc_source_slug)
-
-    def _locations(self):
-        return self.jdbc_source.get_locations(self.filterkey,
-                                              self.parameterkey)
 
     def layer(self, layer_ids=None, webcolor=None, request=None):
         """Return layer and styles that render points.
@@ -213,9 +214,6 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
             'south': south_transformed,
             'east': east_transformed}
 
-    def has_extent(self):
-        return True
-
     def search(self, google_x, google_y, radius=None):
         """Return list of dict {'distance': <float>, 'timeserie':
         <timeserie>} of closest fews point that matches x, y, radius.
@@ -244,6 +242,13 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         result.sort(key=lambda item: item['distance'])
         return result[:3]  # Max 3.
 
+    def value_aggregate(self, identifier, aggregate_functions,
+                        start_date, end_date):
+        return super(
+            FewsJdbc,
+            self).value_aggregate_default(
+            identifier, aggregate_functions, start_date, end_date)
+
     def values(self, identifier, start_date, end_date):
         timeseries = self.jdbc_source.get_timeseries(
             self.filterkey, identifier['location'], self.parameterkey,
@@ -255,13 +260,6 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
                            'datetime': row['time'],
                            'unit': unit})
         return result
-
-    def value_aggregate(self, identifier, aggregate_functions,
-                        start_date, end_date):
-        return super(
-            FewsJdbc,
-            self).value_aggregate_default(
-            identifier, aggregate_functions, start_date, end_date)
 
     def location(self, location, layout=None):
         # Hack; recently we had bugs relating to this function because
@@ -475,3 +473,14 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
             layout_options=layout_options,
             template='lizard_fewsjdbc/popup.html',
             extra_render_kwargs=extra_kwargs)
+
+    ##
+    # Other functions
+    ##
+
+    def _locations(self):
+        return self.jdbc_source.get_locations(self.filterkey,
+                                              self.parameterkey)
+
+    def has_extent(self):
+        return True
