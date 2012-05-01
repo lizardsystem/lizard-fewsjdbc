@@ -1,5 +1,8 @@
 import os
 
+from lizard_ui.settingshelper import setup_logging
+from lizard_ui.settingshelper import STATICFILES_FINDERS
+
 DEBUG = True
 LOG_JDBC_QUERIES = True
 TEMPLATE_DEBUG = True
@@ -67,6 +70,7 @@ MEDIA_ROOT = os.path.join(BUILDOUT_DIR, 'var', 'media')
 # "bin/django build_static" places all collected static files from all
 # applications' /media directory.
 STATIC_ROOT = os.path.join(BUILDOUT_DIR, 'var', 'static')
+STATICFILES_FINDERS = STATICFILES_FINDERS
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
