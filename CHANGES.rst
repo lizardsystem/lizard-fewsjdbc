@@ -3,7 +3,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-1.32 (unreleased)
+1.32 (2012-05-15)
 -----------------
 
 - Create tasks.py and move fews_jdbc_cache management command to it.
