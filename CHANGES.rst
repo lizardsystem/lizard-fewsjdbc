@@ -6,7 +6,7 @@ Changelog of lizard-fewsjdbc
 1.32 (unreleased)
 -----------------
 
-- Add bare tasks.py for use with lizard-task.
+- Create tasks.py and move fews_jdbc_cache management command to it.
 
 
 1.31 (2012-03-20)
