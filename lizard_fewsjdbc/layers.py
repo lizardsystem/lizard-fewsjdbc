@@ -3,6 +3,7 @@ import logging
 import mapnik
 import math
 import os
+import pytz
 
 from django.conf import settings
 from django.http import Http404
@@ -14,6 +15,7 @@ from lizard_map.models import ICON_ORIGINALS
 from lizard_map.models import WorkspaceItemError
 from lizard_map.symbol_manager import SymbolManager
 
+from lizard_fewsjdbc.dtu import astimezone
 from lizard_fewsjdbc.models import IconStyle
 from lizard_fewsjdbc.models import JdbcSource
 from lizard_fewsjdbc.models import FewsJdbcQueryError
@@ -253,6 +255,9 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         timeseries = self.jdbc_source.get_timeseries(
             self.filterkey, identifier['location'], self.parameterkey,
             start_date, end_date)
+        # lizard-fewsjdbc returns "aware" datetime objects (UTC).
+        # now localize these according to this site's settings.
+        timeseries = astimezone(timeseries)
         unit = self.jdbc_source.get_unit(self.parameterkey)
         result = []
         for row in timeseries:
@@ -360,7 +365,8 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         named_locations = self._locations()
         today = datetime.datetime.now()
         graph = Graph(start_date, end_date,
-                      width=width, height=height, today=today)
+                      width=width, height=height, today=today,
+                      tz=pytz.timezone(settings.TIME_ZONE))
         graph.axes.grid(True)
         unit = self.jdbc_source.get_unit(self.parameterkey)
         graph.axes.set_ylabel(unit)
