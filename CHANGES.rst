@@ -3,10 +3,24 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-1.32 (unreleased)
+1.34 (unreleased)
 -----------------
 
 - Timeseries are now localized according the a site's settings.
+
+- Fix colorfield import.
+
+
+1.33 (2012-05-15)
+-----------------
+
+- Add MANIFEST.in
+
+
+1.32 (2012-05-15)
+-----------------
+
+- Create tasks.py and move fews_jdbc_cache management command to it.
 
 
 1.31 (2012-03-20)
