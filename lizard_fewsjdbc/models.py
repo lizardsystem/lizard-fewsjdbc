@@ -17,7 +17,7 @@ from django.utils.translation import ugettext as _
 from lizard_map.operations import named_list
 from lizard_map.operations import tree_from_list
 from lizard_map.operations import unique_list
-from lizard_map.models import ColorField
+from lizard_map.fields import ColorField
 from lizard_map.symbol_manager import list_image_file_names
 
 

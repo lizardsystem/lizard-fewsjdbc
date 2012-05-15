@@ -6,7 +6,7 @@ Changelog of lizard-fewsjdbc
 1.34 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Fix colorfield import.
 
 
 1.33 (2012-05-15)
