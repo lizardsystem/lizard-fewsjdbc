@@ -3,7 +3,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-1.33 (unreleased)
+1.33 (2012-05-15)
 -----------------
 
 - Add MANIFEST.in
