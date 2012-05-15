@@ -6,7 +6,7 @@ Changelog of lizard-fewsjdbc
 1.32 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Add bare tasks.py for use with lizard-task.
 
 
 1.31 (2012-03-20)
