@@ -15,6 +15,7 @@ install_requires = [
     'django-extensions',
     'djangorestframework',
     'lizard-map >= 3.18',
+    'lizard-task',
     'lizard-ui >= 3.11',
     'django-nose',
     'iso8601',
