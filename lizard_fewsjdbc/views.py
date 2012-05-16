@@ -25,6 +25,7 @@ class JdbcSourceView(AppView):
     template_name = "lizard_fewsjdbc/jdbc_source.html"
     filter_url_name = "lizard_fewsjdbc.jdbc_source"
     adapter_class = "adapter_fewsjdbc"
+    edit_link = '/admin/lizard_fewsjdbc/'
 
     def get(self, request, *args, **kwargs):
         """This method is overridden in order to get at the GET parameters."""

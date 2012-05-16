@@ -10,6 +10,8 @@ Changelog of lizard-fewsjdbc
 
 - Fix colorfield import.
 
+- Added edit link
+
 
 1.33 (2012-05-15)
 -----------------
