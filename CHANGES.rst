@@ -10,7 +10,9 @@ Changelog of lizard-fewsjdbc
 
 - Fix colorfield import.
 
-- Added edit link
+- Added edit link.
+
+- Updated layout for bootstrap.
 
 
 1.33 (2012-05-15)
