@@ -17,7 +17,7 @@ class Migration(SchemaMigration):
             ('fews_parameter', self.gf('django.db.models.fields.CharField')(max_length=40, null=True, blank=True)),
             ('icon', self.gf('django.db.models.fields.CharField')(max_length=40)),
             ('mask', self.gf('django.db.models.fields.CharField')(max_length=40)),
-            ('color', self.gf('lizard_map.models.ColorField')(max_length=8)),
+            ('color', self.gf('lizard_map.fields.ColorField')(max_length=8)),
         ))
         db.send_create_signal('lizard_fewsjdbc', ['IconStyle'])
 
@@ -31,7 +31,7 @@ class Migration(SchemaMigration):
     models = {
         'lizard_fewsjdbc.iconstyle': {
             'Meta': {'object_name': 'IconStyle'},
-            'color': ('lizard_map.models.ColorField', [], {'max_length': '8'}),
+            'color': ('lizard_map.fields.ColorField', [], {'max_length': '8'}),
             'fews_filter': ('django.db.models.fields.CharField', [], {'max_length': '40', 'null': 'True', 'blank': 'True'}),
             'fews_location': ('django.db.models.fields.CharField', [], {'max_length': '40', 'null': 'True', 'blank': 'True'}),
             'fews_parameter': ('django.db.models.fields.CharField', [], {'max_length': '40', 'null': 'True', 'blank': 'True'}),

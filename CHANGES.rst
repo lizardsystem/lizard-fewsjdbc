@@ -6,7 +6,7 @@ Changelog of lizard-fewsjdbc
 2.1 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Fix colorfield reference in migration.
 
 
 2.0 (2012-05-18)
