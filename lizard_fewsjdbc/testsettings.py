@@ -6,13 +6,20 @@ from lizard_ui.settingshelper import STATICFILES_FINDERS
 DEBUG = True
 LOG_JDBC_QUERIES = True
 TEMPLATE_DEBUG = True
-DATABASE_ENGINE = 'sqlite3'
-DATABASE_NAME = 'test.db'
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'test.db',
+        }
+}
+
 SITE_ID = 1
 INSTALLED_APPS = [
     'lizard_fewsjdbc',
     'lizard_map',
     'lizard_ui',
+    'lizard_security',
     'staticfiles',
     'compressor',
     'south',
@@ -32,7 +39,7 @@ TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 # Used for django-staticfiles
 TEMPLATE_CONTEXT_PROCESSORS = (
     # Default items.
-    "django.core.context_processors.auth",
+    "django.contrib.auth.context_processors.auth",
     "django.core.context_processors.debug",
     "django.core.context_processors.i18n",
     "django.core.context_processors.media",
