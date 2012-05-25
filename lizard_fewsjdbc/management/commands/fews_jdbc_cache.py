@@ -24,4 +24,4 @@ URLs, or give None as an argument to not generate any URLs.'''
         )
 
     def handle(self, *args, **options):
-        rebuild_jdbc_cache(*args, **options)    
+        rebuild_jdbc_cache(*args, **options)
