@@ -3,7 +3,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-2.2 (unreleased)
+2.2 (2012-05-31)
 ----------------
 
 - Add support for the new FlotGraph.
