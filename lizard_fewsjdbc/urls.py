@@ -17,9 +17,6 @@ urlpatterns = patterns(
         JdbcSourceView.as_view(),
         name="lizard_fewsjdbc.jdbc_source",
         ),
-    url(r'^flot_graph_data$',
-        HomepageView.as_view(),
-        name='lizard_fewsjdbc.flot_graph_data'),
     (r'^map/', include('lizard_map.urls')),
     (r'^api/', include('lizard_fewsjdbc.api.urls')),
     )
