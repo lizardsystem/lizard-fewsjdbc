@@ -9,7 +9,7 @@ from django.conf import settings
 from django.http import Http404
 from lizard_map import coordinates
 from lizard_map import workspace
-from lizard_map.adapter import Graph
+from lizard_map.adapter import Graph, FlotGraph
 from lizard_map.mapnik_helper import add_datasource_point
 from lizard_map.models import ICON_ORIGINALS
 from lizard_map.models import WorkspaceItemError
@@ -103,6 +103,7 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
     """
 
     plugin_api_url_name = JDBC_API_URL_NAME
+    support_flot_graph = True # set this once flot graphs are supported by the adapter
 
     ##
     # Functions overriding WorkspaceItemAdapter
@@ -303,11 +304,30 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
               height=250.0,
               layout_extra=None,
               raise_404_if_empty=False):
+        return self._render_graph(identifiers,
+              start_date,
+              end_date,
+              width=width,
+              height=height,
+              layout_extra=layout_extra,
+              raise_404_if_empty=raise_404_if_empty,
+              GraphClass=Graph)
+
+    def _render_graph(self,
+              identifiers,
+              start_date,
+              end_date,
+              layout_extra=None,
+              raise_404_if_empty=False,
+              GraphClass=Graph,
+              **extra_params):
 
         """
         Visualize timeseries in a graph.
 
         Legend is always drawn.
+
+        New: this is now a more generalized version of image(), to support FlotGraph.
         """
 
         def apply_layout(layout, title, y_min, y_max, legend):
@@ -364,9 +384,8 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         line_styles = self.line_styles(identifiers)
         named_locations = self._locations()
         today = datetime.datetime.now()
-        graph = Graph(start_date, end_date,
-                      width=width, height=height, today=today,
-                      tz=pytz.timezone(settings.TIME_ZONE))
+        graph = GraphClass(start_date, end_date, today=today,
+                      tz=pytz.timezone(settings.TIME_ZONE), **extra_params)
         graph.axes.grid(True)
         unit = self.jdbc_source.get_unit(self.parameterkey)
         graph.axes.set_ylabel(unit)
@@ -449,7 +468,7 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
                     label=horizontal_line['name'])
 
         graph.add_today()
-        return graph.http_png()
+        return graph.render()
 
     def symbol_url(self, identifier=None, start_date=None, end_date=None):
         """
@@ -495,10 +514,17 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
     # New for flot graphs
     ##
 
-    def flot_graph_data(self,
-              identifiers,
+    def flot_graph_data(
+        self,
+        identifiers,
+        start_date,
+        end_date,
+        layout_extra=None,
+        raise_404_if_empty=False
+    ):
+        return self._render_graph(identifiers,
               start_date,
               end_date,
-              layout_extra=None,
-              raise_404_if_empty=False):
-        return {'v_min': 0, 'v_max': 100, 'series': [(t * 23350000 + 1336378865000, float(v)) for t, v in enumerate(xrange(100))]}
+              layout_extra=layout_extra,
+              raise_404_if_empty=raise_404_if_empty,
+              GraphClass=FlotGraph)
