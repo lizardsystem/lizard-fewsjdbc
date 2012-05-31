@@ -490,3 +490,15 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
 
     def has_extent(self):
         return True
+
+    ##
+    # New for flot graphs
+    ##
+
+    def flot_graph_data(self,
+              identifiers,
+              start_date,
+              end_date,
+              layout_extra=None,
+              raise_404_if_empty=False):
+        return {'v_min': 0, 'v_max': 100, 'series': [(t * 23350000 + 1336378865000, float(v)) for t, v in enumerate(xrange(100))]}
