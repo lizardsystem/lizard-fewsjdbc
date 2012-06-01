@@ -296,32 +296,37 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
             'google_coords': (x, y),
             'object': None}
 
-    def image(self,
-              identifiers,
-              start_date,
-              end_date,
-              width=380.0,
-              height=250.0,
-              layout_extra=None,
-              raise_404_if_empty=False):
-        return self._render_graph(identifiers,
-              start_date,
-              end_date,
-              width=width,
-              height=height,
-              layout_extra=layout_extra,
-              raise_404_if_empty=raise_404_if_empty,
-              GraphClass=Graph)
+    def image(
+        self,
+        identifiers,
+        start_date,
+        end_date,
+        width=380.0,
+        height=250.0,
+        layout_extra=None,
+        raise_404_if_empty=False
+    ):
+        return self._render_graph(
+            identifiers,
+            start_date,
+            end_date,
+            width=width,
+            height=height,
+            layout_extra=layout_extra,
+            raise_404_if_empty=raise_404_if_empty,
+            GraphClass=Graph
+        )
 
-    def _render_graph(self,
-              identifiers,
-              start_date,
-              end_date,
-              layout_extra=None,
-              raise_404_if_empty=False,
-              GraphClass=Graph,
-              **extra_params):
-
+    def _render_graph(
+        self,
+        identifiers,
+        start_date,
+        end_date,
+        layout_extra=None,
+        raise_404_if_empty=False,
+        GraphClass=Graph,
+        **extra_params
+    ):
         """
         Visualize timeseries in a graph.
 
@@ -522,9 +527,11 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         layout_extra=None,
         raise_404_if_empty=False
     ):
-        return self._render_graph(identifiers,
-              start_date,
-              end_date,
-              layout_extra=layout_extra,
-              raise_404_if_empty=raise_404_if_empty,
-              GraphClass=FlotGraph)
+        return self._render_graph(
+            identifiers,
+            start_date,
+            end_date,
+            layout_extra=layout_extra,
+            raise_404_if_empty=raise_404_if_empty,
+            GraphClass=FlotGraph
+        )
