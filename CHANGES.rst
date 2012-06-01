@@ -3,7 +3,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-2.3 (unreleased)
+2.3 (2012-06-01)
 ----------------
 
 - Fix some indentation.
