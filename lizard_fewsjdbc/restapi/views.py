@@ -195,6 +195,8 @@ class JdbcRestAPIView(View):
             parameter.append({
                     "name": location["location"],
                     "id": location["locationid"],
+                    "latitude": location["latitude"],
+                    "longitude": location["longitude"],
                     "url": reverse('fewsjdbc.restapi.location_view',
                         kwargs={'filter_id': filter_id,
                                 'parameter_id': parameter_id,

@@ -6,7 +6,7 @@ Changelog of lizard-fewsjdbc
 2.4 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Added latitude and longitude in locations in the REST API.
 
 
 2.3 (2012-06-01)

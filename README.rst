@@ -2,7 +2,7 @@ lizard-fewsjdbc
 ==========================================
 
 This app is used to view fews-jdbc data sources. The interface looks the same as
-fews-unblobbed. Multiple fews-jdbc sources can be configurated.
+fews-unblobbed. Multiple fews-jdbc sources can be configured.
 
 
 Prerequisities
@@ -42,8 +42,8 @@ Tests can always be run with ``bin/test`` or ``bin\test.exe``.
 Using the djangoapp in a site
 -----------------------------
 
-- Add lizard_fewsjdbc to your buildout.cfg. Make sure that (sysegg,
-  matplotlib).
+- Add lizard_fewsjdbc to your buildout.cfg. You may need lizard-fewsjdbc's sysegg requirements -
+  PIL, matplotlib, pyproj and psycopg2 installed on your system.
 
 - Add lizard_fewsjdbc and lizard_map to the INSTALLED_APPS in your
   settings.
