@@ -6,7 +6,7 @@ Changelog of lizard-fewsjdbc
 2.5 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Remove old graph.
 
 
 2.4 (2012-06-07)
