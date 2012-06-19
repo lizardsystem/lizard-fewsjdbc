@@ -3,7 +3,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-2.5 (unreleased)
+2.5 (2012-06-19)
 ----------------
 
 - Remove old graph.
