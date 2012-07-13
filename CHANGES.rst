@@ -6,7 +6,7 @@ Changelog of lizard-fewsjdbc
 2.6 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Fixed the management command so it bypasses celery.
 
 
 2.5 (2012-06-19)
