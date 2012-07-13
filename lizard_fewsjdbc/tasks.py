@@ -69,6 +69,7 @@ def rebuild_jdbc_cache_task(username=None, db_name=None,
 def rebuild_jdbc_cache(logger=None, *args, **options):
     if not logger:
         logger = logging.getLogger('rebuild_jdbc_cache')
+        logger.setLevel(logging.DEBUG)
 
     if options.get('timeout'):
         timeout = int(options['timeout'])
