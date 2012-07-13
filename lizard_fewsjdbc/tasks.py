@@ -49,7 +49,7 @@ def load_parameters(timeout, jdbc_source,
 
 
 @task
-def rebuild_jdbc_cache(username=None, db_name=None,
+def rebuild_jdbc_cache_task(username=None, db_name=None,
                        taskname=None, *args, **options):
     """
     Rebuild filter cache for fewsjdbc.
@@ -62,6 +62,13 @@ def rebuild_jdbc_cache(username=None, db_name=None,
     logger = logging.getLogger('rebuild_jdbc_cache')
     logger.addHandler(handler)
     logger.setLevel(20)
+
+    rebuild_jdbc_cache(*args, **options)
+
+
+def rebuild_jdbc_cache(logger=None, *args, **options):
+    if not logger:
+        logger = logging.getLogger('rebuild_jdbc_cache')
 
     if options.get('timeout'):
         timeout = int(options['timeout'])
