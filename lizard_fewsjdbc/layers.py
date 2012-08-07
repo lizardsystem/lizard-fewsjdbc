@@ -143,10 +143,10 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
 
         logger.debug("Number of point objects: %d" % len(named_locations))
         for named_location in named_locations:
-            logger.debug('layer coordinates %s %s %s' % (
-                    named_location['locationid'],
-                    named_location['longitude'],
-                    named_location['latitude']))
+            #logger.debug('layer coordinates %s %s %s' % (
+            #        named_location['locationid'],
+            #        named_location['longitude'],
+            #        named_location['latitude']))
 
             point_style_name, point_style = fews_point_style(
                 self.jdbc_source,
