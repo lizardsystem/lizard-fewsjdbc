@@ -3,8 +3,8 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-1.32 (unreleased)
------------------
+1.31.1 (2012-08-17)
+-------------------
 
 - Timeseries are now localized according the a site's settings.
 
