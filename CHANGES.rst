@@ -6,7 +6,7 @@ Changelog of lizard-fewsjdbc
 1.31.2 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Added MANIFEST.in.
 
 
 1.31.1 (2012-08-17)
