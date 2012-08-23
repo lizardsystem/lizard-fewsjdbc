@@ -5,7 +5,7 @@
 {% block popup_title %}
 <div>
   <img src="{{ symbol_url }}" />&nbsp;
-  <strong>{{ title|truncatewords:8 }}</strong>
+  <strong>{{ title|truncatewords:16 }}, {{ parameter|truncatewords:16 }}</strong>
 </div>
 {% endblock %}
 

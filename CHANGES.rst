@@ -8,6 +8,8 @@ Changelog of lizard-fewsjdbc
 
 - Fix management command logging.
 
+- Add a parameter name in graphs.
+
 
 2.6 (2012-07-13)
 ----------------
