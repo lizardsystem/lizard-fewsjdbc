@@ -3,7 +3,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-2.7 (unreleased)
+2.7 (2012-08-23)
 ----------------
 
 - Fix management command logging.
