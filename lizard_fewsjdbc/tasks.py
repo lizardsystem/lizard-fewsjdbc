@@ -63,10 +63,10 @@ def rebuild_jdbc_cache_task(username=None, db_name=None,
     logger.addHandler(handler)
     logger.setLevel(20)
 
-    rebuild_jdbc_cache(*args, **options)
+    rebuild_jdbc_cache(logger, *args, **options)
 
 
-def rebuild_jdbc_cache(logger=None, *args, **options):
+def rebuild_jdbc_cache(logger, *args, **options):
     if not logger:
         logger = logging.getLogger('rebuild_jdbc_cache')
         console = logging.StreamHandler()
@@ -117,7 +117,6 @@ def rebuild_jdbc_cache(logger=None, *args, **options):
                         cache_timeout=timeout)
 
         except Exception as e:
-            logger.warn(e)
-            logger.warn('Tried %s unsuccessfully.' % jdbc_source)
+            logger.exception('Exception while syncing %s.' % jdbc_source)
     logger.info('Finished.')
     return 'OK'
