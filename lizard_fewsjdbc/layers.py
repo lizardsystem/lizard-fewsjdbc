@@ -535,3 +535,16 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
             raise_404_if_empty=raise_404_if_empty,
             GraphClass=FlotGraph
         )
+
+    def legend_image_urls(self):
+        """
+        returns symbol
+
+        TODO: the identifier is always None, so individual symbols
+        cannot be retrieved.
+        """
+        _, output_filename = fews_symbol_name(
+            self.jdbc_source, self.filterkey, '',
+            self.parameterkey, nodata=False)
+        icon = '%sgenerated_icons/%s' % (settings.MEDIA_URL, output_filename)
+        return [icon]
