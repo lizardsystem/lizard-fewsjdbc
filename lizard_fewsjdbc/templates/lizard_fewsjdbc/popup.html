@@ -5,7 +5,7 @@
 {% block popup_title %}
 <div>
   <img src="{{ symbol_url }}" />&nbsp;
-  <strong>{{ title|truncatewords:16 }}, {{ parameter|truncatewords:16 }}</strong>
+  <strong>{{ parameter|truncatewords:16 }}</strong>
 </div>
 {% endblock %}
 
@@ -24,7 +24,7 @@
   <a href="{{ collage_item_prop.url }}"
      class="ss_table_save ss_sprite"
      title="Export csv">&nbsp;</a>
-  <span
+  <a
      href="{% url lizard_map_collage_add %}"
      class="ss_sprite ss_star collage-add"
      data-name="{{ collage_item_prop.name }}"
@@ -32,8 +32,8 @@
      data-adapter-layer-json="{{ collage_item_prop.adapter_layer_json }}"
      data-identifier="{{ collage_item_prop.identifier }}"
      data-target-id="#edit-collage"
-     title="Toevoegen aan selectie">&nbsp;</span>
-    {{ collage_item_prop.name }}
+     title="Toevoegen aan selectie">&nbsp;</a>
+     {{ title }}, {{ parameter }}
   </li>
   {% endfor %}
   </ul>

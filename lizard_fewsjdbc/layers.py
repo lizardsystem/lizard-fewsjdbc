@@ -335,26 +335,6 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         New: this is now a more generalized version of image(), to support FlotGraph.
         """
 
-        def apply_layout(layout, title, y_min, y_max, legend):
-            """Applies layout options. Returns title,
-            y_min, y_max, graph, legend
-
-            From lizard-fewsunblobbed"""
-
-            if "title" in layout:
-                title = layout['title']
-            if "y_min" in layout:
-                y_min = float(layout['y_min'])
-            if "y_max" in layout:
-                y_max = float(layout['y_max'])
-            if "legend" in layout:
-                legend = layout['legend']
-            if "y_label" in layout:
-                graph.axes.set_ylabel(layout['y_label'])
-            if "x_label" in layout:
-                graph.set_xlabel(layout['x_label'])
-            return title, y_min, y_max, legend
-
         def apply_lines(identifier, values, location_name):
             """Adds lines that are defined in layout. Uses function
             variable graph, line_styles.
@@ -392,7 +372,7 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         graph = GraphClass(start_date, end_date, today=today,
                       tz=pytz.timezone(settings.TIME_ZONE), **extra_params)
         graph.axes.grid(True)
-        unit = self.jdbc_source.get_unit(self.parameterkey)
+        parameter_name, unit = self.jdbc_source.get_name_and_unit(self.parameterkey)
         graph.axes.set_ylabel(unit)
 
         # Draw extra's (from fewsunblobbed)
@@ -424,8 +404,10 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
             # Apply custom layout parameters.
             if 'layout' in identifier:
                 layout = identifier['layout']
-                title, y_min, y_max, legend = apply_layout(
-                    layout, title, y_min, y_max, legend)
+                if "y_label" in layout:
+                    graph.axes.set_ylabel(layout['y_label'])
+                if "x_label" in layout:
+                    graph.set_xlabel(layout['x_label'])
                 apply_lines(identifier, values, location_name)
 
         if is_empty and raise_404_if_empty:

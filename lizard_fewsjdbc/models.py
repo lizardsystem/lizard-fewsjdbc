@@ -371,6 +371,16 @@ class JdbcSource(models.Model):
         query_result = self.query(q)
         return query_result[0][0]  # First row, first column.
 
+    def get_name_and_unit(self, parameter_id):
+        """
+        Gets name and unit for given parameter.
+
+        Assumes 1 row is fetched.
+        """
+        q = ("select name, unit from parameters where id='%s'" % parameter_id)
+        query_result = self.query(q)
+        return query_result[0]  # First row, first column.
+
     def get_absolute_url(self):
         return reverse('lizard_fewsjdbc.jdbc_source',
                        kwargs={'jdbc_source_slug': self.slug})
