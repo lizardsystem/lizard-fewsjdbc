@@ -530,3 +530,17 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
             self.parameterkey, nodata=False)
         icon = '%sgenerated_icons/%s' % (settings.MEDIA_URL, output_filename)
         return [icon]
+
+    def location_list(self, name):
+        '''
+        Search locations by given name.
+        Case insensitive wildcard matching is used.
+        '''
+        if not name:
+            return []
+        locations = self.jdbc_source.location_list(self.filterkey, self.parameterkey, name)
+        locations = [
+            ({'location': location[0]}, location[1])
+            for location in locations
+        ]
+        return locations

@@ -328,6 +328,21 @@ class JdbcSource(models.Model):
             cache.set(location_cache_key, named_locations, cache_timeout)
         return named_locations
 
+    def location_list(self, filter_id, parameter_id, name):
+#        query = (
+#            "select name, x, y, id "
+#            "from locations "
+#            "where id='%s' and parameterid='%s' "
+#            "and location.name like '%{}%'"
+#        ).format(name)
+        query = (
+            "select locationid, location "
+            "from filters "
+            "where id='{}' and parameterid='{}' and location like '%{}%'"
+        ).format(filter_id, parameter_id, name)
+        locations = self.query(query)
+        return locations
+
     def get_timeseries(self, filter_id, location_id,
                        parameter_id, start_date, end_date):
         """
