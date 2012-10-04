@@ -6,7 +6,11 @@ Changelog of lizard-fewsjdbc
 2.8 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Add support for location searching.
+
+- Some small styling changes.
+
+- Add legend icon.
 
 
 2.7 (2012-08-23)
