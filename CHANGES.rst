@@ -3,7 +3,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-2.8 (unreleased)
+2.8 (2012-10-04)
 ----------------
 
 - Add support for location searching.
