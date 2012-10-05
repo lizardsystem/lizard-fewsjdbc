@@ -9,17 +9,17 @@ import datetime
 import time
 import urllib
 
-from django.http import HttpResponse
-from django.http import Http404
 from django.core.urlresolvers import reverse
-from piston.handler import BaseHandler
-from piston.utils import rc
-from lizard_map.api.handlers import documentation
-from lizard_map.daterange import default_start
-from lizard_map.daterange import default_end
-
+from django.http import Http404
+from django.http import HttpResponse
+from lizard_fewsjdbc import dtu
 from lizard_fewsjdbc.layers import FewsJdbc
 from lizard_fewsjdbc.models import JdbcSource
+from lizard_map.api.handlers import documentation
+from lizard_map.daterange import default_end
+from lizard_map.daterange import default_start
+from piston.handler import BaseHandler
+from piston.utils import rc
 
 FILTER_URL_NAME = 'api_jdbc_filters'
 PARAMETER_URL_NAME = 'api_jdbc_parameters'
@@ -29,8 +29,8 @@ GET_PARAM_DATE_FORMAT = '%Y-%m-%d'
 
 
 def start_end_dates(request):
-    start_date = datetime.datetime.now() + default_start()
-    end_date = datetime.datetime.now() + default_end()
+    start_date = default_start(datetime.datetime.now())
+    end_date = default_end(datetime.datetime.now())
     if 'period' in request.GET:
         end_date = datetime.datetime.now() + datetime.timedelta(hours=1)
         # ^^^ Now plus padding.
@@ -280,10 +280,11 @@ class TimeserieCsvHandler(TimeserieHandler):
 
         writer = csv.writer(response)
         writer.writerow(headers)
+        dtu.astimezone(result['data'])  # UTC => local time
         for timeserie in result['data']:
             row = []
-            for key in ('time', 'value'):
-                row.append(timeserie[key])
+            row.append(dtu.asstring(timeserie['time']))
+            row.append(timeserie['value'])
             writer.writerow(row)
         return response
 

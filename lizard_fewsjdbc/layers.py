@@ -301,7 +301,7 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
               end_date,
               width=380.0,
               height=250.0,
-              layout_extra=None,
+              layout_extra={},
               raise_404_if_empty=False):
 
         """

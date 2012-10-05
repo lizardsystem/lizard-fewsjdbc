@@ -1,4 +1,5 @@
 # (c) Nelen & Schuurmans.  GPL licensed, see LICENSE.txt.
+from lizard_fewsjdbc import dtu
 from piston.emitters import Emitter
 
 TIMESERIE_HEADERS = ('time', 'value')
@@ -16,6 +17,7 @@ class BaseRowEmitter(Emitter):
     @property
     def rows(self):
         data = self.extracted['data']
+        dtu.astimezone(data)  # UTC => local time
         for timeserie in data:
             row = []
             for key in TIMESERIE_HEADERS:
@@ -43,7 +45,8 @@ class TimeserieHtmlTableEmitter(BaseRowEmitter):
             result.append('<th>%s</th>' % header)
         result.append('</tr>')
         for row in self.rows:
-            result.append('<tr><td>%s</td><td>%s</td></tr>' % (row[0], row[1]))
+            result.append('<tr><td>%s</td><td>%s</td></tr>'
+                % (dtu.asstring(row[0]), row[1]))
         result.append('</table>')
         return '\n'.join(result)
 
