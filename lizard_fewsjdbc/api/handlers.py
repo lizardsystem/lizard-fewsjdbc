@@ -12,6 +12,7 @@ import urllib
 from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.http import HttpResponse
+from django.utils.formats import localize
 from lizard_fewsjdbc import dtu
 from lizard_fewsjdbc.layers import FewsJdbc
 from lizard_fewsjdbc.models import JdbcSource
@@ -262,7 +263,15 @@ class TimeserieHandler(BaseHandler):
 
 
 class TimeserieCsvHandler(TimeserieHandler):
-    """Specific handler for csv output: emitter can't set response headers."""
+    """Specific handler for csv output: emitter can't set response headers.
+
+    The following settings determine how datetimes are formatted:
+    - settings.TIME_ZONE, e.g. 'Europe/Amsterdam'
+    - settings.DATETIME_FORMAT_FEWSJDBC, e.g. '%Y-%m-%d %H:%M:%S'
+
+    The following setting determines how values are formatted:
+    - settings.USE_L10N, e.g. True or False
+    """
 
     def read(self, request,
              jdbc_source_slug, filter_id, parameter_id, location_id):
@@ -284,7 +293,7 @@ class TimeserieCsvHandler(TimeserieHandler):
         for timeserie in result['data']:
             row = []
             row.append(dtu.asstring(timeserie['time']))
-            row.append(timeserie['value'])
+            row.append(localize(timeserie['value']))
             writer.writerow(row)
         return response
 

@@ -1,4 +1,5 @@
 # (c) Nelen & Schuurmans.  GPL licensed, see LICENSE.txt.
+from django.utils.formats import localize
 from lizard_fewsjdbc import dtu
 from piston.emitters import Emitter
 
@@ -36,7 +37,15 @@ class BaseRowEmitter(Emitter):
 
 
 class TimeserieHtmlTableEmitter(BaseRowEmitter):
-    """Piston emitter for a plain html table."""
+    """Piston emitter for a plain html table.
+
+    The following settings determine how datetimes are formatted:
+    - settings.TIME_ZONE, e.g. 'Europe/Amsterdam'
+    - settings.DATETIME_FORMAT_FEWSJDBC, e.g. '%Y-%m-%d %H:%M:%S'
+
+    The following setting determines how values are formatted:
+    - settings.USE_L10N, e.g. True or False
+    """
 
     def render(self, request):
         result = []
@@ -46,7 +55,7 @@ class TimeserieHtmlTableEmitter(BaseRowEmitter):
         result.append('</tr>')
         for row in self.rows:
             result.append('<tr><td>%s</td><td>%s</td></tr>'
-                % (dtu.asstring(row[0]), row[1]))
+                % (dtu.asstring(row[0]), localize(row[1])))
         result.append('</table>')
         return '\n'.join(result)
 
