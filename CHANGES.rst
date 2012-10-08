@@ -3,7 +3,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-1.31.4 (unreleased)
+1.31.4 (2012-10-08)
 -------------------
 
 - Values can be localized too when using the api.
