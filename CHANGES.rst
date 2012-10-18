@@ -3,7 +3,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-2.9 (unreleased)
+2.9 (2012-10-18)
 ----------------
 
 - Add caching to layers.py's extent() method.
