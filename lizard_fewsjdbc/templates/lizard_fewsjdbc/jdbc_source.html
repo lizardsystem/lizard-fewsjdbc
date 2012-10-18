@@ -1,4 +1,5 @@
 {% extends "lizard_map/wms.html" %}
+{% load i18n %}
 {% load workspaces %}
 {% load utility %}
 
@@ -33,6 +34,8 @@
     <li>Geen parameters gevonden/geladen.</li>
     {% endfor %}
   </ul>
+  <h2>3: Acties</h2>
+  <a href="javascript:void(null)" class="btn popup-location-list"><i class="icon-search"></i> {% trans 'Search for locations' %}</a>
 </div>
 
 {% endblock sidebar %}
