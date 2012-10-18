@@ -7,6 +7,7 @@ import pytz
 
 from django.conf import settings
 from django.http import Http404
+from django.core.cache import cache
 from lizard_map import coordinates
 from lizard_map import workspace
 from lizard_map.adapter import Graph, FlotGraph
@@ -178,44 +179,49 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         """
         TODO: filter on identifiers.
         """
-        logger.debug("Started calculating extent")
-        north = None
-        south = None
-        east = None
-        west = None
-        named_locations = self._locations()
-        wgs0coord_x, wgs0coord_y = coordinates.rd_to_wgs84(0.0, 0.0)
+        cache_key = 'extent:{}:{}:{}'.format(self.jdbc_source_slug, self.filterkey, self.parameterkey)
+        result = cache.get(cache_key)
+        if not result:
+            logger.debug("Started calculating extent")
+            north = None
+            south = None
+            east = None
+            west = None
+            named_locations = self._locations()
+            wgs0coord_x, wgs0coord_y = coordinates.rd_to_wgs84(0.0, 0.0)
 
-        for named_location in named_locations:
-            x = named_location['longitude']
-            y = named_location['latitude']
-            # Ignore rd coordinates (0, 0).
-            if (abs(x - wgs0coord_x) > EPSILON or
-                abs(y - wgs0coord_y) > EPSILON):
+            for named_location in named_locations:
+                x = named_location['longitude']
+                y = named_location['latitude']
+                # Ignore rd coordinates (0, 0).
+                if (abs(x - wgs0coord_x) > EPSILON or
+                    abs(y - wgs0coord_y) > EPSILON):
 
-                if x > east or east is None:
-                    east = x
-                if x < west or west is None:
-                    west = x
-                if y < south or south is None:
-                    south = y
-                if y > north or north is None:
-                    north = y
-            else:
-                logger.warn("Location (%s, %s) at RD coordinates 0,0" %
-                            (named_location['location'],
-                             named_location['locationid']))
-        west_transformed, north_transformed = coordinates.wgs84_to_google(
-            west, north)
-        east_transformed, south_transformed = coordinates.wgs84_to_google(
-            east, south)
-        logger.debug("Finished calculating extent")
+                    if x > east or east is None:
+                        east = x
+                    if x < west or west is None:
+                        west = x
+                    if y < south or south is None:
+                        south = y
+                    if y > north or north is None:
+                        north = y
+                else:
+                    logger.warn("Location (%s, %s) at RD coordinates 0,0" %
+                                (named_location['location'],
+                                 named_location['locationid']))
+            west_transformed, north_transformed = coordinates.wgs84_to_google(
+                west, north)
+            east_transformed, south_transformed = coordinates.wgs84_to_google(
+                east, south)
+            logger.debug("Finished calculating extent")
 
-        return {
-            'north': north_transformed,
-            'west': west_transformed,
-            'south': south_transformed,
-            'east': east_transformed}
+            result = {
+                'north': north_transformed,
+                'west': west_transformed,
+                'south': south_transformed,
+                'east': east_transformed}
+            cache.set(cache_key, result, 60*30)
+        return result
 
     def search(self, google_x, google_y, radius=None):
         """Return list of dict {'distance': <float>, 'timeserie':
