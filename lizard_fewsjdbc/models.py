@@ -328,7 +328,7 @@ class JdbcSource(models.Model):
             cache.set(location_cache_key, named_locations, cache_timeout)
         return named_locations
 
-    def location_list(self, filter_id, parameter_id, name):
+    def location_list(self, filter_id, parameter_id, name=''):
 #        query = (
 #            "select name, x, y, id "
 #            "from locations "

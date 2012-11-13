@@ -537,16 +537,23 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         icon = '%sgenerated_icons/%s' % (settings.MEDIA_URL, output_filename)
         return [icon]
 
-    def location_list(self, name):
+    def location_list(self, name=''):
         '''
         Search locations by given name.
         Case insensitive wildcard matching is used.
         '''
-        if not name:
-            return []
         locations = self.jdbc_source.location_list(self.filterkey, self.parameterkey, name)
+
+        filter_name = self.jdbc_source.get_filter_name(self.filterkey)
+        parameter_name = self.jdbc_source.get_parameter_name(self.parameterkey)
+
+        # convert into a list of (identifier, collage name, list name) tuples
         locations = [
-            ({'location': location[0]}, location[1])
+            (
+                {'location': location[0]},
+                '{}, {}'.format(location[1], parameter_name),
+                '{} ({}, {})'.format(location[1], parameter_name, filter_name)
+            )
             for location in locations
         ]
         return locations
