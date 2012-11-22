@@ -8,6 +8,10 @@ Changelog of lizard-fewsjdbc
 
 - Support mixed flot/matplotlib (IE8) graphs.
 
+- Fix naming of collage items.
+
+- Allow empty location_list queries to support showing a list of ALL locations.
+
 
 2.9 (2012-10-18)
 ----------------
