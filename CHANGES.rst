@@ -3,7 +3,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-2.10 (unreleased)
+2.10 (2012-11-22)
 -----------------
 
 - Support mixed flot/matplotlib (IE8) graphs.
