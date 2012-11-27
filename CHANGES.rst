@@ -6,7 +6,7 @@ Changelog of lizard-fewsjdbc
 2.11 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Properly set dependency versions.
 
 
 2.10 (2012-11-22)
