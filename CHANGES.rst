@@ -6,7 +6,9 @@ Changelog of lizard-fewsjdbc
 2.12 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Slightly changed parameter naming related to collage items.
+
+- Add a very much needed timeout to the JDBC proxy query.
 
 
 2.11 (2012-11-27)

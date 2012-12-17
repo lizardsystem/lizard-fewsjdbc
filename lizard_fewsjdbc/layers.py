@@ -124,6 +124,12 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
             raise WorkspaceItemError(
                 "Jdbc source %s doesn't exist." % self.jdbc_source_slug)
 
+    @property
+    def parameter_name(self):
+        if not hasattr(self, '_parameter_name'):
+            self._parameter_name = self.jdbc_source.get_parameter_name(self.parameterkey)
+        return self._parameter_name
+
     def layer(self, layer_ids=None, webcolor=None, request=None):
         """Return layer and styles that render points.
 
@@ -242,7 +248,7 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
             if dist < radius:
                 result.append(
                     {'distance': dist,
-                     'name': named_location['location'],
+                     'name': '{}, {}'.format(named_location['location'], self.parameter_name),
                      'shortname': named_location['location'],
                      'workspace_item': self.workspace_item,
                      'identifier': {'location': named_location['locationid']},
@@ -480,8 +486,7 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         filter in the popup title."""
 
         extra_kwargs = {
-            'parameter':
-                self.jdbc_source.get_parameter_name(self.parameterkey),
+            'parameter': self.parameter_name,
             'filter': self.jdbc_source.get_filter_name(self.filterkey)
             }
 
@@ -545,7 +550,7 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         locations = self.jdbc_source.location_list(self.filterkey, self.parameterkey, name)
 
         filter_name = self.jdbc_source.get_filter_name(self.filterkey)
-        parameter_name = self.jdbc_source.get_parameter_name(self.parameterkey)
+        parameter_name = self.parameter_name
 
         # convert into a list of (identifier, collage name, list name) tuples
         locations = [

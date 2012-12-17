@@ -2,7 +2,6 @@
 import iso8601
 import logging
 import time
-import xmlrpclib
 from xml.parsers.expat import ExpatError
 from socket import gaierror
 
@@ -19,6 +18,8 @@ from lizard_map.operations import tree_from_list
 from lizard_map.operations import unique_list
 from lizard_map.fields import ColorField
 from lizard_map.symbol_manager import list_image_file_names
+
+from lizard_fewsjdbc import timeout_xmlrpclib
 
 
 JDBC_NONE = -999
@@ -128,7 +129,7 @@ class JdbcSource(models.Model):
                 "Is it intended? Query: %s" % q)
         t1 = time.time()
         try:
-            sp = xmlrpclib.ServerProxy(self.jdbc_url)
+            sp = timeout_xmlrpclib.ServerProxy(self.jdbc_url, timeout=30)
             sp.Ping.isAlive('', '')
         except gaierror, e:
             # Re-raise as more recognizable error.
