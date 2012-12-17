@@ -2,11 +2,9 @@
 # http://blog.bjola.ca/2007/08/using-timeout-with-xmlrpclib.html
 try:
     import xmlrpclib
-    from xmlrpclib import *
 except ImportError:
     # Python 3.0 portability fix...
     import xmlrpc.client as xmlrpclib
-    from xmlrpc.client import *
 
 import httplib
 import socket
@@ -36,10 +34,11 @@ class TimeoutTransport(xmlrpclib.Transport):
 class TimeoutServerProxy(xmlrpclib.ServerProxy):
     def __init__(self, uri, timeout=socket._GLOBAL_DEFAULT_TIMEOUT,
                  *args, **kwargs):
-        kwargs['transport'] = TimeoutTransport(
-            timeout=timeout,
-            use_datetime=kwargs.get('use_datetime', 0)
-        )
+        if 'transport' not in kwargs:
+            kwargs['transport'] = TimeoutTransport(
+                timeout=timeout,
+                use_datetime=kwargs.get('use_datetime', 0)
+            )
         xmlrpclib.ServerProxy.__init__(self, uri, *args, **kwargs)
 
 ServerProxy = TimeoutServerProxy
