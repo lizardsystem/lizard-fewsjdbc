@@ -9,35 +9,32 @@ except ImportError:
     from xmlrpc.client import *
 
 import httplib
-
-
-def Server(url, *args, **kwargs):
-    t = TimeoutTransport()
-    t.timeout = kwargs.get('timeout', 20)
-    if 'timeout' in kwargs:
-        del kwargs['timeout']
-    kwargs['transport'] = t
-    server = xmlrpclib.Server(url, *args, **kwargs)
-    return server
-
-ServerProxy = Server
-
+import socket
 
 class TimeoutTransport(xmlrpclib.Transport):
-   def make_connection(self, host):
-       conn = TimeoutHTTP(host)
-       conn.set_timeout(self.timeout)
-       return conn
+    def __init__(self, timeout=socket._GLOBAL_DEFAULT_TIMEOUT,
+                 *args, **kwargs):
+        xmlrpclib.Transport.__init__(self, *args, **kwargs)
+        self.timeout = timeout
+
+    def make_connection(self, host):
+        #return an existing connection if possible.  This allows
+        #HTTP/1.1 keep-alive.
+        if self._connection and host == self._connection[0]:
+            return self._connection[1]
+
+        # create a HTTP connection object from a host descriptor
+        chost, self._extra_headers, x509 = self.get_host_info(host)
+        #store the host argument along with the connection object
+        self._connection = host, httplib.HTTPConnection(chost, timeout=self.timeout)
+        return self._connection[1]
 
 
-class TimeoutHTTPConnection(httplib.HTTPConnection):
-   def connect(self):
-       httplib.HTTPConnection.connect(self)
-       self.sock.settimeout(self.timeout)
+class TimeoutServerProxy(xmlrpclib.ServerProxy):
+    def __init__(self, uri, timeout=socket._GLOBAL_DEFAULT_TIMEOUT,
+                 *args, **kwargs):
+        kwargs['transport'] = TimeoutTransport(timeout=timeout,
+                                    use_datetime=kwargs.get('use_datetime', 0))
+        xmlrpclib.ServerProxy.__init__(self, uri, *args, **kwargs)
 
-
-class TimeoutHTTP(httplib.HTTP):
-   _connection_class = TimeoutHTTPConnection
-
-   def set_timeout(self, timeout):
-       self._conn.timeout = timeout
+ServerProxy = TimeoutServerProxy
