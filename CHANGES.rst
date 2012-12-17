@@ -3,7 +3,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-2.12 (unreleased)
+2.12 (2012-12-17)
 -----------------
 
 - Slightly changed parameter naming related to collage items.
