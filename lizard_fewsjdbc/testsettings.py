@@ -25,7 +25,7 @@ INSTALLED_APPS = [
     'south',
     'django_extensions',
     'django_nose',
-    'djangorestframework',
+    'rest_framework',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -106,6 +106,8 @@ MAP_SETTINGS = {
 # Set the default period in days.
 DEFAULT_START_DAYS = -20
 DEFAULT_END_DAYS = 5
+
+LIZARD_FEWSJDBC_STANDALONE = True
 
 try:
     # Import local settings that aren't stored in svn.

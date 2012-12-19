@@ -6,7 +6,8 @@ Changelog of lizard-fewsjdbc
 2.14 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Fixed urls.py, so it won't recusively include other lizard-* URLs when
+  running as part of a site.
 
 
 2.13 (2012-12-20)
