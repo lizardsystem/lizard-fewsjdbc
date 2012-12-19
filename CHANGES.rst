@@ -3,7 +3,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-2.14 (unreleased)
+2.14 (2012-12-19)
 -----------------
 
 - Fixed urls.py, so it won't recusively include other lizard-* URLs when
