@@ -3,7 +3,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-2.13 (unreleased)
+2.13 (2012-12-20)
 -----------------
 
 - Added a datasource.py that is used by lizard-datasource. Does not
