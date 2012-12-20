@@ -53,5 +53,8 @@ setup(name='lizard-fewsjdbc',
           'lizard_map.adapter_class': [
             'adapter_fewsjdbc = lizard_fewsjdbc.layers:FewsJdbc'
             ],
+          'lizard_datasource': [
+            'lizard_fewsjdbc = lizard_fewsjdbc.datasource:factory'
+            ],
           },
       )
