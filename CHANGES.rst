@@ -3,7 +3,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-2.15 (unreleased)
+2.15 (2013-01-10)
 -----------------
 
 - Add a 'timezone_string' field to a JDBC source that can be used to
