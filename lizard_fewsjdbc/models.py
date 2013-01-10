@@ -1,7 +1,10 @@
 # (c) Nelen & Schuurmans.  GPL licensed, see LICENSE.txt.
+import datetime
 import iso8601
 import logging
 import time
+import pytz
+
 from xml.parsers.expat import ExpatError
 from socket import gaierror
 
@@ -101,6 +104,17 @@ class JdbcSource(models.Model):
             "The rootnode has 'parentid': None. i.e. "
             "[{'id':'id','name':'name','parentid':None}, "
             "{'id':'id2','name':'name2','parentid':'id'}]"))
+
+    timezone_string = models.CharField(
+        max_length=40, default="", blank=True,
+        help_text=("""
+            Time zone of the datetimes coming from FEWS. Use this only
+            if the information coming from FEWS itself is
+            incorrect. An empty string means we trust FEWS. A few
+            possibilities are UTC, CET (Dutch winter time), CEST
+            (Dutch summer time) and Europe/Amsterdam (Dutch local time
+            switching between summer and winter time).
+        """))
 
     class Meta:
         verbose_name = _("Jdbc source")
@@ -365,6 +379,9 @@ class JdbcSource(models.Model):
 
         result = named_list(
             query_result, ['time', 'value', 'flag', 'detection', 'comment'])
+
+        timezone = self.timezone
+
         for row in result:
             # Expecting dateTime.iso8601 in a mixed format (basic date +
             # extended time) with time zone indication (Z = UTC),
@@ -373,6 +390,19 @@ class JdbcSource(models.Model):
             date_time_adjusted = '%s-%s-%s' % (
                 date_time[0:4], date_time[4:6], date_time[6:])
             row['time'] = iso8601.parse_date(date_time_adjusted)
+
+            if timezone:
+                # Bit of a hack. This is used when the timezone FEWS reported
+                # (usually UTC) is incorrect, and allows overriding it.
+                t = row['time']
+                row['time'] = datetime.datetime(
+                    year=t.year,
+                    month=t.month,
+                    day=t.day,
+                    hour=t.hour,
+                    minute=t.minute,
+                    second=t.second,
+                    tzinfo=timezone)
         return result
 
     def get_unit(self, parameter_id):
@@ -400,6 +430,15 @@ class JdbcSource(models.Model):
     def get_absolute_url(self):
         return reverse('lizard_fewsjdbc.jdbc_source',
                        kwargs={'jdbc_source_slug': self.slug})
+
+    @property
+    def timezone(self):
+        """Return a tzinfo object for the current JDBC source."""
+
+        try:
+            return pytz.timezone(self.timezone_string)
+        except pytz.exceptions.UnknownTimeZoneError:
+            return None
 
 
 class IconStyle(models.Model):

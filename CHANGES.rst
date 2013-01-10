@@ -6,7 +6,10 @@ Changelog of lizard-fewsjdbc
 2.15 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Add a 'timezone_string' field to a JDBC source that can be used to
+  override the timezone information coming from FEWS. Apparently it is
+  not that easy to do things correctly in FEWS, and this way timezones
+  can be corrected as they enter Lizard.
 
 
 2.14 (2012-12-19)
