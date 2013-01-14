@@ -1,6 +1,5 @@
 from django.contrib import admin
-from lizard_fewsjdbc.models import IconStyle
-from lizard_fewsjdbc.models import JdbcSource
+from lizard_fewsjdbc.models import IconStyle, JdbcSource, Threshold
 
 
 class JdbcSourceAdmin(admin.ModelAdmin):
@@ -16,5 +15,11 @@ class IconStyleAdmin(admin.ModelAdmin):
         'fews_parameter', 'icon', 'color')
 
 
+class ThresholdAdmin(admin.ModelAdmin):
+    list_display = ('name', 'filter_id', 'parameter_id', 'location_id',
+        'value')
+
+
 admin.site.register(JdbcSource, JdbcSourceAdmin)
 admin.site.register(IconStyle, IconStyleAdmin)
+admin.site.register(Threshold, ThresholdAdmin)

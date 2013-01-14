@@ -594,6 +594,29 @@ class IconStyle(models.Model):
         return found_key, result
 
 
+class Threshold(models.Model):
+    """
+    Contains threshold information for fews objects. Can be used for showing
+    threshold lines in fews objects graphs.
+
+    """
+    name = models.CharField(verbose_name=_("name"), max_length=100)
+    label = models.CharField(max_length=100, help_text=_("Label on plot."),
+        blank=True, null=True, verbose_name=_("label"))
+    filter_id = models.CharField(max_length=100, blank=True, null=True)
+    parameter_id = models.CharField(max_length=100, blank=True, null=True)
+    location_id = models.CharField(max_length=100, blank=True, null=True)
+    value = models.DecimalField(max_digits=16, decimal_places=8,
+        verbose_name=_("value"))
+
+    class Meta:
+        verbose_name = _("threshold")
+        verbose_name_plural = _("thresholds")
+
+    def __unicode__(self):
+        return "%s : %s (id: %s)" % (self.name, self.value, self.id)
+
+
 # For Django 1.3:
 # @receiver(post_save, sender=Setting)
 # @receiver(post_delete, sender=Setting)
