@@ -12,6 +12,7 @@ from lizard_fewsjdbc.models import JDBC_NONE
 from lizard_fewsjdbc.models import JdbcSource
 from lizard_fewsjdbc.models import IconStyle
 from lizard_fewsjdbc.layers import FewsJdbc
+from lizard_fewsjdbc import timeout_xmlrpclib
 
 
 class TestIntegration(TestCase):
@@ -251,7 +252,7 @@ class TestModel(TestCase):
 
     class MockServerProxy(object):
 
-        def __init__(self, url):
+        def __init__(self, url, timeout=None):
             pass
 
         class Ping(object):
@@ -294,15 +295,15 @@ class TestModel(TestCase):
         """
         Set up some mock server proxy, then run the function
         """
-        server_proxy_orig = xmlrpclib.ServerProxy
-        xmlrpclib.ServerProxy = self.MockServerProxy
+        server_proxy_orig = timeout_xmlrpclib.ServerProxy
+        timeout_xmlrpclib.ServerProxy = self.MockServerProxy
 
         jdbc_source = JdbcSource.objects.get(slug='wro')
 
         result = jdbc_source.query('select * from filters;')
         result_good = [["mock result"]]
 
-        xmlrpclib.ServerProxy = server_proxy_orig
+        timeout_xmlrpclib.ServerProxy = server_proxy_orig
 
         self.assertEqual(result, result_good)
 
