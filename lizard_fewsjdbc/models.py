@@ -489,7 +489,7 @@ class IconStyle(models.Model):
                 'icon': icon_style.icon,
                 'mask': (icon_style.mask, ),
                 'color': icon_style.color.to_tuple()
-                }
+            }
         return result
 
     @classmethod
@@ -564,7 +564,7 @@ class IconStyle(models.Model):
         cls,
         jdbc_source, fews_filter,
         fews_location, fews_parameter,
-        styles=None, lookup=None, ignore_cache=False):
+            styles=None, lookup=None, ignore_cache=False):
         """
         Return the best corresponding icon style and return in format:
 
@@ -589,7 +589,7 @@ class IconStyle(models.Model):
                 'icon': 'meetpuntPeil.png',
                 'mask': ('meetpuntPeil_mask.png', ),
                 'color': (0.0, 0.5, 1.0, 1.0)
-                }
+            }
 
         return found_key, result
 
@@ -602,12 +602,12 @@ class Threshold(models.Model):
     """
     name = models.CharField(verbose_name=_("name"), max_length=100)
     label = models.CharField(max_length=100, help_text=_("Label on plot."),
-        blank=True, null=True, verbose_name=_("label"))
+                             blank=True, null=True, verbose_name=_("label"))
     filter_id = models.CharField(max_length=100, blank=True, null=True)
     parameter_id = models.CharField(max_length=100, blank=True, null=True)
     location_id = models.CharField(max_length=100, blank=True, null=True)
     value = models.DecimalField(max_digits=16, decimal_places=8,
-        verbose_name=_("value"))
+                                verbose_name=_("value"))
 
     class Meta:
         verbose_name = _("threshold")
