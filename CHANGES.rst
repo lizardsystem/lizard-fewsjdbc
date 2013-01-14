@@ -6,7 +6,8 @@ Changelog of lizard-fewsjdbc
 2.16 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Added `lizard-fewsjdbc to travis-ci.org
+  <https://travis-ci.org/lizardsystem/lizard-fewsjdbc>`_ for automatic testing.
 
 
 2.15 (2013-01-10)

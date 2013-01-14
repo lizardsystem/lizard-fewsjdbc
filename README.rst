@@ -4,6 +4,9 @@ lizard-fewsjdbc
 This app is used to view fews-jdbc data sources. The interface looks the same as
 fews-unblobbed. Multiple fews-jdbc sources can be configured.
 
+.. image:: https://travis-ci.org/lizardsystem/lizard-fewsjdbc.png?branch=master
+   :target: https://travis-ci.org/lizardsystem/lizard-fewsjdbc
+
 
 Prerequisities
 --------------
