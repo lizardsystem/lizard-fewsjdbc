@@ -17,7 +17,7 @@ from lizard_map.models import WorkspaceItemError
 from lizard_map.symbol_manager import SymbolManager
 
 from lizard_fewsjdbc.dtu import astimezone
-from lizard_fewsjdbc.models import IconStyle
+from lizard_fewsjdbc.models import IconStyle, Threshold
 from lizard_fewsjdbc.models import JdbcSource
 from lizard_fewsjdbc.models import FewsJdbcQueryError
 
@@ -316,8 +316,7 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         width=380.0,
         height=250.0,
         layout_extra=None,
-        raise_404_if_empty=False
-    ):
+            raise_404_if_empty=False):
         return self._render_graph(
             identifiers,
             start_date,
@@ -346,7 +345,6 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
 
         New: this is now a more generalized version of image(), to support FlotGraph.
         """
-
         def apply_lines(identifier, values, location_name):
             """Adds lines that are defined in layout. Uses function
             variable graph, line_styles.
@@ -413,14 +411,13 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
                                 lw=1,
                                 color=line_styles[str(identifier)]['color'],
                                 label=location_name)
-            # Apply custom layout parameters.
-            if 'layout' in identifier:
-                layout = identifier['layout']
-                if "y_label" in layout:
-                    graph.axes.set_ylabel(layout['y_label'])
-                if "x_label" in layout:
-                    graph.set_xlabel(layout['x_label'])
-                apply_lines(identifier, values, location_name)
+            # if available, show threshold line on graph
+            for threshold in self.get_thresholds(identifier):
+                graph.axes.axhline(
+                    threshold.value,
+                    color='black',
+                    label=threshold.name)
+
 
         if is_empty and raise_404_if_empty:
             raise Http404
@@ -480,7 +477,6 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
     def html(self, snippet_group=None, identifiers=None, layout_options=None):
         """Overridden so we can put a description of parameter and
         filter in the popup title."""
-
         extra_kwargs = {
             'parameter': self.parameter_name,
             'filter': self.jdbc_source.get_filter_name(self.filterkey)
@@ -492,6 +488,11 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
             layout_options=layout_options,
             template='lizard_fewsjdbc/popup.html',
             extra_render_kwargs=extra_kwargs)
+
+    def get_thresholds(self, identifier):
+        location = identifier['location']
+        return Threshold.objects.filter(location_id=location,
+            parameter_id=self.parameterkey, filter_id=self.filterkey)
 
     ##
     # Other functions
