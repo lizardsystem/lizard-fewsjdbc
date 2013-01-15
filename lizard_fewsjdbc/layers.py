@@ -31,14 +31,13 @@ LAYER_STYLES = {
     "Waterkwaliteit_REST": {'icon': 'meetpuntPeil.png',
                             'mask': ('meetpuntPeil_mask.png', ),
                             'color': (1, 1, 0, 0)},
-    }
+}
 
 EPSILON = 0.0001
 
 
-def fews_symbol_name(
-    jdbc_source, filterkey, locationkey, parameterkey, nodata=False,
-    styles=None, lookup=None):
+def fews_symbol_name(jdbc_source, filterkey, locationkey, parameterkey,
+                     nodata=False, styles=None, lookup=None):
     """
     Find fews symbol name.
     Copied from lizard_fewsunblobbed.
@@ -68,9 +67,8 @@ def fews_symbol_name(
     return style_name, output_filename
 
 
-def fews_point_style(
-    jdbc_source, filterkey, locationkey, parameterkey, nodata=False,
-    styles=None, lookup=None):
+def fews_point_style(jdbc_source, filterkey, locationkey, parameterkey,
+                     nodata=False, styles=None, lookup=None):
     """
     Make mapnik point_style for fews point with given filterkey.
     Copied from lizard_fewsunblobbed.
@@ -104,7 +102,9 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
     """
 
     plugin_api_url_name = JDBC_API_URL_NAME
-    support_flot_graph = True # set this once flot graphs are supported by the adapter
+
+    # set this once flot graphs are supported by the adapter
+    support_flot_graph = True
 
     ##
     # Functions overriding WorkspaceItemAdapter
@@ -127,7 +127,8 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
     @property
     def parameter_name(self):
         if not hasattr(self, '_parameter_name'):
-            self._parameter_name = self.jdbc_source.get_parameter_name(self.parameterkey)
+            self._parameter_name = self.jdbc_source.get_parameter_name(
+                self.parameterkey)
         return self._parameter_name
 
     def layer(self, layer_ids=None, webcolor=None, request=None):
@@ -185,7 +186,8 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         """
         TODO: filter on identifiers.
         """
-        cache_key = 'extent:{}:{}:{}'.format(self.jdbc_source_slug, self.filterkey, self.parameterkey)
+        cache_key = 'extent:{}:{}:{}'.format(self.jdbc_source_slug,
+                                             self.filterkey, self.parameterkey)
         result = cache.get(cache_key)
         if not result:
             logger.debug("Started calculating extent")
@@ -201,7 +203,7 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
                 y = named_location['latitude']
                 # Ignore rd coordinates (0, 0).
                 if (abs(x - wgs0coord_x) > EPSILON or
-                    abs(y - wgs0coord_y) > EPSILON):
+                        abs(y - wgs0coord_y) > EPSILON):
 
                     if x > east or east is None:
                         east = x
@@ -226,7 +228,7 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
                 'west': west_transformed,
                 'south': south_transformed,
                 'east': east_transformed}
-            cache.set(cache_key, result, 60*30)
+            cache.set(cache_key, result, 60 * 30)
         return result
 
     def search(self, google_x, google_y, radius=None):
@@ -248,7 +250,8 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
             if dist < radius:
                 result.append(
                     {'distance': dist,
-                     'name': '{}, {}'.format(named_location['location'], self.parameter_name),
+                     'name': '{}, {}'.format(named_location['location'],
+                                             self.parameter_name),
                      'shortname': named_location['location'],
                      'workspace_item': self.workspace_item,
                      'identifier': {'location': named_location['locationid']},
@@ -262,7 +265,7 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         return super(
             FewsJdbc,
             self).value_aggregate_default(
-            identifier, aggregate_functions, start_date, end_date)
+                identifier, aggregate_functions, start_date, end_date)
 
     def values(self, identifier, start_date, end_date):
         timeseries = self.jdbc_source.get_timeseries(
@@ -343,7 +346,9 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
 
         Legend is always drawn.
 
-        New: this is now a more generalized version of image(), to support FlotGraph.
+        New: this is now a more generalized version of image(), to support
+        FlotGraph.
+
         """
         def apply_lines(identifier, values, location_name):
             """Adds lines that are defined in layout. Uses function
@@ -380,15 +385,16 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         named_locations = self._locations()
         today = datetime.datetime.now()
         graph = GraphClass(start_date, end_date, today=today,
-                      tz=pytz.timezone(settings.TIME_ZONE), **extra_params)
+                           tz=pytz.timezone(settings.TIME_ZONE),
+                           **extra_params)
         graph.axes.grid(True)
-        parameter_name, unit = self.jdbc_source.get_name_and_unit(self.parameterkey)
+        parameter_name, unit = self.jdbc_source.get_name_and_unit(
+            self.parameterkey)
         graph.axes.set_ylabel(unit)
 
         # Draw extra's (from fewsunblobbed)
         title = None
         y_min, y_max = None, None
-        legend = None
 
         is_empty = True
         for identifier in identifiers:
@@ -417,7 +423,6 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
                     threshold.value,
                     color='black',
                     label=threshold.name)
-
 
         if is_empty and raise_404_if_empty:
             raise Http404
@@ -480,7 +485,7 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         extra_kwargs = {
             'parameter': self.parameter_name,
             'filter': self.jdbc_source.get_filter_name(self.filterkey)
-            }
+        }
 
         return super(FewsJdbc, self).html_default(
             snippet_group=snippet_group,
@@ -491,8 +496,9 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
 
     def get_thresholds(self, identifier):
         location = identifier['location']
-        return Threshold.objects.filter(location_id=location,
-            parameter_id=self.parameterkey, filter_id=self.filterkey)
+        return Threshold.objects.filter(
+            location_id=location, parameter_id=self.parameterkey,
+            filter_id=self.filterkey)
 
     ##
     # Other functions
@@ -544,7 +550,8 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         Search locations by given name.
         Case insensitive wildcard matching is used.
         '''
-        locations = self.jdbc_source.location_list(self.filterkey, self.parameterkey, name)
+        locations = self.jdbc_source.location_list(
+            self.filterkey, self.parameterkey, name)
 
         filter_name = self.jdbc_source.get_filter_name(self.filterkey)
         parameter_name = self.parameter_name
