@@ -447,10 +447,6 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         if y_max is None:
             _, y_max = graph.axes.get_ylim()
 
-        if layout_extra:
-            title, y_min, y_max, legend = apply_layout(
-                layout_extra, title, y_min, y_max, legend)
-
         if title:
             graph.suptitle(title)
 
