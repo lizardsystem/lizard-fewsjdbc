@@ -350,37 +350,6 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         FlotGraph.
 
         """
-        def apply_lines(identifier, values, location_name):
-            """Adds lines that are defined in layout. Uses function
-            variable graph, line_styles.
-
-            Inspired by fewsunblobbed"""
-
-            layout = identifier['layout']
-
-            if "line_min" in layout:
-                graph.axes.axhline(
-                    min(values),
-                    color=line_styles[str(identifier)]['color'],
-                    lw=line_styles[str(identifier)]['min_linewidth'],
-                    ls=line_styles[str(identifier)]['min_linestyle'],
-                    label='Minimum %s' % location_name)
-            if "line_max" in layout:
-                graph.axes.axhline(
-                    max(values),
-                    color=line_styles[str(identifier)]['color'],
-                    lw=line_styles[str(identifier)]['max_linewidth'],
-                    ls=line_styles[str(identifier)]['max_linestyle'],
-                    label='Maximum %s' % location_name)
-            if "line_avg" in layout and values:
-                average = sum(values) / len(values)
-                graph.axes.axhline(
-                    average,
-                    color=line_styles[str(identifier)]['color'],
-                    lw=line_styles[str(identifier)]['avg_linewidth'],
-                    ls=line_styles[str(identifier)]['avg_linestyle'],
-                    label='Gemiddelde %s' % location_name)
-
         line_styles = self.line_styles(identifiers)
         named_locations = self._locations()
         today = datetime.datetime.now()
