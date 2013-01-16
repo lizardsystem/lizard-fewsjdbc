@@ -3,11 +3,18 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-2.16 (unreleased)
+2.17 (unreleased)
 -----------------
 
 - Added `lizard-fewsjdbc to travis-ci.org
   <https://travis-ci.org/lizardsystem/lizard-fewsjdbc>`_ for automatic testing.
+
+
+2.16 (2013-01-16)
+-----------------
+
+- Change datasource.py so that it can report the current parameter as
+  a "unit".
 
 
 2.15 (2013-01-10)
