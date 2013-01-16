@@ -8,6 +8,7 @@ Changelog of lizard-fewsjdbc
 
 - Add model for threshold info that can be used to show custom threshold
   lines on fews objects graphs.
+- Add threshold views.
 
 
 2.15 (2013-01-10)
