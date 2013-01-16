@@ -1,0 +1,83 @@
+{% extends "lizard_map/wms.html" %}
+{% load i18n %}
+{% load workspaces %}
+{% load utility %}
+
+{% block content %}
+	{% if flot_graph_data_url or image_graph_url %}
+		<div style="width: 75%; height: 240px;"
+		     class="dynamic-graph"
+		     data-flot-graph-data-url="{{ flot_graph_data_url }}"
+		     data-image-graph-url="{{ image_graph_url }}">
+		</div>
+	{% endif %}
+	{% if thresholds %}
+    <div id="threshold-list">
+    <h4>{% trans "thresholds" %}</h4>
+	<table class="table table-striped">
+	    <thead>
+	        <tr>
+		        <th>{% trans "name" %}</th>
+		        <th>{% trans "value" %}</th>
+		        <th>&nbsp;</th>
+	        </tr>
+	    </thead>
+	    <tbody>
+        {% for threshold in thresholds %}
+            <tr>
+                <td id="threshold-{{ threshold.id }}-name" class="edit" rel="tooltip" title="{% trans 'Click to change this name' %}">{{ threshold.name }}</td>
+                <td id="threshold-{{ threshold.id }}-value" class="edit" rel="tooltip" title="{% trans 'Click to change this value' %}">{{ threshold.pretty_value }}</td>
+                <td class="align-right"><a href="{% url lizard_fewsjdbc.threshold_delete threshold.id %}?workspace_item_id={{ adapter.workspace_item.id }}&location={{ location }}" rel="tooltip" title="{% trans 'Remove this threshold' %}"><i class="icon-remove-sign"></i></a></td>
+            </tr>
+        {% endfor %}
+	    </tbody>
+	</table>
+    <form method="post" action="{% url lizard_fewsjdbc.threshold_create %}">
+	    {% csrf_token %}
+        {{ form }}
+	    <input type="submit" value="{% trans "add threshold" %}" />
+    </form>
+    </div>
+	{% endif %}
+
+{% endblock content %}
+
+{% block head-extras %}
+	<style type="text/css">
+		#content {
+			padding: 20px;
+		}
+		#threshold-list {
+			margin-top: 20px;
+			width: 30%;
+		}
+		#btn-add-threshold {
+			float: right;
+		}
+		td.align-right {
+			text-align: right;
+		}
+	</style>
+{% endblock head-extras %}
+
+{% block bottom-extras %}
+	<script src="http://www.appelsiini.net/download/jquery.jeditable.mini.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function () {
+			$('td.edit').editable('{% url lizard_fewsjdbc.threshold_update %}', {
+				callback  : function(value, settings) {
+					// submit successful
+					$(this).html(value.replace(/['"]/g,''));
+					reloadGraphs(100, function(){}, true);
+				},
+				onerror : function(settings, original, xhr) {
+{#					console.log("error");#}
+{#					console.log(this);#}
+{#					console.log(settings);#}
+{#					console.log(original);#}
+{#					console.log(xhr);#}
+				}
+			});
+		});
+	</script>
+{% endblock bottom-extras %}

@@ -1,9 +1,11 @@
 # (c) Nelen & Schuurmans.  GPL licensed, see LICENSE.txt.
-from django.conf.urls.defaults import *
+from django.conf.urls import url, patterns, include
 from django.conf import settings
 from django.contrib import admin
 
-from lizard_fewsjdbc.views import HomepageView, JdbcSourceView
+from lizard_fewsjdbc.views import (HomepageView, JdbcSourceView,
+                                   ThresholdsView, ThresholdUpdateView,
+                                   ThresholdDeleteView, ThresholdCreateView)
 
 urlpatterns = patterns(
     '',
@@ -16,7 +18,16 @@ urlpatterns = patterns(
         name="lizard_fewsjdbc.jdbc_source",
         ),
     (r'^api/', include('lizard_fewsjdbc.api.urls')),
-    )
+    # threshold urls
+    url(r'^thresholds/create/$', ThresholdCreateView.as_view(),
+        name="lizard_fewsjdbc.threshold_create"),
+    url(r'^thresholds/update/$', ThresholdUpdateView.as_view(),
+        name="lizard_fewsjdbc.threshold_update"),
+    url(r'^thresholds/delete/(?P<pk>\d+)/$', ThresholdDeleteView.as_view(),
+        name="lizard_fewsjdbc.threshold_delete"),
+    url(r'^thresholds/$', ThresholdsView.as_view(),
+        name="lizard_fewsjdbc.thresholds"),
+)
 
 if getattr(settings, 'LIZARD_FEWSJDBC_STANDALONE', False):
     admin.autodiscover()

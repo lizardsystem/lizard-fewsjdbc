@@ -23,6 +23,7 @@ from lizard_map.fields import ColorField
 from lizard_map.symbol_manager import list_image_file_names
 
 from lizard_fewsjdbc import timeout_xmlrpclib
+from lizard_fewsjdbc.utils import format_number
 
 
 JDBC_NONE = -999
@@ -612,6 +613,11 @@ class Threshold(models.Model):
     class Meta:
         verbose_name = _("threshold")
         verbose_name_plural = _("thresholds")
+        ordering = ('id',)
+
+    @property
+    def pretty_value(self):
+        return format_number(self.value)
 
     def __unicode__(self):
         return "%s : %s (id: %s)" % (self.name, self.value, self.id)

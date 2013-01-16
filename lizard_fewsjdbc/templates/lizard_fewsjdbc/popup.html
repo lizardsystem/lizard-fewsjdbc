@@ -34,6 +34,9 @@
   <a href="{{ collage_item_prop.url }}"
      class="ss_table_save ss_sprite"
      title="exporteer tijdreeksen">exporteer tijdreeksen</a>
+  <a href="{% url lizard_fewsjdbc.thresholds %}?workspace_item_id={{ adapter.workspace_item.id }}&identifier={{ collage_item_prop.identifier }}"
+     class="ss_chart_line_edit ss_sprite"
+     title="bewerk drempelwaarde(n)">drempelwaarden</a>
   </li>
   {% endfor %}
   </ul>
