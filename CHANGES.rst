@@ -3,7 +3,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-2.16 (unreleased)
+2.16 (2013-01-16)
 -----------------
 
 - Added `lizard-fewsjdbc to travis-ci.org
