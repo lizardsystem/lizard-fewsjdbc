@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-01-17 03:33-0600\n"
+"POT-Creation-Date: 2013-01-17 08:32-0600\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -33,7 +33,7 @@ msgstr "Icoonstijl"
 msgid "Icon styles"
 msgstr "Icoonstijlen"
 
-#: models.py:604 templates/lizard_fewsjdbc/thresholds/overview.html:20
+#: models.py:604
 msgid "name"
 msgstr "naam"
 
@@ -45,7 +45,7 @@ msgstr "Grafieklabel"
 msgid "label"
 msgstr "label"
 
-#: models.py:611 templates/lizard_fewsjdbc/thresholds/overview.html:21
+#: models.py:611
 msgid "value"
 msgstr "waarde"
 
@@ -53,26 +53,57 @@ msgstr "waarde"
 msgid "threshold"
 msgstr "drempelwaarde"
 
-#: models.py:615 templates/lizard_fewsjdbc/thresholds/overview.html:16
+#: models.py:615
 msgid "thresholds"
 msgstr "drempelwaarden"
+
+#: views.py:184
+msgid "Back to homepage"
+msgstr "Naar de voorpagina"
 
 #: templates/lizard_fewsjdbc/jdbc_source.html:38
 msgid "Search for locations"
 msgstr "Zoek lokaties"
 
-#: templates/lizard_fewsjdbc/thresholds/overview.html:28
+#: templates/lizard_fewsjdbc/thresholds/overview.html:17
+msgid "Thresholds"
+msgstr "Drempelwaarden"
+
+#: templates/lizard_fewsjdbc/thresholds/overview.html:18
+msgid "Change threshold names or values by clicking on it."
+msgstr "Verander namen of waardes door er op te klikken."
+
+#: templates/lizard_fewsjdbc/thresholds/overview.html:19
+msgid "To delete a threshold, click on the remove icon on the right."
+msgstr ""
+"Klik op het verwijder icoon rechts om een drempelwaarde te verwijderen."
+
+#: templates/lizard_fewsjdbc/thresholds/overview.html:23
+msgid "Name"
+msgstr "Naam"
+
+#: templates/lizard_fewsjdbc/thresholds/overview.html:24
+msgid "Value"
+msgstr "Waarde"
+
+#: templates/lizard_fewsjdbc/thresholds/overview.html:31
 msgid "Click to change this name"
 msgstr "Klik om naam te veranderen"
 
-#: templates/lizard_fewsjdbc/thresholds/overview.html:29
+#: templates/lizard_fewsjdbc/thresholds/overview.html:32
 msgid "Click to change this value"
 msgstr "Klik om waarde te veranderen"
 
-#: templates/lizard_fewsjdbc/thresholds/overview.html:30
+#: templates/lizard_fewsjdbc/thresholds/overview.html:33
 msgid "Remove this threshold"
 msgstr "Verwijder deze drempelwaarde"
 
-#: templates/lizard_fewsjdbc/thresholds/overview.html:41
-msgid "add threshold"
-msgstr "voeg drempelwaarde toe"
+#: templates/lizard_fewsjdbc/thresholds/overview.html:42
+msgid "To add a new threshold, fill out the form below and press submit."
+msgstr ""
+"Voeg een drempelwaarde toe door onderstaande formulier in te vullen en te "
+"verzenden."
+
+#: templates/lizard_fewsjdbc/thresholds/overview.html:46
+msgid "Submit"
+msgstr "Verzend"
