@@ -75,14 +75,16 @@ class FewsJdbcDataSource(datasource.DataSource):
 
         return tree
 
+    def _get_parameters(self, choices_made):
+        filter_id = choices_made['filter']
+        return self.jdbc_source.get_named_parameters(filter_id)
+
     def _parameters(self):
         """We shouldn't get here unless filter has been chosen."""
         if 'filter' not in self._choices_made:
             return criteria.EmptyOptions()
 
-        filter_id = self._choices_made['filter']
-        named_parameters = self.jdbc_source.get_named_parameters(filter_id)
-        logger.debug("named_parameters: {0}".format(named_parameters))
+        named_parameters = self._get_parameters(self._choices_made)
         if not named_parameters:
             return criteria.EmptyOptions()
         else:
@@ -120,6 +122,16 @@ class FewsJdbcDataSource(datasource.DataSource):
 
     def is_drawable(self, choices_made):
         return ('filter' in choices_made and 'parameter' in choices_made)
+
+    def unit(self, choices_made=None):
+        logger.debug("The unit() function is called.")
+        if choices_made is None:
+            choices_made = self._choices_made
+
+        for named_parameter in self._get_parameters(choices_made):
+            if named_parameter['parameterid'] == choices_made.get('parameter'):
+                return named_parameter['parameter']
+        return None
 
     def locations(self, bare=False):
         if not self.is_drawable(self._choices_made):
