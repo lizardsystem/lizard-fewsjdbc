@@ -32,13 +32,15 @@
         {% endfor %}
 	    </tbody>
 	</table>
-    <form method="post" action="{% url lizard_fewsjdbc.threshold_create %}">
-	    {% csrf_token %}
-        {{ form }}
-	    <input type="submit" value="{% trans "add threshold" %}" />
-    </form>
     </div>
 	{% endif %}
+    <div>
+	<form method="post" action="{% url lizard_fewsjdbc.threshold_create %}">
+	    {% csrf_token %}
+        {{ form }}
+	    <input type="submit" value="{% trans 'add threshold' %}" />
+    </form>
+    </div>
 
 {% endblock content %}
 
