@@ -3,7 +3,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-2.17 (unreleased)
+2.17 (2013-01-17)
 -----------------
 
 - Add model for threshold info that can be used to show custom threshold
