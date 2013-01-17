@@ -32,6 +32,20 @@ LAYER_STYLES = {
                             'mask': ('meetpuntPeil_mask.png', ),
                             'color': (1, 1, 0, 0)},
 }
+THRESHOLD_COLORS_DEFAULT = {
+    # based on lizard_map/workspace/COLORS_DEFAULT
+    # every default color should have related colors for the threshold lines
+    # generated with https://kuler.adobe.com/#create/fromacolor using the
+    # monochromatic rule
+    'blue': ['#4C4CFF', '#00007F', '#26267F', '#0000CC'],  # base #0000FF
+    'darkred': ['#9E2F2F', '#D70000', '#D74141', '#580000'],  # base #8B0000
+    'green': ['#2C952C', '#00CC00', '#3DCC3D', '#004D00'],  # base #008000
+    'black': ['#332424', '#4C4C4C', '#4C3636', '#999999'],  # base #000000
+    'cyan': ['#4BFFFF', '#007F7F', '#00CCCC', '#267F7F'],  # base #00FFFF
+    'yellow': ['#FFFF48', '#7F7F00', '#CCCC00', '#7F7F26'],  # base #FFFF00
+    'lightblue': ['#6BCBEA', '#4D6066', '#2E5966', '#87A8B3'],  # base #ADD8E6
+    'grey': ['#956969', '#CCCCCC', '#CC8F8F', '#4D4D4D']  # base #808080
+}
 
 EPSILON = 0.0001
 
@@ -387,10 +401,16 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
                                 color=line_styles[str(identifier)]['color'],
                                 label=location_name)
             # if available, show threshold line on graph
-            for threshold in self.get_thresholds(identifier):
+            thresholds = list(self.get_thresholds(identifier))
+            identifier_color = line_styles[str(identifier)]['color']
+            threshold_line_colors = self.threshold_line_colors(
+                identifier_color)
+            for threshold in thresholds:
+                index = thresholds.index(threshold)
+                color = threshold_line_colors[index % 4]  # correct for 4
                 graph.axes.axhline(
                     threshold.value,
-                    color='black',
+                    color=color,
                     label=threshold.name)
 
         if is_empty and raise_404_if_empty:
@@ -468,6 +488,9 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         return Threshold.objects.filter(
             location_id=location, parameter_id=self.parameterkey,
             filter_id=self.filterkey)
+
+    def threshold_line_colors(self, identifier_color):
+        return THRESHOLD_COLORS_DEFAULT[identifier_color]
 
     ##
     # Other functions
