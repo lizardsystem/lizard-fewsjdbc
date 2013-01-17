@@ -5,8 +5,11 @@ from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.utils import simplejson as json
+from django.utils.translation import ugettext as _
 from django.views.generic import View, CreateView
 from django.views.generic.edit import DeleteView
+from lizard_map.exceptions import WorkspaceItemError
+from lizard_ui.layout import Action
 from lizard_fewsjdbc.forms import ThresholdUpdateForm, ThresholdCreateForm
 
 from lizard_fewsjdbc.models import JdbcSource, Threshold
@@ -136,18 +139,28 @@ class ThresholdsView(AdapterMixin, AppView):
     def get_context_data(self, **kwargs):
         context = super(ThresholdsView, self).get_context_data(**kwargs)
         identifier = self.identifier()
-        location = identifier["location"]
+        location_id = identifier["location"]
         workspace_item_id = self.request.GET.get("workspace_item_id")
         workspace_item = WorkspaceEditItem.objects.get(pk=workspace_item_id)
         layer_arguments = adapter_layer_arguments(
             workspace_item.adapter_layer_json)
+        jdbc_source_slug = layer_arguments['slug']
+        try:
+            jdbc_source = JdbcSource.objects.get(slug=jdbc_source_slug)
+        except JdbcSource.DoesNotExist:
+            raise WorkspaceItemError(
+                "Jdbc source %s doesn't exist." % jdbc_source_slug)
         parameter_id = layer_arguments['parameter']
         filter_id = layer_arguments['filter']
+        named_locations = jdbc_source.get_locations(filter_id, parameter_id)
+        location_name = [location['location'] for location in named_locations
+                         if location['locationid'] == location_id][0]
+        context['location_name'] = location_name
         # get the threshold belonging to the location, filter and parameter ids
         thresholds = Threshold.objects.filter(
-            location_id=location, filter_id=filter_id,
+            location_id=location_id, filter_id=filter_id,
             parameter_id=parameter_id)
-        context['location'] = location
+        context['location'] = location_id
         context['thresholds'] = thresholds
         adapter = workspace_item.adapter
         context['adapter'] = adapter
@@ -158,15 +171,40 @@ class ThresholdsView(AdapterMixin, AppView):
             "lizard_map_adapter_flot_graph_data", [identifier])
         context['flot_graph_data_url'] = flot_graph_data_url
         context['form'] = ThresholdCreateForm(initial={
-            'workspace_item_id': workspace_item_id, 'location_id': location})
+            'workspace_item_id': workspace_item_id,
+            'location_id': location_id})
         return context
 
     def get(self, request, *args, **kwargs):
         return super(ThresholdsView, self).get(request, *args, **kwargs)
 
-    def crumbs(self):
-        crumbs = super(ThresholdsView, self).crumbs()
-        return crumbs
+    @property
+    def breadcrumbs(self):
+        """Show home breadcrumb."""
+        return [Action(name=_("Back to homepage"), url='/',
+                description="Home")]
+
+    @property
+    def content_actions(self):
+        """Remove unused map-related actions."""
+        actions = super(ThresholdsView, self).content_actions
+        new_actions = []
+        disabled_action_klasses = ['map-multiple-selection',
+                                   'map-load-default-location']
+        for action in actions:
+            if action.klass not in disabled_action_klasses:
+                new_actions.append(action)
+        return new_actions
+
+    @property
+    def sidebar_actions(self):
+        """Hide sidebar actions for this view."""
+        return []
+
+    @property
+    def rightbar_actions(self):
+        """Hide rightbar actions for this view."""
+        return []
 
 
 class JSONResponseMixin(object):

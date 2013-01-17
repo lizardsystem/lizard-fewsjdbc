@@ -4,6 +4,7 @@
 {% load utility %}
 
 {% block content %}
+	<h1>{{ location_name }}</h1>
 	{% if flot_graph_data_url or image_graph_url %}
 		<div style="width: 75%; height: 240px;"
 		     class="dynamic-graph"
@@ -13,12 +14,14 @@
 	{% endif %}
 	{% if thresholds %}
     <div id="threshold-list">
-    <h4>{% trans "thresholds" %}</h4>
-	<table class="table table-striped">
+    <h4>{% trans "Thresholds" %}</h4>
+    <div>{% blocktrans %}Change threshold names or values by clicking on it.{% endblocktrans %}
+	    {% blocktrans %}To delete a threshold, click on the remove icon on the right.{% endblocktrans %}</div>
+	<table class="table table-striped table-bordered">
 	    <thead>
 	        <tr>
-		        <th>{% trans "name" %}</th>
-		        <th>{% trans "value" %}</th>
+		        <th>{% trans "Name" %}</th>
+		        <th>{% trans "Value" %}</th>
 		        <th>&nbsp;</th>
 	        </tr>
 	    </thead>
@@ -27,7 +30,7 @@
             <tr>
                 <td id="threshold-{{ threshold.id }}-name" class="edit" rel="tooltip" title="{% trans 'Click to change this name' %}">{{ threshold.name }}</td>
                 <td id="threshold-{{ threshold.id }}-value" class="edit" rel="tooltip" title="{% trans 'Click to change this value' %}">{{ threshold.pretty_value }}</td>
-                <td class="align-right"><a href="{% url lizard_fewsjdbc.threshold_delete threshold.id %}?workspace_item_id={{ adapter.workspace_item.id }}&location={{ location }}" rel="tooltip" title="{% trans 'Remove this threshold' %}"><i class="icon-remove-sign"></i></a></td>
+                <td class="delete-icon"><a href="{% url lizard_fewsjdbc.threshold_delete threshold.id %}?workspace_item_id={{ adapter.workspace_item.id }}&location={{ location }}" rel="tooltip" title="{% trans 'Remove this threshold' %}"><i class="icon-remove-sign"></i></a></td>
             </tr>
         {% endfor %}
 	    </tbody>
@@ -35,11 +38,14 @@
     </div>
 	{% endif %}
     <div>
-	<form method="post" action="{% url lizard_fewsjdbc.threshold_create %}">
-	    {% csrf_token %}
-        {{ form }}
-	    <input type="submit" value="{% trans 'add threshold' %}" />
-    </form>
+    <div class="span4" style="margin-left: 0px;">
+	    <div>{% blocktrans %}To add a new threshold, fill out the form below and press submit.{% endblocktrans %}</div>
+        <form class="well" method="post" action="{% url lizard_fewsjdbc.threshold_create %}">
+            {% csrf_token %}
+            {{ form }}
+            <button type="submit" class="btn"><i class="icon-plus-sign"></i>  {% trans "Submit" %}</button>
+        </form>
+    </div>
     </div>
 
 {% endblock content %}
@@ -56,8 +62,14 @@
 		#btn-add-threshold {
 			float: right;
 		}
-		td.align-right {
-			text-align: right;
+		td.delete-icon {
+			text-align: center;
+		}
+	    i.icon-remove-sign {
+		    color: #7F0000;
+	    }
+		i.icon-plus-sign {
+			color: #007F00;
 		}
 	</style>
 {% endblock head-extras %}
@@ -72,13 +84,7 @@
 					$(this).html(value.replace(/['"]/g,''));
 					reloadGraphs(100, function(){}, true);
 				},
-				onerror : function(settings, original, xhr) {
-{#					console.log("error");#}
-{#					console.log(this);#}
-{#					console.log(settings);#}
-{#					console.log(original);#}
-{#					console.log(xhr);#}
-				}
+				onerror : function(settings, original, xhr) { }
 			});
 		});
 	</script>
