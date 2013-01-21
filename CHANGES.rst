@@ -6,7 +6,9 @@ Changelog of lizard-fewsjdbc
 2.18 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- The code for the 'timezone_string' (2.15) didn't work on old
+  versions of tzinfo, like those installed on our Ubuntu 11.x web
+  servers. Fixed.
 
 
 2.17 (2013-01-17)

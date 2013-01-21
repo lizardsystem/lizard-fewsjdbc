@@ -22,6 +22,7 @@ install_requires = [
     'pkginfo',
     'pytz',
     'south',
+    'factory_boy',
     ],
 
 tests_require = [

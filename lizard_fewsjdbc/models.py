@@ -5,6 +5,14 @@ import logging
 import time
 import pytz
 
+# Older Ubuntus (our web servers right now) have an older pytz version.
+# New versions have the exception in pytz.exceptions, old versions in pytz
+# itself.
+try:
+    from pytz.exceptions import UnknownTimeZoneError
+except ImportError:
+    from pytz import UnknownTimeZoneError
+
 from xml.parsers.expat import ExpatError
 from socket import gaierror
 
@@ -438,7 +446,7 @@ class JdbcSource(models.Model):
 
         try:
             return pytz.timezone(self.timezone_string)
-        except pytz.exceptions.UnknownTimeZoneError:
+        except UnknownTimeZoneError:
             return None
 
 

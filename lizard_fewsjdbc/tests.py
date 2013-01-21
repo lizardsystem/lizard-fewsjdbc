@@ -2,6 +2,8 @@
 
 import datetime
 import xmlrpclib
+import factory
+import pytz
 
 from django.core.urlresolvers import reverse
 from django.test import TestCase
@@ -13,6 +15,10 @@ from lizard_fewsjdbc.models import JdbcSource
 from lizard_fewsjdbc.models import IconStyle
 from lizard_fewsjdbc.layers import FewsJdbc
 from lizard_fewsjdbc import timeout_xmlrpclib
+
+
+class JdbcSourceF(factory.Factory):
+    FACTORY_FOR = JdbcSource
 
 
 class TestIntegration(TestCase):
@@ -245,6 +251,16 @@ class TestModelMockQuery(TestCase):
         result = self.jdbc_source.get_unit('parameter')
         result_good = 'mock_unit'
         self.assertEqual(result, result_good)
+
+
+class TestJdbcSource(TestCase):
+    def test_timezone_property_can_return_utc(self):
+        jdbcsource = JdbcSourceF(timezone_string="UTC")
+        self.assertEquals(jdbcsource.timezone, pytz.UTC)
+
+    def test_wrong_timezone_string_returns_none(self):
+        jdbcsource = JdbcSourceF(timezone_string="whee")
+        self.assertEquals(jdbcsource.timezone, None)
 
 
 class TestModel(TestCase):
