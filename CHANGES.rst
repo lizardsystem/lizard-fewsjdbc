@@ -3,7 +3,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-2.18 (unreleased)
+2.18 (2013-01-21)
 -----------------
 
 - The code for the 'timezone_string' (2.15) didn't work on old
