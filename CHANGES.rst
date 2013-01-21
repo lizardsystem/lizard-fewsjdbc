@@ -3,7 +3,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-2.19 (unreleased)
+2.19 (2013-01-21)
 -----------------
 
 - Add login-required and permission-required mixins to threshold views. 
