@@ -7,11 +7,8 @@ import pytz
 
 # Older Ubuntus (our web servers right now) have an older pytz version.
 # New versions have the exception in pytz.exceptions, old versions in pytz
-# itself.
-try:
-    from pytz.exceptions import UnknownTimeZoneError
-except ImportError:
-    from pytz import UnknownTimeZoneError
+# itself. This import works with both old and new pytz versions.
+from pytz import UnknownTimeZoneError
 
 from xml.parsers.expat import ExpatError
 from socket import gaierror

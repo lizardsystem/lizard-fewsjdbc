@@ -6,8 +6,9 @@ Changelog of lizard-fewsjdbc
 2.19 (unreleased)
 -----------------
 
-- Nothing changed yet.
-
+- Add login-required and permission-required mixins to threshold views. 
+  Only logged in users that have permission to change thresholds are 
+  allowed to view/edit/delete thresholds.
 
 2.18 (2013-01-21)
 -----------------

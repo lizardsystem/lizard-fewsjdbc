@@ -1,4 +1,6 @@
 # (c) Nelen & Schuurmans.  GPL licensed, see LICENSE.txt.
+import logging
+
 from django import http
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
@@ -8,6 +10,10 @@ from django.utils import simplejson as json
 from django.utils.translation import ugettext as _
 from django.views.generic import View, CreateView
 from django.views.generic.edit import DeleteView
+
+from braces.views import (LoginRequiredMixin, PermissionRequiredMixin,
+    MultiplePermissionsRequiredMixin)
+
 from lizard_map.exceptions import WorkspaceItemError
 from lizard_ui.layout import Action
 from lizard_fewsjdbc.forms import ThresholdUpdateForm, ThresholdCreateForm
@@ -15,7 +21,6 @@ from lizard_fewsjdbc.forms import ThresholdUpdateForm, ThresholdCreateForm
 from lizard_fewsjdbc.models import JdbcSource, Threshold
 from lizard_map.views import AppView, AdapterMixin
 
-import logging
 from lizard_map.adapter import adapter_layer_arguments, adapter_serialize
 from lizard_map.models import WorkspaceEditItem
 from lizard_fewsjdbc.utils import format_number
@@ -132,8 +137,13 @@ class JdbcSourceView(AppView):
         return crumbs
 
 
-class ThresholdsView(AdapterMixin, AppView):
+class ThresholdsView(LoginRequiredMixin, MultiplePermissionsRequiredMixin,
+                     AdapterMixin, AppView):
     """View for showing/adding/updating/deleting thresholds."""
+    permissions = {
+        "all": ("lizard_fewsjdbc.add_threshold",
+                "lizard_fewsjdbc.change_threshold")
+    }
     template_name = "lizard_fewsjdbc/thresholds/overview.html"
 
     def get_context_data(self, **kwargs):
@@ -175,9 +185,6 @@ class ThresholdsView(AdapterMixin, AppView):
             'location_id': location_id})
         return context
 
-    def get(self, request, *args, **kwargs):
-        return super(ThresholdsView, self).get(request, *args, **kwargs)
-
     @property
     def breadcrumbs(self):
         """Show home breadcrumb."""
@@ -191,6 +198,20 @@ class ThresholdsView(AdapterMixin, AppView):
         new_actions = []
         disabled_action_klasses = ['map-multiple-selection',
                                    'map-load-default-location']
+        for action in actions:
+            if action.klass not in disabled_action_klasses:
+                new_actions.append(action)
+        return new_actions
+
+    @property
+    def site_actions(self):
+        """Remove logout link from this page to avoid unwanted logout
+        behaviour. People can better logout on the frontpage, if they want too.
+
+        """
+        actions = super(ThresholdsView, self).site_actions
+        new_actions = []
+        disabled_action_klasses = ['ui-logout-link']
         for action in actions:
             if action.klass not in disabled_action_klasses:
                 new_actions.append(action)
@@ -226,8 +247,11 @@ class JSONResponseMixin(object):
         return json.dumps(context)
 
 
-class ThresholdUpdateView(JSONResponseMixin, View):
+class ThresholdUpdateView(LoginRequiredMixin, PermissionRequiredMixin,
+                          JSONResponseMixin, View):
     """View for updating threshold instances."""
+    permission_required = "lizard_fewsjdbc.change_threshold"
+
     def post(self, request, *args, **kwargs):
         form = ThresholdUpdateForm(request.POST)
         if form.is_valid():
@@ -252,8 +276,10 @@ class ThresholdUpdateView(JSONResponseMixin, View):
         return self.render_to_response({'success': False}, status=403)
 
 
-class ThresholdDeleteView(DeleteView):
+class ThresholdDeleteView(LoginRequiredMixin, PermissionRequiredMixin,
+                          DeleteView):
     """View for deleting threshold instances."""
+    permission_required = "lizard_fewsjdbc.delete_threshold"
     model = Threshold
 
     def get(self, request, *args, **kwargs):
@@ -269,8 +295,10 @@ class ThresholdDeleteView(DeleteView):
             identifier_str)
 
 
-class ThresholdCreateView(CreateView):
+class ThresholdCreateView(LoginRequiredMixin, PermissionRequiredMixin,
+                          CreateView):
     """View for creating threshold instances."""
+    permission_required = "lizard_fewsjdbc.add_threshold"
     model = Threshold
     form_class = ThresholdCreateForm
 
