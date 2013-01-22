@@ -614,6 +614,8 @@ class Threshold(models.Model):
     location_id = models.CharField(max_length=100, blank=True, null=True)
     value = models.DecimalField(max_digits=16, decimal_places=8,
                                 verbose_name=_("value"))
+    color = models.CharField(verbose_name=_("color"), max_length=6,
+                             default='000000')
 
     class Meta:
         verbose_name = _("threshold")

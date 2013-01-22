@@ -21,7 +21,7 @@ from lizard_fewsjdbc.forms import ThresholdUpdateForm, ThresholdCreateForm
 from lizard_fewsjdbc.models import JdbcSource, Threshold
 from lizard_map.views import AppView, AdapterMixin
 
-from lizard_map.adapter import adapter_layer_arguments, adapter_serialize
+from lizard_map.adapter import adapter_layer_arguments, adapter_serialize, parse_identifier_json
 from lizard_map.models import WorkspaceEditItem
 from lizard_fewsjdbc.utils import format_number
 
@@ -272,6 +272,10 @@ class ThresholdUpdateView(LoginRequiredMixin, PermissionRequiredMixin,
                     threshold.name = value
                     threshold.save()
                     return self.render_to_response(threshold.name)
+                elif field_name == 'color':
+                    threshold.color = value
+                    threshold.save()
+                    return self.render_to_response(threshold.color)
 
         return self.render_to_response({'success': False}, status=403)
 

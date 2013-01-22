@@ -408,7 +408,13 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
                 identifier_color)
             for threshold in thresholds:
                 index = thresholds.index(threshold)
-                color = threshold_line_colors[index % 4]  # correct for 4
+                if threshold.color:
+                    # if available, use the default or user-defined color
+                    color = "#%s" % threshold.color
+                else:
+                    # if there is no threshold.color, pick the gradient colors
+                    # from THRESHOLD_COLORS_DEFAULT
+                    color = threshold_line_colors[index % 4]  # correct for 4
                 graph.axes.axhline(
                     threshold.value,
                     color=color,
