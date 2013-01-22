@@ -3,7 +3,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-2.20 (unreleased)
+2.20 (2013-01-22)
 -----------------
 
 - Add end-user customizable color field and default to Threshold model. 
