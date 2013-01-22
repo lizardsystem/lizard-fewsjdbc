@@ -6,7 +6,8 @@ Changelog of lizard-fewsjdbc
 2.20 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Add end-user customizable color field and default to Threshold model. 
+- Improve client side form validation.
 
 
 2.19 (2013-01-21)
