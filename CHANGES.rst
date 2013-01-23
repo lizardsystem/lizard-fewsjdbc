@@ -6,7 +6,8 @@ Changelog of lizard-fewsjdbc
 2.21 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Change uggettext to uggettext_lazy in forms.py and models.py to fix
+  translation issue.
 
 
 2.20 (2013-01-22)
