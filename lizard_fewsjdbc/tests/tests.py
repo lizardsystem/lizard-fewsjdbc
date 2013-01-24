@@ -1,13 +1,12 @@
 # (c) Nelen & Schuurmans.  GPL licensed, see LICENSE.txt.
-
 import datetime
-import xmlrpclib
-import factory
-import pytz
 
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.client import Client
+
+import pytz
+
 from lizard_map.models import WorkspaceItemError
 
 from lizard_fewsjdbc.models import JDBC_NONE
@@ -15,10 +14,7 @@ from lizard_fewsjdbc.models import JdbcSource
 from lizard_fewsjdbc.models import IconStyle
 from lizard_fewsjdbc.layers import FewsJdbc
 from lizard_fewsjdbc import timeout_xmlrpclib
-
-
-class JdbcSourceF(factory.Factory):
-    FACTORY_FOR = JdbcSource
+from lizard_fewsjdbc.tests.factories import JdbcSourceFactory
 
 
 class TestIntegration(TestCase):
@@ -43,7 +39,7 @@ class TestIntegration(TestCase):
             # Unit: unit.
             return self.mock_query_result.get('unit', [])
         elif 'where' in q:  # From here, the call is from filter_tree
-                            # or parameters
+        # or parameters
             # Parameters: (filter) name, parameterid, parameter.
             return self.mock_query_result.get('parameter', [])
         else:
@@ -76,7 +72,7 @@ class TestIntegration(TestCase):
             ['id2', 'name2', 'id1'],
             ['id3', 'name3', 'id1'],
             ['id4', 'name4', 'id2'],
-            ]
+        ]
 
         c = Client()
         url = reverse('lizard_fewsjdbc.jdbc_source',
@@ -98,7 +94,7 @@ class TestIntegration(TestCase):
             ['name1', 'parameterid1', 'parameter1', 'name1'],
             ['name2', 'parameterid2', 'parameter2', 'name2'],
             ['name3', 'parameterid3', 'parameter3', 'name3'],
-            ]
+        ]
 
         c = Client()
         url = reverse('lizard_fewsjdbc.jdbc_source',
@@ -163,25 +159,26 @@ class TestModelMockQuery(TestCase):
             ['id2', 'name2', 'id1'],
             ['id3', 'name3', 'id1'],
             ['id4', 'name4', 'id2'],
-            ]
+        ]
         result = self.jdbc_source.get_filter_tree(ignore_cache=True)
         url_base = '/fews_jdbc/assen/?filter_id=%s'
-        result_good = [
-            {'id': 'id1', 'name': 'name1',
-             'url': url_base % 'id1',
-             'parentid': JDBC_NONE, 'children': [
-                    {'id': 'id2', 'name': 'name2',
-                     'url': url_base % 'id2',
-                     'parentid': 'id1', 'children': [
-                            {'id': 'id4', 'name': 'name4',
-                             'url': url_base % 'id4',
-                             'parentid': 'id2', 'children': []},
-                            ]},
-                    {'id': 'id3', 'name': 'name3',
-                     'url': url_base % 'id3',
-                     'parentid': 'id1', 'children': []},
-                    ]}
-            ]
+        result_good = [{
+            'id': 'id1', 'name': 'name1',
+            'url': url_base % 'id1',
+            'parentid': JDBC_NONE, 'children': [{
+                'id': 'id2', 'name': 'name2',
+                'url': url_base % 'id2',
+                'parentid': 'id1', 'children': [{
+                    'id': 'id4', 'name': 'name4',
+                    'url': url_base % 'id4',
+                    'parentid': 'id2', 'children': []
+                }, ]
+            }, {
+                'id': 'id3', 'name': 'name3',
+                'url': url_base % 'id3',
+                'parentid': 'id1', 'children': []
+            }, ]
+        }]
         self.assertEqual(result, result_good)
 
     def test_get_named_parameters(self):
@@ -193,7 +190,7 @@ class TestModelMockQuery(TestCase):
             ['name1', 'parameterid1', 'parameter1'],
             ['name2', 'parameterid2', 'parameter2'],
             ['name3', 'parameterid3', 'parameter3'],
-            ]
+        ]
         result = self.jdbc_source.get_named_parameters('id1')
         result_good = [
             {'filter_name': 'name1', 'parameterid': 'parameterid1',
@@ -202,7 +199,7 @@ class TestModelMockQuery(TestCase):
              'parameter': 'parameter2'},
             {'filter_name': 'name3', 'parameterid': 'parameterid3',
              'parameter': 'parameter3'},
-            ]
+        ]
         self.assertEqual(result, result_good)
 
     def test_get_timeseries(self):
@@ -214,7 +211,7 @@ class TestModelMockQuery(TestCase):
             def utcoffset(self, dt):
                 # Note: hardcoded to GMT+1.
                 return datetime.timedelta(hours=1)
-        # time, value, flag, detection, comment; time has a property
+            # time, value, flag, detection, comment; time has a property
         # 'value'
         self.mock_query_result = [
             [MockTime('20100501T00:00:00'), '1.2', '0', '0', None],
@@ -222,7 +219,7 @@ class TestModelMockQuery(TestCase):
             [MockTime('20100503T00:00:00'), '1.4', '0', '0', None],
             [MockTime('20100504T00:00:00'), '1.5', '0', '0', None],
             [MockTime('20100505T00:00:00'), '1.6', '0', '0', None],
-            ]
+        ]
         start_date = datetime.datetime(2010, 5, 1)
         end_date = datetime.datetime(2010, 6, 1)
         result = self.jdbc_source.get_timeseries(
@@ -238,7 +235,7 @@ class TestModelMockQuery(TestCase):
              'value': '1.5', 'flag': '0', 'detection': '0', 'comment': None},
             {'time': datetime.datetime(2010, 5, 5, tzinfo=MockTzInfo()),
              'value': '1.6', 'flag': '0', 'detection': '0', 'comment': None},
-            ]
+        ]
         # self.assertEqual(result, result_good)
         self.assertEqual(len(result), len(result_good))
         self.assertEqual(result[0]['value'], result_good[0]['value'])
@@ -247,7 +244,7 @@ class TestModelMockQuery(TestCase):
     def test_get_unit(self):
         self.mock_query_result = [
             ['mock_unit'],
-            ]
+        ]
         result = self.jdbc_source.get_unit('parameter')
         result_good = 'mock_unit'
         self.assertEqual(result, result_good)
@@ -255,11 +252,11 @@ class TestModelMockQuery(TestCase):
 
 class TestJdbcSource(TestCase):
     def test_timezone_property_can_return_utc(self):
-        jdbcsource = JdbcSourceF(timezone_string="UTC")
+        jdbcsource = JdbcSourceFactory(timezone_string="UTC")
         self.assertEquals(jdbcsource.timezone, pytz.UTC)
 
     def test_wrong_timezone_string_returns_none(self):
-        jdbcsource = JdbcSourceF(timezone_string="whee")
+        jdbcsource = JdbcSourceFactory(timezone_string="whee")
         self.assertEquals(jdbcsource.timezone, None)
 
 
@@ -323,13 +320,13 @@ class TestModel(TestCase):
 
         self.assertEqual(result, result_good)
 
-    # def test_customfilter_invalid(self):
-    #     """See if invalid customfilters can be saved"""
-    #     self.jdbc_source.usecustomfilter = True
-    #     self.jdbc_source.customfilter = (
-    #         "[{'id':'id','namtid':None}, "
-    #         "{'id':e':'name2','parentid':'id'}]")
-    #     self.jdbc_source.save()
+        # def test_customfilter_invalid(self):
+        #     """See if invalid customfilters can be saved"""
+        #     self.jdbc_source.usecustomfilter = True
+        #     self.jdbc_source.customfilter = (
+        #         "[{'id':'id','namtid':None}, "
+        #         "{'id':e':'name2','parentid':'id'}]")
+        #     self.jdbc_source.save()
 
 
 class TestIconStyle(TestCase):
@@ -395,22 +392,22 @@ class TestIconStyle(TestCase):
                     None: {
                         # Level3: fews_parameter
                         None: '::::::'
-                       },
+                    },
                     'loc1': {
                         # Level3: fews_parameter
                         None: '::::loc1::',
                         'par1': '::::loc1::par1'
-                       }
-                    },
+                    }
+                },
                 'filter1': {
                     # Level2: fews_location
                     None: {
                         # Level3: fews_parameter
                         None: '::filter1::::'
-                       }
                     }
                 }
             }
+        }
 
         self.assertEqual(IconStyle._lookup(), expected)
 
@@ -531,6 +528,6 @@ class TestAdapter(TestCase):
                           FewsJdbc,
                           None,
                           layer_arguments={
-                'slug': 'nonexisting',
-                'filter': None,
-                'parameter': None})
+                              'slug': 'nonexisting',
+                              'filter': None,
+                              'parameter': None})

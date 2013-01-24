@@ -8,6 +8,8 @@ Changelog of lizard-fewsjdbc
 
 - Change uggettext to uggettext_lazy in forms.py and models.py to fix
   translation issue.
+- Improve test infrastructure.
+- PEP8 changes.
 
 
 2.20 (2013-01-22)
