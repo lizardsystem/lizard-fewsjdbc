@@ -3,7 +3,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-2.22 (unreleased)
+2.22 (2013-02-13)
 -----------------
 
 - Add static/lizard_fewsjdbc/jquery.jeditable.mini.js and
