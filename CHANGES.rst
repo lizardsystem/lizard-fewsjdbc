@@ -1,4 +1,3 @@
-
 Changelog of lizard-fewsjdbc
 ============================
 
@@ -14,6 +13,7 @@ Changelog of lizard-fewsjdbc
 
 - Add static/lizard_fewsjdbc/jquery.jeditable.mini.js and
   parsley-standalone.min.js to avoid unavailable javascript source issues.
+
 - Add `type="text/javascript"` to above javascript file imports to avoid IE8
   problems.
 
@@ -23,7 +23,9 @@ Changelog of lizard-fewsjdbc
 
 - Change uggettext to uggettext_lazy in forms.py and models.py to fix
   translation issue.
+
 - Improve test infrastructure.
+
 - PEP8 changes.
 
 
@@ -31,6 +33,7 @@ Changelog of lizard-fewsjdbc
 -----------------
 
 - Add end-user customizable color field and default to Threshold model.
+
 - Improve client side form validation.
 
 
@@ -40,6 +43,7 @@ Changelog of lizard-fewsjdbc
 - Add login-required and permission-required mixins to threshold views.
   Only logged in users that have permission to change thresholds are
   allowed to view/edit/delete thresholds.
+
 
 2.18 (2013-01-21)
 -----------------
@@ -54,6 +58,7 @@ Changelog of lizard-fewsjdbc
 
 - Add model for threshold info that can be used to show custom threshold
   lines on fews objects graphs.
+
 - Add threshold views.
 
 
