@@ -3,10 +3,19 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-2.22 (unreleased)
+2.23 (unreleased)
 -----------------
 
 - Nothing changed yet.
+
+
+2.22 (2013-02-13)
+-----------------
+
+- Add static/lizard_fewsjdbc/jquery.jeditable.mini.js and
+  parsley-standalone.min.js to avoid unavailable javascript source issues.
+- Add `type="text/javascript"` to above javascript file imports to avoid IE8
+  problems.
 
 
 2.21 (2013-01-28)
@@ -21,15 +30,15 @@ Changelog of lizard-fewsjdbc
 2.20 (2013-01-22)
 -----------------
 
-- Add end-user customizable color field and default to Threshold model. 
+- Add end-user customizable color field and default to Threshold model.
 - Improve client side form validation.
 
 
 2.19 (2013-01-21)
 -----------------
 
-- Add login-required and permission-required mixins to threshold views. 
-  Only logged in users that have permission to change thresholds are 
+- Add login-required and permission-required mixins to threshold views.
+  Only logged in users that have permission to change thresholds are
   allowed to view/edit/delete thresholds.
 
 2.18 (2013-01-21)

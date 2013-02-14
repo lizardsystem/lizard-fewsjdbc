@@ -77,8 +77,8 @@
 {% endblock head-extras %}
 
 {% block bottom-extras %}
-	<script src="http://www.appelsiini.net/download/jquery.jeditable.mini.js"></script>
-	<script src="https://raw.github.com/guillaumepotier/Parsley.js/master/dist/parsley-standalone.min.js"></script>
+	<script type="text/javascript" src="{{ STATIC_URL }}lizard_fewsjdbc/jquery.jeditable.mini.js"></script>
+	<script type="text/javascript" src="{{ STATIC_URL }}lizard_fewsjdbc/parsley-standalone.min.js"></script>
 	<script type="text/javascript">
 		$(document).ready(function () {
 			$('td.edit').editable('{% url lizard_fewsjdbc.threshold_update %}', {
