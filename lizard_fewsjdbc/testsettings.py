@@ -1,6 +1,6 @@
 import os
 
-from lizard_ui.settingshelper import setup_logging
+# from lizard_ui.settingshelper import setup_logging
 from lizard_ui.settingshelper import STATICFILES_FINDERS
 
 DEBUG = True

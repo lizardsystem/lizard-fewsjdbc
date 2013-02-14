@@ -268,7 +268,8 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
             if dist < radius:
                 result.append(
                     {'distance': dist,
-                     'name': self._location_plus_parameter(named_location['location']),
+                     'name': self._location_plus_parameter(
+                            named_location['location']),
                      'shortname': named_location['location'],
                      'workspace_item': self.workspace_item,
                      'identifier': {'location': named_location['locationid']},
