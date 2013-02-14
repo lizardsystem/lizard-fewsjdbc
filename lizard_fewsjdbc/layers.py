@@ -246,6 +246,9 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
             cache.set(cache_key, result, 60 * 30)
         return result
 
+    def _location_plus_parameter(self, location_name):
+        return u'{}, {}'.format(location_name, self.parameter_name)
+
     def search(self, google_x, google_y, radius=None):
         """Return list of dict {'distance': <float>, 'timeserie':
         <timeserie>} of closest fews point that matches x, y, radius.
@@ -265,8 +268,7 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
             if dist < radius:
                 result.append(
                     {'distance': dist,
-                     'name': '{}, {}'.format(named_location['location'],
-                                             self.parameter_name),
+                     'name': self._location_plus_parameter(named_location['location']),
                      'shortname': named_location['location'],
                      'workspace_item': self.workspace_item,
                      'identifier': {'location': named_location['locationid']},

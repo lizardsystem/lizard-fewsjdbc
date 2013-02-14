@@ -5,7 +5,9 @@ Changelog of lizard-fewsjdbc
 2.23 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Fix for unicodedecodeerror regarding parameter names. Clicking on a location
+  did not give a result if the parameter had non-7bit-ascii characters in its
+  name.
 
 
 2.22 (2013-02-13)

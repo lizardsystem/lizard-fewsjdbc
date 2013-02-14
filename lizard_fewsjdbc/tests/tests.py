@@ -4,10 +4,9 @@ import datetime
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.client import Client
-
-import pytz
-
 from lizard_map.models import WorkspaceItemError
+import pytz
+import mock
 
 from lizard_fewsjdbc.models import JDBC_NONE
 from lizard_fewsjdbc.models import JdbcSource
@@ -531,3 +530,11 @@ class TestAdapter(TestCase):
                               'slug': 'nonexisting',
                               'filter': None,
                               'parameter': None})
+
+    @mock.patch('lizard_fewsjdbc.layers.FewsJdbc.__init__', lambda x: None)
+    def test_location_parameter_name(self):
+        # A parameter with a unicode character used to crash our
+        # parameter+locationname code.
+        adapter = FewsJdbc()
+        adapter._parameter_name = u'Debiet m\xb3/s'
+        self.assertTrue(adapter._location_plus_parameter('location name'))
