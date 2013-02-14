@@ -247,7 +247,7 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         return result
 
     def _location_plus_parameter(self, location_name):
-        return '{}, {}'.format(location_name, self.parameter_name)
+        return u'{}, {}'.format(location_name, self.parameter_name)
 
     def search(self, google_x, google_y, radius=None):
         """Return list of dict {'distance': <float>, 'timeserie':
