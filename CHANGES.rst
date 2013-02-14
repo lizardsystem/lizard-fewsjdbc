@@ -2,6 +2,12 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
+2.24 (unreleased)
+-----------------
+
+- Nothing changed yet.
+
+
 2.23 (2013-02-14)
 -----------------
 
