@@ -2,7 +2,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-2.23 (unreleased)
+2.23 (2013-02-14)
 -----------------
 
 - Fix for unicodedecodeerror regarding parameter names. Clicking on a location
