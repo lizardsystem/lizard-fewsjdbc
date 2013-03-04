@@ -2,7 +2,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-2.24 (unreleased)
+2.24 (2013-03-04)
 -----------------
 
 - Removed verify_exists parameter to URLField that gives an exception in
