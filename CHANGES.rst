@@ -5,7 +5,8 @@ Changelog of lizard-fewsjdbc
 2.24 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Removed verify_exists parameter to URLField that gives an exception in
+  django 1.5. It has already been deprecated since django 1.3.1
 
 
 2.23 (2013-02-14)
