@@ -124,7 +124,6 @@ class FewsJdbcDataSource(datasource.DataSource):
         return ('filter' in choices_made and 'parameter' in choices_made)
 
     def unit(self, choices_made=None):
-        logger.debug("The unit() function is called.")
         if choices_made is None:
             choices_made = self._choices_made
 
@@ -158,25 +157,17 @@ class FewsJdbcDataSource(datasource.DataSource):
                 self._choices_made['parameter'],
                 start_datetime,
                 end_datetime)
-        except:
+        except Exception as e:
+            logger.warn("Oh no, an exception: {0}:".format(e))
             # Timeouts and such
             jdbc_result = []
 
-        series = dict()
-        for point in jdbc_result:
-            series[dates.to_utc(point['time'])] = point['value']
-
-        return timeseries.Timeseries(series)
+        return timeseries.Timeseries(dict(
+                (dates.to_utc(point['time']), point['value'])
+                for point in jdbc_result))
 
 
 def factory():
     """Returns a fewsjdbc datasource for each JDBC slug."""
-    for source in models.JdbcSource.objects.all():
-        logger.debug("slug: {0}".format(source.slug))
-
-    try:
-        return [FewsJdbcDataSource(source)
-                for source in models.JdbcSource.objects.all()]
-    except Exception, e:
-        logger.debug(e)
-        return []
+    return [FewsJdbcDataSource(source)
+            for source in models.JdbcSource.objects.all()]
