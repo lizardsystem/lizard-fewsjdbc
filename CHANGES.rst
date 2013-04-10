@@ -2,7 +2,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-2.25 (unreleased)
+2.25 (2013-04-10)
 -----------------
 
 - Changed datasource.py because lizard-datasource's 0.7's API changed.
