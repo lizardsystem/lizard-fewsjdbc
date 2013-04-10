@@ -9,6 +9,7 @@ except ImportError:
 import httplib
 import socket
 
+
 class TimeoutTransport(xmlrpclib.Transport):
     def __init__(self, timeout=socket._GLOBAL_DEFAULT_TIMEOUT,
                  *args, **kwargs):

@@ -92,7 +92,7 @@ class JdbcSource(models.Model):
 
     slug = models.SlugField()
     name = models.CharField(max_length=200)
-    jdbc_url = models.URLField(verify_exists=False, max_length=200)
+    jdbc_url = models.URLField(max_length=200)
     jdbc_tag_name = models.CharField(max_length=80)
     connector_string = models.CharField(max_length=200)
 

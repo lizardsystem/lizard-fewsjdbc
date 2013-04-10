@@ -1,6 +1,9 @@
 # (c) Nelen & Schuurmans.  GPL licensed, see LICENSE.txt.
 import logging
 
+from braces.views import LoginRequiredMixin
+from braces.views import MultiplePermissionsRequiredMixin
+from braces.views import PermissionRequiredMixin
 from django import http
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
@@ -10,19 +13,14 @@ from django.utils import simplejson as json
 from django.utils.translation import ugettext as _
 from django.views.generic import View, CreateView
 from django.views.generic.edit import DeleteView
-
-from braces.views import (LoginRequiredMixin, PermissionRequiredMixin,
-    MultiplePermissionsRequiredMixin)
-
+from lizard_map.adapter import adapter_layer_arguments, adapter_serialize
 from lizard_map.exceptions import WorkspaceItemError
-from lizard_ui.layout import Action
-from lizard_fewsjdbc.forms import ThresholdUpdateForm, ThresholdCreateForm
-
-from lizard_fewsjdbc.models import JdbcSource, Threshold
-from lizard_map.views import AppView, AdapterMixin
-
-from lizard_map.adapter import adapter_layer_arguments, adapter_serialize, parse_identifier_json
 from lizard_map.models import WorkspaceEditItem
+from lizard_map.views import AppView, AdapterMixin
+from lizard_ui.layout import Action
+
+from lizard_fewsjdbc.forms import ThresholdUpdateForm, ThresholdCreateForm
+from lizard_fewsjdbc.models import JdbcSource, Threshold
 from lizard_fewsjdbc.utils import format_number
 
 logger = logging.getLogger(__name__)

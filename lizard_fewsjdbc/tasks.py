@@ -116,7 +116,7 @@ def rebuild_jdbc_cache(logger, *args, **options):
                         filter_id, param_id,
                         cache_timeout=timeout)
 
-        except Exception as e:
+        except Exception:
             logger.exception('Exception while syncing %s.' % jdbc_source)
     logger.info('Finished.')
     return 'OK'
