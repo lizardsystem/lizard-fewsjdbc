@@ -162,9 +162,14 @@ class FewsJdbcDataSource(datasource.DataSource):
             # Timeouts and such
             jdbc_result = []
 
-        return timeseries.Timeseries(dict(
-                (dates.to_utc(point['time']), point['value'])
-                for point in jdbc_result))
+        series_name = (self.cached_unit() or ("Timeseries",))[0]
+
+        dataframe = timeseries.DataFrame({
+                series_name: timeseries.Series(dict(
+                        (dates.to_utc(point['time']), point['value'])
+                        for point in jdbc_result))})
+
+        return timeseries.Timeseries(dataframe)
 
 
 def factory():
