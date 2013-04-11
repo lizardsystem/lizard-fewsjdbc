@@ -2,7 +2,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-2.26 (unreleased)
+2.26 (2013-04-11)
 -----------------
 
 - Let datasource.py return a DataFrame-based timeseries.
