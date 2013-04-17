@@ -171,6 +171,13 @@ class FewsJdbcDataSource(datasource.DataSource):
 
         return timeseries.Timeseries(dataframe)
 
+    def expand(self, choices_made):
+        if 'jdbc_source_slug' in choices_made:
+            return choices_made
+        else:
+            return choices_made.add(
+                'jdbc_source_slug', self.jdbc_source.slug)
+
 
 def factory():
     """Returns a fewsjdbc datasource for each JDBC slug."""

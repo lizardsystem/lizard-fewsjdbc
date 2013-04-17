@@ -5,7 +5,7 @@ Changelog of lizard-fewsjdbc
 2.27 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Added an expand() function to datasource.py.
 
 
 2.26 (2013-04-11)
