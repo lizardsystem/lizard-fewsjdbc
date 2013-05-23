@@ -5,7 +5,7 @@ Changelog of lizard-fewsjdbc
 2.28 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Add draw_in_legend option to icon style.
 
 
 2.27 (2013-04-17)

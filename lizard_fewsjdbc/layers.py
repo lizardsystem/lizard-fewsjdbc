@@ -79,7 +79,7 @@ def fews_symbol_name(jdbc_source, filterkey, locationkey, parameterkey,
     output_filename = symbol_manager.get_symbol_transformed(
         icon_style['icon'], **icon_style)
 
-    return style_name, output_filename
+    return style_name, output_filename, icon_style['draw_in_legend']
 
 
 def fews_point_style(jdbc_source, filterkey, locationkey, parameterkey,
@@ -88,7 +88,7 @@ def fews_point_style(jdbc_source, filterkey, locationkey, parameterkey,
     Make mapnik point_style for fews point with given filterkey.
     Copied from lizard_fewsunblobbed.
     """
-    point_style_name, output_filename = fews_symbol_name(
+    point_style_name, output_filename, draw_in_legend = fews_symbol_name(
         jdbc_source, filterkey, locationkey, parameterkey,
         nodata, styles, lookup)
     output_filename_abs = os.path.join(
@@ -473,7 +473,7 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         TODO: the identifier is always None, so individual symbols
         cannot be retrieved.
         """
-        _, output_filename = fews_symbol_name(
+        ignored, output_filename, draw_in_legend = fews_symbol_name(
             self.jdbc_source, self.filterkey, '',
             self.parameterkey, nodata=False)
         return '%sgenerated_icons/%s' % (settings.MEDIA_URL, output_filename)
@@ -541,11 +541,16 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         TODO: the identifier is always None, so individual symbols
         cannot be retrieved.
         """
-        _, output_filename = fews_symbol_name(
+        ignored, output_filename, draw_in_legend = fews_symbol_name(
             self.jdbc_source, self.filterkey, '',
             self.parameterkey, nodata=False)
+
         icon = '%sgenerated_icons/%s' % (settings.MEDIA_URL, output_filename)
-        return [icon]
+
+        if draw_in_legend:
+            return [icon]
+        else:
+            return []
 
     def location_list(self, name=''):
         '''
