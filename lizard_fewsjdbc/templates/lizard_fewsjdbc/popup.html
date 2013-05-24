@@ -18,20 +18,23 @@
 {% endif %}
 
 {% if collage_item_props %}
-<div>
-  <ul class="without-bullets">
+<div style="margin-top:10px;">
+  <table class="table table-condensed table-bordered">
   {% for collage_item_prop in collage_item_props %}
-  <li>
-  <a href="{{ collage_item_prop.url }}"
+  <tr>
+  <td>{{ collage_item_prop.name }}, {{ parameter }}</td>
+  <td><a href="{{ collage_item_prop.url }}"
      class="ss_table_save ss_sprite"
-     title="exporteer tijdreeksen">exporteer tijdreeksen</a>
+     title="exporteer tijdreeksen">exporteer tijdreeksen</a></td>
   {% if perms.lizard_fewsjdbc.change_threshold %}
+  <td>
   <a href="{% url lizard_fewsjdbc.thresholds %}?workspace_item_id={{ adapter.workspace_item.id }}&identifier={{ collage_item_prop.identifier }}"
      class="ss_chart_line_edit ss_sprite"
      title="bewerk drempelwaarde(n)">drempelwaarden</a>
+  </td>
   {% endif %}
-  </li>
+  </tr>
   {% endfor %}
-  </ul>
+  </table>
 </div>
 {% endif %}
