@@ -7,6 +7,8 @@ Changelog of lizard-fewsjdbc
 
 - Add draw_in_legend option to icon style.
 
+- Changes to datasource.py -- units and labels now work differently.
+
 
 2.27 (2013-04-17)
 -----------------

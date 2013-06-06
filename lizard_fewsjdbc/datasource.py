@@ -123,14 +123,34 @@ class FewsJdbcDataSource(datasource.DataSource):
     def is_drawable(self, choices_made):
         return ('filter' in choices_made and 'parameter' in choices_made)
 
-    def unit(self, choices_made=None):
-        if choices_made is None:
-            choices_made = self._choices_made
+    def _unit(self):
+        for named_parameter in self._get_parameters(self._choices_made):
+            if (named_parameter['parameterid'] ==
+                self._choices_made.get('parameter')):
+                parameter = named_parameter['parameter']
+                break
+        else:
+            # No parameter found
+            return None
 
-        for named_parameter in self._get_parameters(choices_made):
-            if named_parameter['parameterid'] == choices_made.get('parameter'):
-                return named_parameter['parameter']
-        return None
+        if 'parameter' in self._choices_made:
+            unit = self.jdbc_source.get_unit(
+                self._choices_made['parameter'])
+            if unit:
+                return '{0}||{1}'.format(parameter, unit)
+
+        return parameter
+
+    def _cached_unit(self):
+        layer = self.datasource_layer
+
+        if not layer.unit_cache or '||' not in layer.unit_cache:
+            unit = self._unit()
+            if unit:
+                layer.unit_cache = unit
+                layer.save()
+
+        return layer.unit_cache
 
     def locations(self, bare=False):
         if not self.is_drawable(self._choices_made):
@@ -162,7 +182,7 @@ class FewsJdbcDataSource(datasource.DataSource):
             # Timeouts and such
             jdbc_result = []
 
-        series_name = (self.cached_unit() or ("Timeseries",))[0]
+        series_name = self._cached_unit()
 
         dataframe = timeseries.DataFrame({
                 series_name: timeseries.Series(dict(
