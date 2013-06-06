@@ -2,7 +2,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-2.28 (unreleased)
+2.28 (2013-06-06)
 -----------------
 
 - Changes to datasource.py -- units and labels now work differently.
