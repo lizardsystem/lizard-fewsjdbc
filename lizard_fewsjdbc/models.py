@@ -304,7 +304,7 @@ class JdbcSource(models.Model):
     def get_filter_name(self, filter_id):
         """Return the filter name corresponding to the given filter
         id."""
-        result = self.query("select name from filters where id='%s'"
+        result = self.query("select distinct name from filters where id='%s'"
                             % (filter_id,))
 
         if result:
@@ -313,7 +313,7 @@ class JdbcSource(models.Model):
     def get_parameter_name(self, parameter_id):
         """Return parameter name corresponding to the given parameter
         id."""
-        result = self.query(("select parameter from filters where " +
+        result = self.query(("select distinct parameter from filters where " +
                             "parameterid = '%s'") % (parameter_id,))
 
         if result:
