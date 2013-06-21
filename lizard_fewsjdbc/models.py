@@ -310,11 +310,13 @@ class JdbcSource(models.Model):
         if result:
             return result[0][0]
 
-    def get_parameter_name(self, parameter_id):
+    def get_parameter_name(self, parameter_id, filter_id=None):
         """Return parameter name corresponding to the given parameter
         id."""
-        result = self.query(("select distinct parameter from filters where " +
-                            "parameterid = '%s'") % (parameter_id,))
+        if filter_id is None:
+            result = self.query(("select distinct parameter from filters where parameterid = '%s'") % (parameter_id,))
+        else:
+            result = self.query(("select distinct parameter from filters where id = '%s' and parameterid = '%s'") % (filter_id, parameter_id))
 
         if result:
             return result[0][0]

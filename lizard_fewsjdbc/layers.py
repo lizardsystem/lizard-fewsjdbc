@@ -143,7 +143,7 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
     def parameter_name(self):
         if not hasattr(self, '_parameter_name'):
             self._parameter_name = self.jdbc_source.get_parameter_name(
-                self.parameterkey)
+                self.parameterkey, self.filterkey)
         return self._parameter_name
 
     def layer(self, layer_ids=None, webcolor=None, request=None):
