@@ -15,6 +15,7 @@ from lizard_map.adapter import Graph, FlotGraph
 from lizard_map.mapnik_helper import add_datasource_point
 from lizard_map.models import ICON_ORIGINALS
 from lizard_map.models import WorkspaceItemError
+from lizard_map.models import Setting
 from lizard_map.symbol_manager import SymbolManager
 
 from lizard_fewsjdbc.dtu import astimezone
