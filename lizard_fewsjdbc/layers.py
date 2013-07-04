@@ -276,7 +276,8 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
                      'google_coords': (x, y),
                      'object': None})
         result.sort(key=lambda item: item['distance'])
-        return result[:3]  # Max 3.
+        max_results = Setting.get('fewsjdbc_search_max_results', 3) # Default max 3.
+        return result[:max_results]
 
     def value_aggregate(self, identifier, aggregate_functions,
                         start_date, end_date):
