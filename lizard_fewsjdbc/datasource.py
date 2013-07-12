@@ -141,7 +141,7 @@ class FewsJdbcDataSource(datasource.DataSource):
 
         return parameter
 
-    def _cached_unit(self):
+    def cached_unit(self):
         layer = self.datasource_layer
 
         if not layer.unit_cache or '||' not in layer.unit_cache:
@@ -182,7 +182,7 @@ class FewsJdbcDataSource(datasource.DataSource):
             # Timeouts and such
             jdbc_result = []
 
-        series_name = self._cached_unit()
+        series_name = self.cached_unit()
 
         dataframe = timeseries.DataFrame({
                 series_name: timeseries.Series(dict(
