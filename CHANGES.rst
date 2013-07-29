@@ -5,6 +5,8 @@ Changelog of lizard-fewsjdbc
 2.28 (unreleased)
 -----------------
 
+- Move to mapnik 2.2.0.
+
 - Add draw_in_legend option to icon style.
 
 - Changes to datasource.py -- units and labels now work differently.
