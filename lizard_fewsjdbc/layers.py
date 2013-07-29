@@ -153,7 +153,7 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         styles = {}
         layer = mapnik.Layer("FEWS JDBC points layer", coordinates.WGS84)
 
-        layer.datasource = mapnik.PointDatasource()
+        layer.datasource = mapnik.MemoryDatasource()
 
         try:
             named_locations = self._locations()
@@ -164,7 +164,7 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         fews_styles, fews_style_lookup = IconStyle._styles_lookup()
 
         logger.debug("Number of point objects: %d" % len(named_locations))
-        for named_location in named_locations:
+        for i, named_location in enumerate(named_locations):
             #logger.debug('layer coordinates %s %s %s' % (
             #        named_location['locationid'],
             #        named_location['longitude'],
@@ -182,7 +182,7 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
             # Put style in point, filters work on these styles.
             add_datasource_point(
                 layer.datasource, named_location['longitude'],
-                named_location['latitude'], 'style', str(point_style_name))
+                named_location['latitude'], 'style', str(point_style_name), i)
 
             # generate "unique" point style name and append to layer
             # if the same style occurs multiple times, it will overwrite old.
