@@ -94,9 +94,8 @@ def fews_point_style(jdbc_source, filterkey, locationkey, parameterkey,
     output_filename_abs = os.path.join(
         settings.MEDIA_ROOT, 'generated_icons', output_filename)
 
-    # use filename in mapnik pointsymbolizer
-    point_looks = mapnik.PointSymbolizer(
-        str(output_filename_abs), 'png', 16, 16)
+    point_looks = mapnik.PointSymbolizer()
+    point_looks.filename = str(output_filename_abs)
     point_looks.allow_overlap = True
     layout_rule = mapnik.Rule()
     layout_rule.symbols.append(point_looks)
