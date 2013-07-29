@@ -153,7 +153,7 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         styles = {}
         layer = mapnik.Layer("FEWS JDBC points layer", coordinates.WGS84)
 
-        layer.datasource = mapnik.PointDatasource()
+        layer.datasource = mapnik.MemoryDatasource()
 
         try:
             named_locations = self._locations()
