@@ -2,15 +2,25 @@ import os
 
 # from lizard_ui.settingshelper import setup_logging
 from lizard_ui.settingshelper import STATICFILES_FINDERS
+from lizard_ui.settingshelper import setup_logging
+
 
 DEBUG = True
 LOG_JDBC_QUERIES = True
 TEMPLATE_DEBUG = True
 
 DATABASES = {
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': 'test.db',
+    #    }
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'test.db',
+        'NAME': 'lizard-fewsjdbc',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'USER': 'buildout',
+        'PASSWORD': 'buildout',
+        'HOST': '127.0.0.1',  # empty string for localhost.
+        'PORT': '',  # empty string for default.
         }
 }
 
@@ -19,9 +29,12 @@ INSTALLED_APPS = [
     'lizard_fewsjdbc',
     'lizard_map',
     'lizard_ui',
+    'djcelery',
+    'lizard_task',
     'lizard_security',
     'staticfiles',
     'compressor',
+    'requests',
     'south',
     'django_extensions',
     'django_nose',
@@ -69,7 +82,7 @@ SETTINGS_DIR = os.path.dirname(os.path.realpath(__file__))
 # BUILDOUT_DIR/var/static files to give django-staticfiles a proper place
 # to place all collected static files.
 BUILDOUT_DIR = os.path.abspath(os.path.join(SETTINGS_DIR, '..'))
-
+LOGGING = setup_logging(BUILDOUT_DIR)
 
 # Absolute path to the directory that holds user-uploaded media.
 MEDIA_ROOT = os.path.join(BUILDOUT_DIR, 'var', 'media')

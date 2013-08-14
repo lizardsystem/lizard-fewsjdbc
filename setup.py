@@ -24,6 +24,7 @@ install_requires = [
     'pytz',
     'south',
     'factory_boy',
+    'requests'
     ],
 
 tests_require = [

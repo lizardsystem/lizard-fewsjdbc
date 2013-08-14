@@ -43,6 +43,99 @@ LOG_JDBC_QUERIES = getattr(settings, 'LOG_JDBC_QUERIES', False)
 logger = logging.getLogger(__name__)
 
 
+class FilterCache(models.Model):
+    """Cache of fews-jdbc locations."""
+
+    filterid = models.CharField(primary_key=True, max_length=100)
+    name = models.CharField(max_length=100, null=True, blank=True)
+    description = models.CharField(max_length=100, null=True, blank=True)
+    is_sub_filter = models.BooleanField()
+    parent_id = models.CharField(max_length=100, null=True, blank=True)
+    parent_name = models.CharField(max_length=100, null=True, blank=True)
+    is_end_node = models.BooleanField()
+
+    def __unicode__(self):
+        return self.filterid
+
+
+class LocationCache(models.Model):
+    """Cache of fews-jdbc locations."""
+
+    locationid = models.CharField(primary_key=True, max_length=100)
+    name = models.CharField(max_length=100, null=True, blank=True)
+    short_name = models.CharField(max_length=100, null=True, blank=True)
+    description = models.CharField(max_length=250, null=True, blank=True)
+    lng = models.FloatField(null=True, blank=True)
+    lat = models.FloatField(null=True, blank=True)
+    tooltiptext = models.TextField(null=True, blank=True)
+    parent_id = models.CharField(max_length=100, null=True, blank=True)
+
+    def __unicode__(self):
+        return self.locationid
+
+
+class ParameterCache(models.Model):
+    """Cache of fews-jdbc parameter."""
+
+    parameterid = models.CharField(primary_key=True, max_length=50)
+    name = models.CharField(max_length=100, null=True, blank=True)
+    short_name = models.CharField(max_length=100, null=True, blank=True)
+    unit = models.CharField(max_length=100, null=True, blank=True)
+    parameter_type = models.CharField(max_length=100, null=True, blank=True)
+    parameter_group = models.CharField(max_length=100, null=True, blank=True)
+
+    def __unicode__(self):
+        return self.parameterid
+
+
+class TimeseriesCache(models.Model):
+    """Cache of fews-jdbc timeseries."""
+
+    t_filter = models.ForeignKey(FilterCache)
+    t_location = models.ForeignKey(LocationCache)
+    t_parameter = models.ForeignKey(ParameterCache)
+
+    def __unicode__(self):
+        return u'{0}:{1}:{2}'.format(
+            self.t_filter.filterid,
+            self.t_location.locationid,
+            self.t_parameter.parameterid)
+
+
+class WebRSSource(models.Model):
+    code = models.CharField(primary_key=True, max_length=50)
+    name = models.CharField(
+        max_length=50,
+        help_text='Name web vjdbcsource configured '
+                  'in vjdbcsources.properties on webservice')
+    version = models.CharField(
+        max_length=10)
+    base_path = models.CharField(max_length=250, help_text="Example: http://localhost:8081/api/v1.0/hhnk")
+
+    @property
+    def filters_path(self):
+        return '{}/filters'.format(self.source_path)
+
+    @property
+    def locations_path(self):
+        return '{}/locations'.format(self.source_path)
+
+    @property
+    def parameters_path(self):
+        return '{}/parameters'.format(self.source_path)
+
+    @property
+    def timeseries_path(self):
+        return '{}/timeseries'.format(self.source_path) 
+
+    @property
+    def source_path(self):
+        return u'{0}/{1}/{2}'.format(self.base_path, self.version, self.name)
+
+    def __unicode__(self):
+        return self.source_path
+
+
 class FewsJdbcNotAvailableError(gaierror):
     """Wrapping of generic socket.gaierror into a clearer error."""
     def __str__(self):
@@ -314,9 +407,13 @@ class JdbcSource(models.Model):
         """Return parameter name corresponding to the given parameter
         id."""
         if filter_id is None:
-            result = self.query(("select distinct parameter from filters where parameterid = '%s'") % (parameter_id,))
+            sql_str = "select distinct parameter " + \
+                      "from filters where parameterid = '%s'"
+            result = self.query((sql_str) % (parameter_id,))
         else:
-            result = self.query(("select distinct parameter from filters where id = '%s' and parameterid = '%s'") % (filter_id, parameter_id))
+            sql_str = "select distinct parameter " + \
+                      "from filters where id='%s' and parameterid='%s'"
+            result = self.query((sql_str) % (filter_id, parameter_id))
 
         if result:
             return result[0][0]

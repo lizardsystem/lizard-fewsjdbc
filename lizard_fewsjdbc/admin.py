@@ -1,5 +1,10 @@
 from django.contrib import admin
-from lizard_fewsjdbc.models import IconStyle, JdbcSource, Threshold
+from lizard_fewsjdbc.models import (
+    IconStyle,
+    JdbcSource,
+    Threshold,
+    WebRSSource
+)
 
 
 class JdbcSourceAdmin(admin.ModelAdmin):
@@ -20,6 +25,11 @@ class ThresholdAdmin(admin.ModelAdmin):
         'value')
 
 
+class WebRSSourceAdmin(admin.ModelAdmin):
+    list_display = ('code', 'name', 'version', 'base_path')
+
+
 admin.site.register(JdbcSource, JdbcSourceAdmin)
 admin.site.register(IconStyle, IconStyleAdmin)
 admin.site.register(Threshold, ThresholdAdmin)
+admin.site.register(WebRSSource, WebRSSourceAdmin)
