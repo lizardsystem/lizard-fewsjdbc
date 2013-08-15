@@ -157,9 +157,9 @@ def rebuild_restws_cache_task(username=None, source_code=None,
     Rebuild filter, location, parameter, timeseries cache for fewsjdbc.
 
     """
-    handler = get_handler(username=username, taskname=taskname)
-    logger = logging.getLogger('rebuild_restws_cache')
-    logger.addHandler(handler)
-    logger.setLevel(levelno)
+    #handler = get_handler(username=username, taskname=taskname)
+    #logger = logging.getLogger('rebuild_restws_cache')
+    #logger.addHandler(handler)
+    #logger.setLevel(levelno)
 
-    rebuild_restws_cache(logger, source_code)
+    rebuild_restws_cache(None, source_code)
