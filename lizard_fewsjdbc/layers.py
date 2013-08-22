@@ -196,7 +196,7 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
                 lookup=fews_style_lookup)
 
             # Put style in point, filters work on these styles.
-            if mapnik.mapnik_version < 800:
+            if mapnik.mapnik_version() < 800:
                 add_datasource_point(
                     layer.datasource, named_location['longitude'],
                     named_location['latitude'], 'style', str(point_style_name))
