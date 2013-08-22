@@ -104,7 +104,7 @@ def fews_point_style(jdbc_source, filterkey, locationkey, parameterkey,
         settings.MEDIA_ROOT, 'generated_icons', output_filename)
 
     # use filename in mapnik pointsymbolizer
-    if mapnik.mapnik_version < 800:
+    if mapnik.mapnik_version() < 800:
         point_looks = mapnik.PointSymbolizer(
             str(output_filename_abs), 'png', 16, 16)
     else:
