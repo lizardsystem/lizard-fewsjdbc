@@ -1,0 +1,41 @@
+{% extends "lizard_map/wms.html" %}
+{% load i18n %}
+{% load workspaces %}
+{% load utility %}
+
+{% block subtitle %} Meetgegevens {% endblock %}
+
+{% block sidebar %}
+<div class="sidebarbox sidebarbox-stretched"
+     id="accordion">
+  <h2>1: Filters</h2>
+  <ul class="automatic-tree filetree pane accordion-load-next"
+      data-next-pane-id="#parameter-pane"
+      id="filter-pane">
+    {# variables tree_template and tree_items must be set #}
+    {% with "lizard_ui/tree_snippet.html" as tree_template %}
+     {% with view.filters_tree as tree_items %}
+      {% include tree_template %}
+     {% endwith %}
+    {% endwith %}
+  </ul>
+  <h2>2: Parameters{% if view.filter %} ({{ view.filter.name }}){% endif %}{% block linkback %}{% endblock %}</h2>
+  <ul class="without-bullets pane"
+      id="parameter-pane">
+    {% for parameter in view.parameters %}
+    <li class="workspace-acceptable file {% if_in_workspace_edit view.workspace_edit parameter.workspace_name 'selected' %}"
+        data-name="{{ parameter.workspace_name }}"
+        data-adapter-class="{{ view.adapter_class }}"
+        data-adapter-layer-json='{"slug": "{{ view.webrs_source_slug }}", "filter": "{{ parameter.filter_id }}", "parameter": "{{ parameter.id }}"}'
+        data-filter-id="{{ parameter.filter_id }}">
+      {{ parameter.name }} ({{ parameter.filter_name }})
+    </li>
+    {% empty %}
+    <li>Geen parameters gevonden/geladen.</li>
+    {% endfor %}
+  </ul>
+  <h2>3: Acties</h2>
+  <a href="javascript:void(null)" class="btn popup-location-list"><i class="icon-search"></i> {% trans 'Search for locations' %}</a>
+</div>
+
+{% endblock sidebar %}

@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib import admin
 
 from lizard_fewsjdbc.views import (HomepageView, JdbcSourceView,
+                                   WebRSSourceView, HomepageViewWebRS,
                                    ThresholdsView, ThresholdUpdateView,
                                    ThresholdDeleteView, ThresholdCreateView)
 
@@ -12,6 +13,14 @@ urlpatterns = patterns(
     url(r'^$',
         HomepageView.as_view(),
         name="lizard_fewsjdbc.homepage",
+        ),
+    url(r'^webrs/$',
+        HomepageViewWebRS.as_view(),
+        name="lizard_fewsjdbc.homepage_webrs",
+        ),
+    url(r'^webrs/(?P<webrs_source_slug>.*)/$',
+        WebRSSourceView.as_view(),
+        name="lizard_fewsjdbc.webrs_source",
         ),
     url(r'^fews_jdbc/(?P<jdbc_source_slug>.*)/$',
         JdbcSourceView.as_view(),

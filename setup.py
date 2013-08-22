@@ -54,6 +54,7 @@ setup(name='lizard-fewsjdbc',
           'console_scripts': [
             ],
           'lizard_map.adapter_class': [
+            'adapter_webrs = lizard_fewsjdbc.layers:WebRS',
             'adapter_fewsjdbc = lizard_fewsjdbc.layers:FewsJdbc'
             ],
           'lizard_datasource': [

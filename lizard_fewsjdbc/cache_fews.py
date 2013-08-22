@@ -24,7 +24,7 @@ class FewsJDBCImporter(object):
 
     def cache_resources(self, webrs_source):
         self.logger.debug(
-            "Cache source {0}: {1}.".format(webrs_source.code,
+            "Cache source {0}: {1}.".format(webrs_source.name,
                                             webrs_source.source_path))
         f_cached = self.cache_filters(webrs_source)
         l_cached = self.cache_locations(webrs_source)
@@ -47,7 +47,8 @@ class FewsJDBCImporter(object):
             models.FilterCache(
                 filterid=fltr.get('id'),
                 name=fltr.get('name'),
-                parent_id=fltr.get('parent_id')).save()
+                parent_id=fltr.get('parent_id'),
+                webrs_source=webrs_source).save()
         self.logger.info("{} filters cached.".format(len(result.json)))
         return True
 
@@ -65,7 +66,8 @@ class FewsJDBCImporter(object):
                 name=location.get('name'),
                 short_name=location.get('short_name'),
                 lng=location.get('lng'),
-                lat=location.get('lat')).save()
+                lat=location.get('lat'),
+                webrs_source=webrs_source).save()
         self.logger.info("{} locations cached.".format(len(result.json)))
         return True
 
@@ -84,7 +86,8 @@ class FewsJDBCImporter(object):
                 short_name=parameter.get('short_name'),
                 unit=parameter.get('unit'),
                 parameter_type=parameter.get('parameter_type'),
-                parameter_group=parameter.get('parameter_group')).save()
+                parameter_group=parameter.get('parameter_group'),
+                webrs_source=webrs_source).save()
         self.logger.info("{} parameters cached.".format(len(result.json)))
         return True
 
@@ -105,6 +108,7 @@ class FewsJDBCImporter(object):
                 t_filter=models.FilterCache.objects.get(pk=filterid),
                 t_location=models.LocationCache.objects.get(pk=locationid),
                 t_parameter=models.ParameterCache.objects.get(
-                    pk=parameterid)).save()
+                    pk=parameterid),
+                webrs_source=webrs_source).save()
         self.logger.info("{} timeseries cached.".format(len(result.json)))
         return True

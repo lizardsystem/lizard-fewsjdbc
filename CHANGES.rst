@@ -5,7 +5,15 @@ Changelog of lizard-fewsjdbc
 2.29 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Create tables to caching filters, locations, parameters, timeseries of FEWS.
+
+- Add task to remove old caches and retrieve new fews-data.
+
+- Add new datasource for restful web service.
+
+- Add new adapter and views to show data from restful ws in graph.
+
+- Add new entrypoint to setup.py
 
 
 2.28 (2013-06-06)

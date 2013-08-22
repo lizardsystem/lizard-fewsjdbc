@@ -17,10 +17,18 @@ from lizard_map.adapter import adapter_layer_arguments, adapter_serialize
 from lizard_map.exceptions import WorkspaceItemError
 from lizard_map.models import WorkspaceEditItem
 from lizard_map.views import AppView, AdapterMixin
+from lizard_map.operations import tree_from_list
 from lizard_ui.layout import Action
 
 from lizard_fewsjdbc.forms import ThresholdUpdateForm, ThresholdCreateForm
-from lizard_fewsjdbc.models import JdbcSource, Threshold
+from lizard_fewsjdbc.models import (
+    JdbcSource,
+    Threshold,
+    WebRSSource,
+    FilterCache,
+    ParameterCache,
+    TimeseriesCache
+)
 from lizard_fewsjdbc.utils import format_number
 
 logger = logging.getLogger(__name__)
@@ -33,6 +41,82 @@ class HomepageView(AppView):
 
     def jdbc_sources(self):
         return JdbcSource.objects.all()
+
+
+class HomepageViewWebRS(AppView):
+    """Class based view for the fewsjdbc homepage."""
+
+    template_name = 'lizard_fewsjdbc/homepage_webrs.html'
+
+    def webrs_sources(self):
+        return WebRSSource.objects.all()
+
+
+class WebRSSourceView(AppView):
+
+    template_name = "lizard_fewsjdbc/webrs_source.html"
+    #filter_url_name = "lizard_fewsjdbc.webrs_source"
+    adapter_class = "adapter_webrs"
+    edit_link = "/admin/lizard_fewsjdbc/"
+
+    def get(self, request, *args, **kwargs):
+        self.webrs_source_slug = kwargs.get('webrs_source_slug', '')
+        self.webrs_source = get_object_or_404(WebRSSource,
+                                             slug=self.webrs_source_slug)
+        self.filter_id = request.GET.get('filter_id', None)
+        self.ignore_cache = request.GET.get('ignore_cache', False)
+
+        return super(WebRSSourceView, self).get(request, *args, **kwargs)
+
+    def filters_tree(self):
+        """If there is no filter chosen yet, show the filter tree."""
+        rows = []
+        if self.filter_id is None:
+            filters = FilterCache.objects.filter(
+                webrs_source=self.webrs_source)
+            rows = [f.filter_as_dict for f in filters]
+            return tree_from_list(rows)
+
+    @property
+    def _selected_filter(self):
+        return FilterCache.objects.get(pk=self.filter_id)
+
+    def _filter_parameters(self):
+        timeseries = TimeseriesCache.objects.filter(
+            t_filter=self._selected_filter)
+        filter_parameters = ParameterCache.objects.filter(
+                parameterid__in=timeseries.values_list('t_parameter'))
+        return filter_parameters
+
+    def filter(self):
+        """Return the current filter."""
+        if not hasattr(self, '_filter') and self.filter_id is not None:
+            filter_parameters = self._filter_parameters()
+
+            if filter_parameters is not None:
+                self._filter = {'name': self._selected_filter.name,
+                                'id': self.filter_id}
+        if hasattr(self, '_filter'):
+            return self._filter
+
+    def parameters(self):
+        """If there is a filter chosen, show its parameters."""
+        if not hasattr(self, '_parameters') and self.filter_id is not None:
+            filter_parameters = self._filter_parameters()
+            selected_filter = self._selected_filter
+            if filter_parameters:
+                self._parameters = [
+                    {'name': '%s' % parameter.name,
+                     'workspace_name': ('%s (%s, %s)' %
+                                        (parameter.name,
+                                        selected_filter.name,
+                                        self.webrs_source_slug)),
+                     'id': parameter.parameterid,
+                     'filter_id': selected_filter.filterid,
+                     'filter_name': selected_filter.name}
+                    for parameter in filter_parameters]
+        if hasattr(self, '_parameters'):
+            return self._parameters
 
 
 class JdbcSourceView(AppView):
@@ -89,7 +173,6 @@ class JdbcSourceView(AppView):
         if not hasattr(self, '_filter') and self.filter_id is not None:
             named_parameters = self.jdbc_source.get_named_parameters(
                 self.filter_id, ignore_cache=self.ignore_cache)
-
             if named_parameters:
                 self._filter = {'name': named_parameters[0]['filter_name'],
                                 'id': self.filter_id}

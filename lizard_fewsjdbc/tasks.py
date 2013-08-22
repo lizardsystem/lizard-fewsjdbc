@@ -9,6 +9,7 @@ from lizard_fewsjdbc.models import CACHE_TIMEOUT
 from lizard_fewsjdbc.models import WebRSSource
 from lizard_fewsjdbc.cache_fews import FewsJDBCImporter
 
+
 @task
 def test_task(username=None, db_name=None, taskname=None):
     """
@@ -52,7 +53,7 @@ def load_parameters(timeout, jdbc_source,
 
 @task
 def rebuild_jdbc_cache_task(username=None, db_name=None,
-                       taskname=None, *args, **options):
+                            taskname=None, *args, **options):
     """
     Rebuild filter cache for fewsjdbc.
 
@@ -123,43 +124,39 @@ def rebuild_jdbc_cache(logger, *args, **options):
     logger.info('Finished.')
     return 'OK'
 
+
 @transaction.commit_on_success
-def rebuild_restws_cache(logger, source_code=None):
+def rebuild_restws_cache(logger, source_slug=None):
     """
     Rebuild fews caches: (filters, locations, parameters, timeseries)
 
     Raise exception to rollback transaction on error
     """
-    
+
     if logger is None:
         logger = logging.getLogger("tasks.rebuild_restws_cache")
 
     importer = FewsJDBCImporter(logger)
     importer.remove_all_caches()
 
-    if source_code != None:
-        webrs_sources = [WebRSSource.objects.get(code=source_code)]
+    if source_slug is not None:
+        webrs_sources = [WebRSSource.objects.get(slug=source_slug)]
     else:
         webrs_sources = list(WebRSSource.objects.all())
 
     for webrs_source in webrs_sources:
-        logger.info("Cache source {}".format(webrs_source.code))
+        logger.info("Cache source {}".format(webrs_source.name))
         ok = importer.cache_resources(webrs_source)
-        if ok == False:
+        if ok is False:
             raise Exception("Error on cache, rollback all changes, "
                             "for info check previous logging")
-    
+
 
 @task
 def rebuild_restws_cache_task(username=None, source_code=None,
-                       taskname=None, levelno=20):
+                              taskname=None, levelno=20):
     """
     Rebuild filter, location, parameter, timeseries cache for fewsjdbc.
 
     """
-    #handler = get_handler(username=username, taskname=taskname)
-    #logger = logging.getLogger('rebuild_restws_cache')
-    #logger.addHandler(handler)
-    #logger.setLevel(levelno)
-
     rebuild_restws_cache(None, source_code)

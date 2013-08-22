@@ -4,6 +4,7 @@ import iso8601
 import logging
 import time
 import pytz
+import requests
 
 # Older Ubuntus (our web servers right now) have an older pytz version.
 # New versions have the exception in pytz.exceptions, old versions in pytz
@@ -33,6 +34,7 @@ from lizard_fewsjdbc.utils import format_number
 
 JDBC_NONE = -999
 JDBC_DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
+RESTFULWS_DATE_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 FILTER_CACHE_KEY = 'lizard_fewsjdbc.models.filter_cache_key'
 PARAMETER_NAME_CACHE_KEY = 'lizard_fewsjdbc.models.parameter_name_cache_key'
 LOCATION_CACHE_KEY = 'lizard_fewsjdbc.layers.location_cache_key'
@@ -41,6 +43,89 @@ LOG_JDBC_QUERIES = getattr(settings, 'LOG_JDBC_QUERIES', False)
 
 
 logger = logging.getLogger(__name__)
+
+
+class WebRSSource(models.Model):
+    name = models.CharField(max_length=50)
+    slug = models.SlugField(help_text='Name web vjdbcsource configured '
+                            'in vjdbcsources.properties on webservice')
+    version = models.CharField(
+        max_length=10)
+    base_path = models.CharField(
+        max_length=250,
+        help_text="Example: http://p-fews-ai-00-d4.external-nens.local:"
+                  "8081/fewswebrs/api")
+
+    @property
+    def filters_path(self):
+        return '{}/filters'.format(self.source_path)
+
+    @property
+    def locations_path(self):
+        return '{}/locations'.format(self.source_path)
+
+    @property
+    def parameters_path(self):
+        return '{}/parameters'.format(self.source_path)
+
+    @property
+    def timeseries_path(self):
+        return '{}/timeseries'.format(self.source_path)
+
+    @property
+    def source_path(self):
+        return u'{0}/{1}/{2}'.format(self.base_path, self.version, self.slug)
+
+    def events_path(self, filterid, locationid, parameterid):
+        return '{0}/{1}:{2}:{3}/events'.format(self.timeseries_path,
+                                               filterid,
+                                               locationid,
+                                               parameterid)
+
+    def datetime_to_iso8601_string(self, dt):
+        """
+        Convert datetime to iso8601 string.
+        """
+        return dt.strftime(RESTFULWS_DATE_FORMAT)
+
+    def convert_result(self, json_result):
+        """
+        Convert result to suitable list of dict,
+        Create datetime from timestamp
+        Add UTC timezone
+        """
+        events = [{'detection': event['detection'],
+                   'time': datetime.datetime.fromtimestamp(int(event.get('timestamp')) / 1000.0,
+                                                           pytz.utc),
+                   'flag': event['flag'],
+                   'value': event['value']} for event in json_result]
+        return events
+
+    def get_timeseries(self, filterid, locationid, parameterid, startdate, enddate):
+        """
+        Rertrieve events from FEWS-JDBC using restful webservice.
+        TimeZone UTC.
+        For response expecting timestamp in millisecondes from 1-1-1970.
+        """
+        events_path = self.events_path(filterid, locationid, parameterid)
+        url_params = '?startdate={0}&enddate={1}'.format(
+            self.datetime_to_iso8601_string(startdate),
+            self.datetime_to_iso8601_string(enddate))
+        logger.debug("Retrieve events url {0}{1}.".format(
+                events_path, url_params))
+        logger.debug("START Request at {}.".format(datetime.datetime.today().isoformat()))
+        result = requests.get('{0}{1}'.format(events_path, url_params))
+        logger.debug("END Request at {}.".format(datetime.datetime.today().isoformat()))
+        if not result.ok:
+            logger.exception("Error on retrieving events: HTTP "
+                            "response status={}.".format(result.status_code))
+        logger.debug("START converting result at {}.".format(datetime.datetime.today().isoformat()))
+        events = self.convert_result(result.json)
+        logger.debug("END converting result at {}.".format(datetime.datetime.today().isoformat()))
+        return events
+
+    def __unicode__(self):
+        return self.name
 
 
 class FilterCache(models.Model):
@@ -53,6 +138,24 @@ class FilterCache(models.Model):
     parent_id = models.CharField(max_length=100, null=True, blank=True)
     parent_name = models.CharField(max_length=100, null=True, blank=True)
     is_end_node = models.BooleanField()
+    webrs_source = models.ForeignKey(WebRSSource, blank=True, null=True)
+
+    @property
+    def filter_url(self):
+        if self.webrs_source is None:
+            return 'url is not defined'
+        url = reverse('lizard_fewsjdbc.webrs_source',
+                      kwargs={'webrs_source_slug': self.webrs_source.slug})
+        url += '?filter_id=%s' % self.filterid
+        return url
+
+    @property
+    def filter_as_dict(self):
+        return {
+            'url': self.filter_url,
+            'parent_id': self.parent_id,
+            'id': self.filterid,
+            'name': self.name}
 
     def __unicode__(self):
         return self.filterid
@@ -69,6 +172,11 @@ class LocationCache(models.Model):
     lat = models.FloatField(null=True, blank=True)
     tooltiptext = models.TextField(null=True, blank=True)
     parent_id = models.CharField(max_length=100, null=True, blank=True)
+    webrs_source = models.ForeignKey(WebRSSource, blank=True, null=True)
+
+    @property
+    def location_as_list(self):
+        return [self.lng, self.lat, self.name, self.locationid]
 
     def __unicode__(self):
         return self.locationid
@@ -83,6 +191,7 @@ class ParameterCache(models.Model):
     unit = models.CharField(max_length=100, null=True, blank=True)
     parameter_type = models.CharField(max_length=100, null=True, blank=True)
     parameter_group = models.CharField(max_length=100, null=True, blank=True)
+    webrs_source = models.ForeignKey(WebRSSource, blank=True, null=True)
 
     def __unicode__(self):
         return self.parameterid
@@ -94,46 +203,13 @@ class TimeseriesCache(models.Model):
     t_filter = models.ForeignKey(FilterCache)
     t_location = models.ForeignKey(LocationCache)
     t_parameter = models.ForeignKey(ParameterCache)
+    webrs_source = models.ForeignKey(WebRSSource, blank=True, null=True)
 
     def __unicode__(self):
         return u'{0}:{1}:{2}'.format(
             self.t_filter.filterid,
             self.t_location.locationid,
             self.t_parameter.parameterid)
-
-
-class WebRSSource(models.Model):
-    code = models.CharField(primary_key=True, max_length=50)
-    name = models.CharField(
-        max_length=50,
-        help_text='Name web vjdbcsource configured '
-                  'in vjdbcsources.properties on webservice')
-    version = models.CharField(
-        max_length=10)
-    base_path = models.CharField(max_length=250, help_text="Example: http://localhost:8081/api/v1.0/hhnk")
-
-    @property
-    def filters_path(self):
-        return '{}/filters'.format(self.source_path)
-
-    @property
-    def locations_path(self):
-        return '{}/locations'.format(self.source_path)
-
-    @property
-    def parameters_path(self):
-        return '{}/parameters'.format(self.source_path)
-
-    @property
-    def timeseries_path(self):
-        return '{}/timeseries'.format(self.source_path) 
-
-    @property
-    def source_path(self):
-        return u'{0}/{1}/{2}'.format(self.base_path, self.version, self.name)
-
-    def __unicode__(self):
-        return self.source_path
 
 
 class FewsJdbcNotAvailableError(gaierror):
@@ -236,6 +312,8 @@ class JdbcSource(models.Model):
         data.
 
         """
+        test_q = q
+
         if '"' in q:
             logger.warn(
                 "You used double quotes in the query. "
@@ -295,7 +373,8 @@ class JdbcSource(models.Model):
 
         filter_source_cache_key = '%s::%s::%s' % (
             url_name, FILTER_CACHE_KEY, self.slug)
-        filter_tree = cache.get(filter_source_cache_key)
+        #filter_tree = cache.get(filter_source_cache_key)
+        filter_tree = None
         if filter_tree is None or ignore_cache:
             # Building up the fews filter tree.
             if self.usecustomfilter:
@@ -391,7 +470,6 @@ class JdbcSource(models.Model):
                 unique_parameters,
                 ['filter_name', 'parameterid', 'parameter', 'filter_id'])
             cache.set(parameter_cache_key, named_parameters, cache_timeout)
-
         return named_parameters
 
     def get_filter_name(self, filter_id):
@@ -479,8 +557,9 @@ class JdbcSource(models.Model):
              (filter_id, location_id, parameter_id,
               start_date.strftime(JDBC_DATE_FORMAT),
               end_date.strftime(JDBC_DATE_FORMAT)))
-
+        logger.debug("START Request at {}.".format(datetime.datetime.today().isoformat()))
         query_result = self.query(q)
+        logger.debug("END Request at {}.".format(datetime.datetime.today().isoformat()))
 
         result = named_list(
             query_result, ['time', 'value', 'flag', 'detection', 'comment'])
