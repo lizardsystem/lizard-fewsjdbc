@@ -166,7 +166,7 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         layers = []
         styles = {}
         layer = mapnik.Layer("FEWS JDBC points layer", coordinates.WGS84)
-        if mapnik.mapnik_version < 800:
+        if mapnik.mapnik_version() < 800:
             layer.datasource = mapnik.PointDatasource()
         else:
             layer.datasource = mapnik.MemoryDatasource()
