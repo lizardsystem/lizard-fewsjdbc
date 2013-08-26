@@ -645,7 +645,9 @@ class WebRS(FewsJdbc):
 
     @property
     def filter_name(self):
-        return FilterCache.objects.filter(pk=self.filterkey)
+        filter_obj = FilterCache.objects.get(pk=self.filterkey)
+        return filter_obj.name
+    
 
     def get_parametername_and_unit(self):
         parameter = ParameterCache.objects.get(pk=self.parameterkey)
@@ -704,4 +706,5 @@ class WebRS(FewsJdbc):
             )
             for t in timeseries
         ]
+        #import pdb; pdb.set_trace()
         return locations
