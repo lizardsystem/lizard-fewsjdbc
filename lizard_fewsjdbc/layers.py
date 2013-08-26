@@ -693,9 +693,7 @@ class WebRS(FewsJdbc):
                           't_filter__filterid': self.filterkey,
                           't_parameter__parameterid': self.parameterkey,
                           't_location__name__icontains': name}
-
         timeseries = TimeseriesCache.objects.filter(**search_options)
-
         locations = [
             (
                 {'location': t.t_location.locationid},
@@ -706,5 +704,4 @@ class WebRS(FewsJdbc):
             )
             for t in timeseries
         ]
-        #import pdb; pdb.set_trace()
         return locations
