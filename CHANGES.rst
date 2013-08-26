@@ -19,6 +19,8 @@ Changelog of lizard-fewsjdbc
 
 - Add filter_tree_root field to WebRSSource model.
 
+- Implement functionality to search locations.
+
 
 2.28 (2013-06-06)
 -----------------

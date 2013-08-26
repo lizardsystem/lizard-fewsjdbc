@@ -680,3 +680,28 @@ class WebRS(FewsJdbc):
                            'datetime': row['time'],
                            'unit': parameter.unit})
         return result
+
+    def location_list(self, name=''):
+        '''
+        Search locations by given name.
+        Case insensitive.
+        '''
+
+        search_options = {'webrs_source__slug': self.jdbc_source.slug,
+                          't_filter__filterid': self.filterkey,
+                          't_parameter__parameterid': self.parameterkey,
+                          't_location__name__icontains': name}
+
+        timeseries = TimeseriesCache.objects.filter(**search_options)
+
+        locations = [
+            (
+                {'location': t.t_location.locationid},
+                '{}, {}'.format(t.t_location.name, self.parameter_name),
+                '{} ({}, {})'.format(t.t_location.name,
+                                     self.parameter_name,
+                                     self.filter_name)
+            )
+            for t in timeseries
+        ]
+        return locations
