@@ -55,6 +55,11 @@ class WebRSSource(models.Model):
         max_length=250,
         help_text="Example: http://p-fews-ai-00-d4.external-nens.local:"
                   "8081/fewswebrs/api")
+    filter_tree_root = models.CharField(
+        max_length=80,
+        blank=True, null=True,
+        help_text=("Fill in the filter id to use as filter root. "
+                   "Only works if no usecustomfilter."))
 
     @property
     def filters_path(self):

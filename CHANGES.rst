@@ -13,7 +13,11 @@ Changelog of lizard-fewsjdbc
 
 - Add new adapter and views to show data from restful ws in graph.
 
-- Add new entrypoint to setup.py
+- Add new entrypoint to setup.py.
+
+- Implement export functionality for new adpter.
+
+- Add filter_tree_root field to WebRSSource model.
 
 
 2.28 (2013-06-06)

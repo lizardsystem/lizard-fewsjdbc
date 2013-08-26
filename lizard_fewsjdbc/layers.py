@@ -635,8 +635,7 @@ class WebRS(FewsJdbc):
 
         named_locations = named_list(
                 [l.location_as_list for l in locations],
-                ['longitude', 'latitude',
-                 'location', 'locationid'])
+                ['longitude', 'latitude', 'location', 'locationid'])
         return named_locations
 
     @property
@@ -666,3 +665,18 @@ class WebRS(FewsJdbc):
             layout_options=layout_options,
             template='lizard_fewsjdbc/popup.html',
             extra_render_kwargs=extra_kwargs)
+
+    def values(self, identifier, start_date, end_date):
+        timeseries = self.jdbc_source.get_timeseries(
+            self.filterkey, identifier['location'], self.parameterkey,
+            start_date, end_date)
+        # lizard-fewsjdbc returns "aware" datetime objects (UTC).
+        # now localize these according to this site's settings.
+        timeseries = astimezone(timeseries)
+        parameter = ParameterCache.objects.get(parameterid=self.parameterkey)
+        result = []
+        for row in timeseries:
+            result.append({'value': row['value'],
+                           'datetime': row['time'],
+                           'unit': parameter.unit})
+        return result

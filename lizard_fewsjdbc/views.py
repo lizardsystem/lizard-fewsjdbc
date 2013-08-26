@@ -62,7 +62,7 @@ class WebRSSourceView(AppView):
     def get(self, request, *args, **kwargs):
         self.webrs_source_slug = kwargs.get('webrs_source_slug', '')
         self.webrs_source = get_object_or_404(WebRSSource,
-                                             slug=self.webrs_source_slug)
+                                              slug=self.webrs_source_slug)
         self.filter_id = request.GET.get('filter_id', None)
         self.ignore_cache = request.GET.get('ignore_cache', False)
 
@@ -75,7 +75,8 @@ class WebRSSourceView(AppView):
             filters = FilterCache.objects.filter(
                 webrs_source=self.webrs_source)
             rows = [f.filter_as_dict for f in filters]
-            return tree_from_list(rows)
+            return tree_from_list(
+                rows, root_parent=self.webrs_source.filter_tree_root)
 
     @property
     def _selected_filter(self):
