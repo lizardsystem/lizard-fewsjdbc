@@ -21,6 +21,8 @@ Changelog of lizard-fewsjdbc
 
 - Implement functionality to search locations.
 
+- Add IconStyleWebRS model for restful web service
+
 
 2.28 (2013-06-06)
 -----------------

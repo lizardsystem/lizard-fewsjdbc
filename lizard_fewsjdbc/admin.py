@@ -1,6 +1,7 @@
 from django.contrib import admin
 from lizard_fewsjdbc.models import (
     IconStyle,
+    IconStyleWebRS,
     JdbcSource,
     Threshold,
     WebRSSource,
@@ -24,6 +25,15 @@ class IconStyleAdmin(admin.ModelAdmin):
         'fews_parameter', 'icon', 'color')
 
 
+class IconStyleWebRSAdmin(admin.ModelAdmin):
+    list_display = (
+        '__unicode__', 'jdbc_source', 'fews_filter', 'fews_location',
+        'fews_parameter', 'icon', 'color')
+    list_filter = (
+        'jdbc_source', 'fews_filter', 'fews_location',
+        'fews_parameter', 'icon', 'color')
+
+
 class ThresholdAdmin(admin.ModelAdmin):
     list_display = ('name', 'filter_id', 'parameter_id', 'location_id',
         'value')
@@ -35,6 +45,7 @@ class WebRSSourceAdmin(admin.ModelAdmin):
 
 admin.site.register(JdbcSource, JdbcSourceAdmin)
 admin.site.register(IconStyle, IconStyleAdmin)
+admin.site.register(IconStyleWebRS, IconStyleWebRSAdmin)
 admin.site.register(Threshold, ThresholdAdmin)
 admin.site.register(WebRSSource, WebRSSourceAdmin)
 admin.site.register(FilterCache)

@@ -20,7 +20,9 @@ from lizard_map.models import Setting
 from lizard_map.symbol_manager import SymbolManager
 
 from lizard_fewsjdbc.dtu import astimezone
-from lizard_fewsjdbc.models import IconStyle, Threshold
+from lizard_fewsjdbc.models import (
+    IconStyle, Threshold, IconStyleWebRS
+)
 from lizard_fewsjdbc.models import (
     JdbcSource,
     WebRSSource,
@@ -67,15 +69,12 @@ def fews_symbol_name(jdbc_source, filterkey, locationkey, parameterkey,
     Copied from lizard_fewsunblobbed.
     """
 
-    # determine icon layout by looking at filter.id
-    # style_name = 'adf'
-    # if str(filterkey) in LAYER_STYLES:
-    #     icon_style = copy.deepcopy(LAYER_STYLES[str(filterkey)])
-    # else:
-    #     icon_style = copy.deepcopy(LAYER_STYLES['default'])
-
-    style_name, icon_style = IconStyle.style(
-        jdbc_source, filterkey, locationkey, parameterkey, styles, lookup)
+    if isinstance(jdbc_source, JdbcSource):
+        style_name, icon_style = IconStyle.style(
+            jdbc_source, filterkey, locationkey, parameterkey, styles, lookup)
+    else:
+       style_name, icon_style = IconStyleWebRS.style(
+            jdbc_source, filterkey, locationkey, parameterkey, styles, lookup) 
 
     #make icon grey
     if nodata:
@@ -177,7 +176,10 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
             logger.exception('Problem querying locations from jdbc2ei.')
             return [], {}
 
-        fews_styles, fews_style_lookup = IconStyle._styles_lookup()
+        if isinstance(self.jdbc_source, JdbcSource):
+            fews_styles, fews_style_lookup = IconStyle._styles_lookup()
+        else:
+            fews_styles, fews_style_lookup = IconStyleWebRS._styles_lookup()
 
         logger.debug("Number of point objects: %d" % len(named_locations))
         for i, named_location in enumerate(named_locations):
