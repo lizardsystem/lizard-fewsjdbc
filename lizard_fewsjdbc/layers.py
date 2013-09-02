@@ -29,7 +29,8 @@ from lizard_fewsjdbc.models import (
     LocationCache,
     TimeseriesCache,
     ParameterCache,
-    FilterCache
+    FilterCache,
+    FilterRootWebRSSource
 )
 from lizard_fewsjdbc.models import FewsJdbcQueryError
 
@@ -619,8 +620,9 @@ class WebRS(FewsJdbc):
         self.filterkey = self.layer_arguments['filter']
         self.parameterkey = self.layer_arguments['parameter']
         try:
-            self.jdbc_source = WebRSSource.objects.get(
+            filter_root = FilterRootWebRSSource.objects.get(
                 slug=self.jdbc_source_slug)
+            self.jdbc_source = filter_root.webrs_source
         except WebRSSource.DoesNotExist:
             raise WorkspaceItemError(
                 "WebRS source %s doesn't exist." % self.jdbc_source_slug)
@@ -691,7 +693,7 @@ class WebRS(FewsJdbc):
         Case insensitive.
         '''
 
-        search_options = {'webrs_source__slug': self.jdbc_source.slug,
+        search_options = {'webrs_source__source_code': self.jdbc_source.source_code,
                           't_filter__filterid': self.filterkey,
                           't_parameter__parameterid': self.parameterkey,
                           't_location__name__icontains': name}

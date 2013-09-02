@@ -23,6 +23,8 @@ Changelog of lizard-fewsjdbc
 
 - Add IconStyleWebRS model for restful web service
 
+- Create FilterRootWebRSSource model.
+
 
 2.28 (2013-06-06)
 -----------------

@@ -8,7 +8,8 @@ from lizard_fewsjdbc.models import (
     FilterCache,
     LocationCache,
     ParameterCache,
-    TimeseriesCache
+    TimeseriesCache,
+    FilterRootWebRSSource
 )
 
 
@@ -40,7 +41,11 @@ class ThresholdAdmin(admin.ModelAdmin):
 
 
 class WebRSSourceAdmin(admin.ModelAdmin):
-    list_display = ('name', 'slug', 'version', 'base_path')
+    list_display = ('source_code', 'version', 'base_path')
+
+
+class FilterRootWebRSSourceAdmin(admin.ModelAdmin):
+    list_display = ('name', 'slug', 'filter_tree_root', 'webrs_source')
 
 
 admin.site.register(JdbcSource, JdbcSourceAdmin)
@@ -48,6 +53,7 @@ admin.site.register(IconStyle, IconStyleAdmin)
 admin.site.register(IconStyleWebRS, IconStyleWebRSAdmin)
 admin.site.register(Threshold, ThresholdAdmin)
 admin.site.register(WebRSSource, WebRSSourceAdmin)
+admin.site.register(FilterRootWebRSSource, FilterRootWebRSSourceAdmin)
 admin.site.register(FilterCache)
 admin.site.register(LocationCache)
 admin.site.register(ParameterCache)

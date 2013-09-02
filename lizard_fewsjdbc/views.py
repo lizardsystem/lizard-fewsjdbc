@@ -24,10 +24,10 @@ from lizard_fewsjdbc.forms import ThresholdUpdateForm, ThresholdCreateForm
 from lizard_fewsjdbc.models import (
     JdbcSource,
     Threshold,
-    WebRSSource,
     FilterCache,
     ParameterCache,
-    TimeseriesCache
+    TimeseriesCache,
+    FilterRootWebRSSource
 )
 from lizard_fewsjdbc.utils import format_number
 
@@ -49,20 +49,20 @@ class HomepageViewWebRS(AppView):
     template_name = 'lizard_fewsjdbc/homepage_webrs.html'
 
     def webrs_sources(self):
-        return WebRSSource.objects.all()
+        return FilterRootWebRSSource.objects.all()
 
 
 class WebRSSourceView(AppView):
 
     template_name = "lizard_fewsjdbc/webrs_source.html"
-    #filter_url_name = "lizard_fewsjdbc.webrs_source"
     adapter_class = "adapter_webrs"
     edit_link = "/admin/lizard_fewsjdbc/"
 
     def get(self, request, *args, **kwargs):
         self.webrs_source_slug = kwargs.get('webrs_source_slug', '')
-        self.webrs_source = get_object_or_404(WebRSSource,
-                                              slug=self.webrs_source_slug)
+        self.filter_root = get_object_or_404(FilterRootWebRSSource,
+                                             slug=self.webrs_source_slug)
+        self.webrs_source = self.filter_root.webrs_source
         self.filter_id = request.GET.get('filter_id', None)
         self.ignore_cache = request.GET.get('ignore_cache', False)
 
@@ -74,9 +74,13 @@ class WebRSSourceView(AppView):
         if self.filter_id is None:
             filters = FilterCache.objects.filter(
                 webrs_source=self.webrs_source)
-            rows = [f.filter_as_dict for f in filters]
-            return tree_from_list(
-                rows, root_parent=self.webrs_source.filter_tree_root)
+            rows = [f.get_filter_as_dict(self.webrs_source_slug)
+                    for f in filters]
+            root_parent = self.filter_root.filter_tree_root
+            if root_parent == '':
+                root_parent = None
+
+            return tree_from_list(rows, root_parent=root_parent)
 
     @property
     def _selected_filter(self):

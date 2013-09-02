@@ -24,7 +24,7 @@ class FewsJDBCImporter(object):
 
     def cache_resources(self, webrs_source):
         self.logger.debug(
-            "Cache source {0}: {1}.".format(webrs_source.name,
+            "Cache source {0}: {1}.".format(webrs_source.source_code,
                                             webrs_source.source_path))
         f_cached = self.cache_filters(webrs_source)
         l_cached = self.cache_locations(webrs_source)

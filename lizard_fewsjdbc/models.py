@@ -46,20 +46,17 @@ logger = logging.getLogger(__name__)
 
 
 class WebRSSource(models.Model):
-    name = models.CharField(max_length=50)
-    slug = models.SlugField(help_text='Name web vjdbcsource configured '
-                            'in vjdbcsources.properties on webservice')
+    source_code = models.CharField(
+        unique=True,
+        max_length=50,
+        help_text='Name web vjdbcsource configured '
+                  'in vjdbcsources.properties on webservice')
     version = models.CharField(
         max_length=10)
     base_path = models.CharField(
         max_length=250,
         help_text="Example: http://p-fews-ai-00-d4.external-nens.local:"
                   "8081/fewswebrs/api")
-    filter_tree_root = models.CharField(
-        max_length=80,
-        blank=True, null=True,
-        help_text=("Fill in the filter id to use as filter root. "
-                   "Only works if no usecustomfilter."))
 
     @property
     def filters_path(self):
@@ -79,7 +76,7 @@ class WebRSSource(models.Model):
 
     @property
     def source_path(self):
-        return u'{0}/{1}/{2}'.format(self.base_path, self.version, self.slug)
+        return u'{0}/{1}/{2}'.format(self.base_path, self.version, self.source_code)
 
     def events_path(self, filterid, locationid, parameterid):
         return '{0}/{1}:{2}:{3}/events'.format(self.timeseries_path,
@@ -123,11 +120,32 @@ class WebRSSource(models.Model):
         logger.debug("END Request at {}.".format(datetime.datetime.today().isoformat()))
         if not result.ok:
             logger.exception("Error on retrieving events: HTTP "
-                            "response status={}.".format(result.status_code))
+                             "response status={}.".format(result.status_code))
         logger.debug("START converting result at {}.".format(datetime.datetime.today().isoformat()))
         events = self.convert_result(result.json)
         logger.debug("END converting result at {}.".format(datetime.datetime.today().isoformat()))
         return events
+
+    def get_source_as_dict(self):
+        return {
+            'source_code': self.source_code,
+            'version': self.version,
+            'base_path': self.base_path
+        }
+
+    def __unicode__(self):
+        return self.source_code
+
+
+class FilterRootWebRSSource(models.Model):
+    name = models.CharField(max_length=50,
+                            help_text='Used as icon label')
+    webrs_source = models.ForeignKey(WebRSSource)
+    slug = models.SlugField(unique=True)
+    filter_tree_root = models.CharField(
+        max_length=80,
+        blank=True, null=True,
+        help_text=("Fill in the filter id to use as filter root. "))
 
     def __unicode__(self):
         return self.name
@@ -145,19 +163,16 @@ class FilterCache(models.Model):
     is_end_node = models.BooleanField()
     webrs_source = models.ForeignKey(WebRSSource, blank=True, null=True)
 
-    @property
-    def filter_url(self):
-        if self.webrs_source is None:
-            return 'url is not defined'
+    def get_filter_url(self, slug):
+        filter_root = FilterRootWebRSSource.objects.get(slug=slug)
         url = reverse('lizard_fewsjdbc.webrs_source',
-                      kwargs={'webrs_source_slug': self.webrs_source.slug})
+                      kwargs={'webrs_source_slug': filter_root.slug})
         url += '?filter_id=%s' % self.filterid
         return url
 
-    @property
-    def filter_as_dict(self):
+    def get_filter_as_dict(self, slug):
         return {
-            'url': self.filter_url,
+            'url': self.get_filter_url(slug),
             'parent_id': self.parent_id,
             'id': self.filterid,
             'name': self.name}

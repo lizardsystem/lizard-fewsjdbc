@@ -145,7 +145,7 @@ def rebuild_restws_cache(logger, source_slug=None):
         webrs_sources = list(WebRSSource.objects.all())
 
     for webrs_source in webrs_sources:
-        logger.info("Cache source {}".format(webrs_source.name))
+        logger.info("Cache source {}".format(webrs_source.source_code))
         ok = importer.cache_resources(webrs_source)
         if ok is False:
             raise Exception("Error on cache, rollback all changes, "
