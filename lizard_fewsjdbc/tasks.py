@@ -126,7 +126,7 @@ def rebuild_jdbc_cache(logger, *args, **options):
 
 
 @transaction.commit_on_success
-def rebuild_restws_cache(logger, source_slug=None):
+def rebuild_restws_cache(logger, source_code=None):
     """
     Rebuild fews caches: (filters, locations, parameters, timeseries)
 
@@ -139,8 +139,8 @@ def rebuild_restws_cache(logger, source_slug=None):
     importer = FewsJDBCImporter(logger)
     importer.remove_all_caches()
 
-    if source_slug is not None:
-        webrs_sources = [WebRSSource.objects.get(slug=source_slug)]
+    if source_code is not None:
+        webrs_sources = [WebRSSource.objects.get(source_code=source_code)]
     else:
         webrs_sources = list(WebRSSource.objects.all())
 
