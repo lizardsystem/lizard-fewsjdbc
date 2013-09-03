@@ -149,7 +149,7 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
             self.jdbc_source = JdbcSource.objects.get(
                 slug=self.jdbc_source_slug)
         except JdbcSource.DoesNotExist:
-            raise WorkspaceItemError(
+            logger.warn(
                 "Jdbc source %s doesn't exist." % self.jdbc_source_slug)
 
     @property
@@ -616,6 +616,7 @@ class WebRS(FewsJdbc):
     def __init__(self, *args, **kwargs):
         super(WebRS, self).__init__(
             *args, **kwargs)
+        
         self.jdbc_source_slug = self.layer_arguments['slug']
         self.filterkey = self.layer_arguments['filter']
         self.parameterkey = self.layer_arguments['parameter']
@@ -624,7 +625,7 @@ class WebRS(FewsJdbc):
                 slug=self.jdbc_source_slug)
             self.jdbc_source = filter_root.webrs_source
         except WebRSSource.DoesNotExist:
-            raise WorkspaceItemError(
+            logger.warn(
                 "WebRS source %s doesn't exist." % self.jdbc_source_slug)
 
     def _locations(self):
@@ -633,6 +634,7 @@ class WebRS(FewsJdbc):
         options = {
             't_filter': self.filterkey, 't_parameter': self.parameterkey
         }
+        
         timeseries = TimeseriesCache.objects.filter(**options)
         locations = LocationCache.objects.filter(
             locationid__in=timeseries.values_list('t_location'))

@@ -25,6 +25,8 @@ Changelog of lizard-fewsjdbc
 
 - Create FilterRootWebRSSource model.
 
+- Replace raise WorkspaceItemError with logger.warn by __init__ of WebRS and FewsJdbc. 
+
 
 2.28 (2013-06-06)
 -----------------
