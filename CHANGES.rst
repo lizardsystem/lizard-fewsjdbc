@@ -27,6 +27,8 @@ Changelog of lizard-fewsjdbc
 
 - Replace raise WorkspaceItemError with logger.warn by __init__ of WebRS and FewsJdbc. 
 
+- Update requests to 1.2.3
+
 
 2.28 (2013-06-06)
 -----------------

@@ -93,21 +93,21 @@ class WebRSSource(models.Model):
     def convert_result(self, json_result):
         """
         Convert result to suitable list of dict,
-        Create datetime from timestamp
-        Add UTC timezone
+        Create datetime string.
+        Expect a datetime string of iso8601 format in UTC.
         """
+        
         events = [{'detection': event['detection'],
-                   'time': datetime.datetime.fromtimestamp(int(event.get('timestamp')) / 1000.0,
-                                                           pytz.utc),
+                   'time': iso8601.parse_date(event['datetime']),
                    'flag': event['flag'],
                    'value': event['value']} for event in json_result]
+        
+        #events = [5 for x in json_result]
         return events
 
     def get_timeseries(self, filterid, locationid, parameterid, startdate, enddate):
         """
         Rertrieve events from FEWS-JDBC using restful webservice.
-        TimeZone UTC.
-        For response expecting timestamp in millisecondes from 1-1-1970.
         """
         events_path = self.events_path(filterid, locationid, parameterid)
         url_params = '?startdate={0}&enddate={1}'.format(
@@ -122,7 +122,7 @@ class WebRSSource(models.Model):
             logger.exception("Error on retrieving events: HTTP "
                              "response status={}.".format(result.status_code))
         logger.debug("START converting result at {}.".format(datetime.datetime.today().isoformat()))
-        events = self.convert_result(result.json)
+        events = self.convert_result(result.json())
         logger.debug("END converting result at {}.".format(datetime.datetime.today().isoformat()))
         return events
 

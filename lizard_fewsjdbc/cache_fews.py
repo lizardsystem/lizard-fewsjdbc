@@ -43,13 +43,13 @@ class FewsJDBCImporter(object):
             self.logger.error("Error on retrieving filters: HTTP "
                               "response {}.".format(result.status_code))
             return False
-        for fltr in result.json:
+        for fltr in result.json():
             models.FilterCache(
                 filterid=fltr.get('id'),
                 name=fltr.get('name'),
                 parent_id=fltr.get('parent_id'),
                 webrs_source=webrs_source).save()
-        self.logger.info("{} filters cached.".format(len(result.json)))
+        self.logger.info("{} filters cached.".format(len(result.json())))
         return True
 
     def cache_locations(self, webrs_source):
@@ -60,7 +60,7 @@ class FewsJDBCImporter(object):
             self.logger.error("Error on retrieving locations: HTTP "
                               "response {}.".format(result.status_code))
             return False
-        for location in result.json:
+        for location in result.json():
             models.LocationCache(
                 locationid=location.get('id'),
                 name=location.get('name'),
@@ -68,7 +68,7 @@ class FewsJDBCImporter(object):
                 lng=location.get('lng'),
                 lat=location.get('lat'),
                 webrs_source=webrs_source).save()
-        self.logger.info("{} locations cached.".format(len(result.json)))
+        self.logger.info("{} locations cached.".format(len(result.json())))
         return True
 
     def cache_parameters(self, webrs_source):
@@ -79,7 +79,7 @@ class FewsJDBCImporter(object):
             self.logger.error("Error on retrieving parameters: HTTP "
                               "response {}.".format(result.status_code))
             return False
-        for parameter in result.json:
+        for parameter in result.json():
             models.ParameterCache(
                 parameterid=parameter.get('id'),
                 name=parameter.get('name'),
@@ -88,7 +88,7 @@ class FewsJDBCImporter(object):
                 parameter_type=parameter.get('parameter_type'),
                 parameter_group=parameter.get('parameter_group'),
                 webrs_source=webrs_source).save()
-        self.logger.info("{} parameters cached.".format(len(result.json)))
+        self.logger.info("{} parameters cached.".format(len(result.json())))
         return True
 
     def cache_timeseries(self, webrs_source):
@@ -99,7 +99,7 @@ class FewsJDBCImporter(object):
             self.logger.error("Error on retrieving timeseries: HTTP "
                               "response {}.".format(result.status_code))
             return False
-        for timeseries in result.json:
+        for timeseries in result.json():
             filterid = timeseries.get('filter').get('id')
             locationid = timeseries.get('location').get('id')
             parameterid = timeseries.get('parameter').get('id')
@@ -110,5 +110,5 @@ class FewsJDBCImporter(object):
                 t_parameter=models.ParameterCache.objects.get(
                     pk=parameterid),
                 webrs_source=webrs_source).save()
-        self.logger.info("{} timeseries cached.".format(len(result.json)))
+        self.logger.info("{} timeseries cached.".format(len(result.json())))
         return True
