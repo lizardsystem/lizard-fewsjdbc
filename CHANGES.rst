@@ -5,7 +5,8 @@ Changelog of lizard-fewsjdbc
 2.30 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Remove/disable test_bails_ou test.
+- Change database setting in testsettings.py.
 
 
 2.29 (2013-09-09)

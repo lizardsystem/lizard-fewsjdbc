@@ -10,18 +10,18 @@ LOG_JDBC_QUERIES = True
 TEMPLATE_DEBUG = True
 
 DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': 'test.db',
-    #    }
     'default': {
-        'NAME': 'lizard-fewsjdbc',
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'USER': 'buildout',
-        'PASSWORD': 'buildout',
-        'HOST': '127.0.0.1',  # empty string for localhost.
-        'PORT': '',  # empty string for default.
-        }
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'test.db',
+       }
+    # 'default': {
+    #     'NAME': 'lizard-fewsjdbc',
+    #     'ENGINE': 'django.contrib.gis.db.backends.postgis',
+    #     'USER': 'buildout',
+    #     'PASSWORD': 'buildout',
+    #     'HOST': '127.0.0.1',  # empty string for localhost.
+    #     'PORT': '',  # empty string for default.
+    #     }
 }
 
 SITE_ID = 1
