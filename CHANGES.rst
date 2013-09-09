@@ -2,7 +2,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-2.29 (unreleased)
+2.29 (2013-09-09)
 -----------------
 
 - Create tables to caching filters, locations, parameters, timeseries of FEWS.
