@@ -7,17 +7,17 @@ Changelog of lizard-fewsjdbc
 
 - Create tables to caching filters, locations, parameters, timeseries of FEWS.
 
+- Add model tests.
+
 - Add task to remove old caches and retrieve new fews-data.
 
-- Add new datasource for restful web service.
+- Add new datasource model for restful web service.
 
 - Add new adapter and views to show data from restful ws in graph.
 
 - Add new entrypoint to setup.py.
 
 - Implement export functionality for new adpter.
-
-- Add filter_tree_root field to WebRSSource model.
 
 - Implement functionality to search locations.
 
