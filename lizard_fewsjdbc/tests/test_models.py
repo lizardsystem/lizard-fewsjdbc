@@ -80,6 +80,4 @@ class TestTimeseriesCache(TestCase):
         timeseries_cache = TimeseriesCacheF.build()
         uni = timeseries_cache.__unicode__()
         self.assertTrue(uni)
-        print uni + "============"
-        print type(uni)
         self.assertTrue(isinstance(uni, unicode))

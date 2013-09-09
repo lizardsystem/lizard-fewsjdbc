@@ -46,6 +46,10 @@ logger = logging.getLogger(__name__)
 
 
 class WebRSSource(models.Model):
+    """
+    The source to retrieve filters, parameters, locations
+    timeseries from FEWS using fewswebrs restful service.
+    """
     source_code = models.CharField(
         unique=True,
         max_length=50,
