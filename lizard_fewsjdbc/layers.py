@@ -12,6 +12,7 @@ from django.core.cache import cache
 from lizard_map import coordinates
 from lizard_map import workspace
 from lizard_map.adapter import Graph, FlotGraph
+from lizard_map.operations import named_list
 from lizard_map.mapnik_helper import add_datasource_point
 from lizard_map.models import ICON_ORIGINALS
 from lizard_map.models import WorkspaceItemError
@@ -19,8 +20,18 @@ from lizard_map.models import Setting
 from lizard_map.symbol_manager import SymbolManager
 
 from lizard_fewsjdbc.dtu import astimezone
-from lizard_fewsjdbc.models import IconStyle, Threshold
-from lizard_fewsjdbc.models import JdbcSource
+from lizard_fewsjdbc.models import (
+    IconStyle, Threshold, IconStyleWebRS
+)
+from lizard_fewsjdbc.models import (
+    JdbcSource,
+    WebRSSource,
+    LocationCache,
+    TimeseriesCache,
+    ParameterCache,
+    FilterCache,
+    FilterRootWebRSSource
+)
 from lizard_fewsjdbc.models import FewsJdbcQueryError
 
 logger = logging.getLogger('lizard_fewsunblobbed.layers')
@@ -59,15 +70,12 @@ def fews_symbol_name(jdbc_source, filterkey, locationkey, parameterkey,
     Copied from lizard_fewsunblobbed.
     """
 
-    # determine icon layout by looking at filter.id
-    # style_name = 'adf'
-    # if str(filterkey) in LAYER_STYLES:
-    #     icon_style = copy.deepcopy(LAYER_STYLES[str(filterkey)])
-    # else:
-    #     icon_style = copy.deepcopy(LAYER_STYLES['default'])
-
-    style_name, icon_style = IconStyle.style(
-        jdbc_source, filterkey, locationkey, parameterkey, styles, lookup)
+    if isinstance(jdbc_source, JdbcSource):
+        style_name, icon_style = IconStyle.style(
+            jdbc_source, filterkey, locationkey, parameterkey, styles, lookup)
+    else:
+       style_name, icon_style = IconStyleWebRS.style(
+            jdbc_source, filterkey, locationkey, parameterkey, styles, lookup) 
 
     #make icon grey
     if nodata:
@@ -96,8 +104,12 @@ def fews_point_style(jdbc_source, filterkey, locationkey, parameterkey,
         settings.MEDIA_ROOT, 'generated_icons', output_filename)
 
     # use filename in mapnik pointsymbolizer
-    point_looks = mapnik.PointSymbolizer(
-        str(output_filename_abs), 'png', 16, 16)
+    if mapnik.mapnik_version() < 800:
+        point_looks = mapnik.PointSymbolizer(
+            str(output_filename_abs), 'png', 16, 16)
+    else:
+        point_looks = mapnik.PointSymbolizer(
+            mapnik.PathExpression(str(output_filename_abs)))
     point_looks.allow_overlap = True
     layout_rule = mapnik.Rule()
     layout_rule.symbols.append(point_looks)
@@ -137,7 +149,7 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
             self.jdbc_source = JdbcSource.objects.get(
                 slug=self.jdbc_source_slug)
         except JdbcSource.DoesNotExist:
-            raise WorkspaceItemError(
+            logger.warn(
                 "Jdbc source %s doesn't exist." % self.jdbc_source_slug)
 
     @property
@@ -154,8 +166,10 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         layers = []
         styles = {}
         layer = mapnik.Layer("FEWS JDBC points layer", coordinates.WGS84)
-
-        layer.datasource = mapnik.PointDatasource()
+        if mapnik.mapnik_version() < 800:
+            layer.datasource = mapnik.PointDatasource()
+        else:
+            layer.datasource = mapnik.MemoryDatasource()
 
         try:
             named_locations = self._locations()
@@ -163,10 +177,13 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
             logger.exception('Problem querying locations from jdbc2ei.')
             return [], {}
 
-        fews_styles, fews_style_lookup = IconStyle._styles_lookup()
+        if isinstance(self.jdbc_source, JdbcSource):
+            fews_styles, fews_style_lookup = IconStyle._styles_lookup()
+        else:
+            fews_styles, fews_style_lookup = IconStyleWebRS._styles_lookup()
 
         logger.debug("Number of point objects: %d" % len(named_locations))
-        for named_location in named_locations:
+        for i, named_location in enumerate(named_locations):
             #logger.debug('layer coordinates %s %s %s' % (
             #        named_location['locationid'],
             #        named_location['longitude'],
@@ -182,9 +199,15 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
                 lookup=fews_style_lookup)
 
             # Put style in point, filters work on these styles.
-            add_datasource_point(
-                layer.datasource, named_location['longitude'],
-                named_location['latitude'], 'style', str(point_style_name))
+            if mapnik.mapnik_version() < 800:
+                add_datasource_point(
+                    layer.datasource, named_location['longitude'],
+                    named_location['latitude'], 'style', str(point_style_name))
+            else:
+                add_datasource_point(
+                    layer.datasource, named_location['longitude'],
+                    named_location['latitude'], 'style',
+                    str(point_style_name), i)
 
             # generate "unique" point style name and append to layer
             # if the same style occurs multiple times, it will overwrite old.
@@ -213,7 +236,6 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
             west = None
             named_locations = self._locations()
             wgs0coord_x, wgs0coord_y = coordinates.rd_to_wgs84(0.0, 0.0)
-
             for named_location in named_locations:
                 x = named_location['longitude']
                 y = named_location['latitude']
@@ -248,7 +270,7 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         return result
 
     def _location_plus_parameter(self, location_name):
-        return u'{}, {}'.format(location_name, self.parameter_name)
+        return u'{0}, {1}'.format(location_name, self.parameter_name)
 
     def search(self, google_x, google_y, radius=None):
         """Return list of dict {'distance': <float>, 'timeserie':
@@ -268,16 +290,21 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
             dist = distance(google_x, google_y, x, y)
             if dist < radius:
                 result.append(
-                    {'distance': dist,
-                     'name': self._location_plus_parameter(
+                    {
+                        'distance': dist,
+                        'name': self._location_plus_parameter(
                             named_location['location']),
-                     'shortname': named_location['location'],
-                     'workspace_item': self.workspace_item,
-                     'identifier': {'location': named_location['locationid']},
-                     'google_coords': (x, y),
-                     'object': None})
+                        'shortname': named_location['location'],
+                        'workspace_item': self.workspace_item,
+                        'identifier': {
+                            'location': named_location['locationid']
+                        },
+                        'google_coords': (x, y),
+                        'object': None
+                    })
         result.sort(key=lambda item: item['distance'])
-        max_results = int(Setting.get('fewsjdbc_search_max_results', 3)) # Default max 3.
+        # Default max 3.
+        max_results = int(Setting.get('fewsjdbc_search_max_results', 3))
         return result[:max_results]
 
     def value_aggregate(self, identifier, aggregate_functions,
@@ -351,6 +378,10 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
             GraphClass=Graph
         )
 
+    def get_parametername_and_unit(self):
+        return self.jdbc_source.get_name_and_unit(
+            self.parameterkey)
+
     def _render_graph(
         self,
         identifiers,
@@ -370,6 +401,9 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         FlotGraph.
 
         """
+        logger.debug("JDBC_SOURCE: {}".format(type(self.jdbc_source)))
+        logger.debug("START BUILDING GRAPH at {}.".format(
+                datetime.datetime.today().isoformat()))
         line_styles = self.line_styles(identifiers)
         named_locations = self._locations()
         today = datetime.datetime.now()
@@ -377,8 +411,7 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
                            tz=pytz.timezone(settings.TIME_ZONE),
                            **extra_params)
         graph.axes.grid(True)
-        parameter_name, unit = self.jdbc_source.get_name_and_unit(
-            self.parameterkey)
+        parameter_name, unit = self.get_parametername_and_unit()
         graph.axes.set_ylabel(unit)
 
         # Draw extra's (from fewsunblobbed)
@@ -386,6 +419,7 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         y_min, y_max = None, None
 
         is_empty = True
+
         for identifier in identifiers:
             filter_id = self.filterkey
             location_id = identifier['location']
@@ -466,6 +500,8 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
                     label=horizontal_line['name'])
 
         graph.add_today()
+        logger.debug("END BUILDING GRAPH at {}.".format(
+                datetime.datetime.today().isoformat()))
         return graph.render()
 
     def symbol_url(self, identifier=None, start_date=None, end_date=None):
@@ -568,5 +604,110 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
                 '{} ({}, {})'.format(location[1], parameter_name, filter_name)
             )
             for location in locations
+        ]
+        return locations
+
+
+class WebRS(FewsJdbc):
+    """
+    Registered as adapter_webrs.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super(WebRS, self).__init__(
+            *args, **kwargs)
+        
+        self.jdbc_source_slug = self.layer_arguments['slug']
+        self.filterkey = self.layer_arguments['filter']
+        self.parameterkey = self.layer_arguments['parameter']
+        try:
+            filter_root = FilterRootWebRSSource.objects.get(
+                slug=self.jdbc_source_slug)
+            self.jdbc_source = filter_root.webrs_source
+        except WebRSSource.DoesNotExist:
+            logger.warn(
+                "WebRS source %s doesn't exist." % self.jdbc_source_slug)
+
+    def _locations(self):
+        #return self.jdbc_source.get_locations(self.filterkey,
+        #                                      self.parameterkey)
+        options = {
+            't_filter': self.filterkey, 't_parameter': self.parameterkey
+        }
+        
+        timeseries = TimeseriesCache.objects.filter(**options)
+        locations = LocationCache.objects.filter(
+            locationid__in=timeseries.values_list('t_location'))
+
+        named_locations = named_list(
+                [l.location_as_list for l in locations],
+                ['longitude', 'latitude', 'location', 'locationid'])
+        return named_locations
+
+    @property
+    def parameter_name(self):
+        parameter = ParameterCache.objects.get(pk=self.parameterkey)
+        return parameter.name
+
+    @property
+    def filter_name(self):
+        filter_obj = FilterCache.objects.get(pk=self.filterkey)
+        return filter_obj.name
+    
+
+    def get_parametername_and_unit(self):
+        parameter = ParameterCache.objects.get(pk=self.parameterkey)
+        return (parameter.name, parameter.unit)
+
+    def html(self, snippet_group=None, identifiers=None, layout_options=None):
+        """Overridden so we can put a description of parameter and
+        filter in the popup title."""
+        extra_kwargs = {
+            'parameter': self.parameter_name,
+            'filter': self.filter_name
+        }
+
+        return super(FewsJdbc, self).html_default(
+            snippet_group=snippet_group,
+            identifiers=identifiers,
+            layout_options=layout_options,
+            template='lizard_fewsjdbc/popup.html',
+            extra_render_kwargs=extra_kwargs)
+
+    def values(self, identifier, start_date, end_date):
+        timeseries = self.jdbc_source.get_timeseries(
+            self.filterkey, identifier['location'], self.parameterkey,
+            start_date, end_date)
+        # lizard-fewsjdbc returns "aware" datetime objects (UTC).
+        # now localize these according to this site's settings.
+        timeseries = astimezone(timeseries)
+        parameter = ParameterCache.objects.get(parameterid=self.parameterkey)
+        result = []
+        for row in timeseries:
+            result.append({'value': row['value'],
+                           'datetime': row['time'],
+                           'unit': parameter.unit})
+        return result
+
+    def location_list(self, name=''):
+        '''
+        Search locations by given name.
+        Case insensitive.
+        '''
+
+        search_options = {'webrs_source__source_code': self.jdbc_source.source_code,
+                          't_filter__filterid': self.filterkey,
+                          't_parameter__parameterid': self.parameterkey,
+                          't_location__name__icontains': name}
+        timeseries = TimeseriesCache.objects.filter(**search_options)
+        locations = [
+            (
+                {'location': t.t_location.locationid},
+                '{}, {}'.format(t.t_location.name, self.parameter_name),
+                '{} ({}, {})'.format(t.t_location.name,
+                                     self.parameter_name,
+                                     self.filter_name)
+            )
+            for t in timeseries
         ]
         return locations

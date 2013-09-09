@@ -5,7 +5,29 @@ Changelog of lizard-fewsjdbc
 2.29 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Create tables to caching filters, locations, parameters, timeseries of FEWS.
+
+- Add model tests.
+
+- Add task to remove old caches and retrieve new fews-data.
+
+- Add new datasource model for restful web service.
+
+- Add new adapter and views to show data from restful ws in graph.
+
+- Add new entrypoint to setup.py.
+
+- Implement export functionality for new adpter.
+
+- Implement functionality to search locations.
+
+- Add IconStyleWebRS model for restful web service
+
+- Create FilterRootWebRSSource model.
+
+- Replace raise WorkspaceItemError with logger.warn by __init__ of WebRS and FewsJdbc. 
+
+- Update requests to 1.2.3
 
 
 2.28 (2013-06-06)

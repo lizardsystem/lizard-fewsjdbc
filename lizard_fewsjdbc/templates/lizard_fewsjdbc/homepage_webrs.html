@@ -1,0 +1,27 @@
+{# Show all available jdbc sources as apps. #}
+{% extends "lizard_map/wms.html" %}
+{% load workspaces %}
+
+{% block subtitle %} Apps overview {% endblock %}
+
+{% block sidebar %}
+<div id="iconbox" class="sidebarbox sidebarbox-stretched iconlist">
+  <h2>Gegevensbronnen WebRS</h2>
+  <ul>
+    {% for source in view.webrs_sources %}
+    <li>
+      <a href="{% url lizard_fewsjdbc.webrs_source webrs_source_slug=source.slug %}"
+         class="lizard-map-link">
+        <img src="{{ STATIC_URL }}lizard_ui/app_icons/meetgegevens.png" />
+        <div>{{ source.name }}</div>
+      </a>
+    </li>
+    {% empty %}
+    <li>
+      No WebRS sources configurated.
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+
+{% endblock %}

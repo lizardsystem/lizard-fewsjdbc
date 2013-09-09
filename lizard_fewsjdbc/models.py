@@ -4,6 +4,7 @@ import iso8601
 import logging
 import time
 import pytz
+import requests
 
 # Older Ubuntus (our web servers right now) have an older pytz version.
 # New versions have the exception in pytz.exceptions, old versions in pytz
@@ -33,6 +34,7 @@ from lizard_fewsjdbc.utils import format_number
 
 JDBC_NONE = -999
 JDBC_DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
+RESTFULWS_DATE_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 FILTER_CACHE_KEY = 'lizard_fewsjdbc.models.filter_cache_key'
 PARAMETER_NAME_CACHE_KEY = 'lizard_fewsjdbc.models.parameter_name_cache_key'
 LOCATION_CACHE_KEY = 'lizard_fewsjdbc.layers.location_cache_key'
@@ -41,6 +43,197 @@ LOG_JDBC_QUERIES = getattr(settings, 'LOG_JDBC_QUERIES', False)
 
 
 logger = logging.getLogger(__name__)
+
+
+class WebRSSource(models.Model):
+    """
+    The source to retrieve filters, parameters, locations
+    timeseries from FEWS using fewswebrs restful service.
+    """
+    source_code = models.CharField(
+        unique=True,
+        max_length=50,
+        help_text='Name web vjdbcsource configured '
+                  'in vjdbcsources.properties on webservice')
+    version = models.CharField(
+        max_length=10)
+    base_path = models.CharField(
+        max_length=250,
+        help_text="Example: http://p-fews-ai-00-d4.external-nens.local:"
+                  "8081/fewswebrs/api")
+
+    @property
+    def filters_path(self):
+        return '{}/filters'.format(self.source_path)
+
+    @property
+    def locations_path(self):
+        return '{}/locations'.format(self.source_path)
+
+    @property
+    def parameters_path(self):
+        return '{}/parameters'.format(self.source_path)
+
+    @property
+    def timeseries_path(self):
+        return '{}/timeseries'.format(self.source_path)
+
+    @property
+    def source_path(self):
+        return u'{0}/{1}/{2}'.format(self.base_path, self.version, self.source_code)
+
+    def events_path(self, filterid, locationid, parameterid):
+        return '{0}/{1}:{2}:{3}/events'.format(self.timeseries_path,
+                                               filterid,
+                                               locationid,
+                                               parameterid)
+
+    def datetime_to_iso8601_string(self, dt):
+        """
+        Convert datetime to iso8601 string.
+        """
+        return dt.strftime(RESTFULWS_DATE_FORMAT)
+
+    def convert_result(self, json_result):
+        """
+        Convert result to suitable list of dict,
+        Create datetime string.
+        Expect a datetime string of iso8601 format in UTC.
+        """
+        
+        events = [{'detection': event['detection'],
+                   'time': iso8601.parse_date(event['datetime']),
+                   'flag': event['flag'],
+                   'value': event['value']} for event in json_result]
+        
+        #events = [5 for x in json_result]
+        return events
+
+    def get_timeseries(self, filterid, locationid, parameterid, startdate, enddate):
+        """
+        Rertrieve events from FEWS-JDBC using restful webservice.
+        """
+        events_path = self.events_path(filterid, locationid, parameterid)
+        url_params = '?startdate={0}&enddate={1}'.format(
+            self.datetime_to_iso8601_string(startdate),
+            self.datetime_to_iso8601_string(enddate))
+        logger.debug("Retrieve events url {0}{1}.".format(
+                events_path, url_params))
+        logger.debug("START Request at {}.".format(datetime.datetime.today().isoformat()))
+        result = requests.get('{0}{1}'.format(events_path, url_params))
+        logger.debug("END Request at {}.".format(datetime.datetime.today().isoformat()))
+        if not result.ok:
+            logger.exception("Error on retrieving events: HTTP "
+                             "response status={}.".format(result.status_code))
+        logger.debug("START converting result at {}.".format(datetime.datetime.today().isoformat()))
+        events = self.convert_result(result.json())
+        logger.debug("END converting result at {}.".format(datetime.datetime.today().isoformat()))
+        return events
+
+    def get_source_as_dict(self):
+        return {
+            'source_code': self.source_code,
+            'version': self.version,
+            'base_path': self.base_path
+        }
+
+    def __unicode__(self):
+        return self.source_code
+
+
+class FilterRootWebRSSource(models.Model):
+    name = models.CharField(max_length=50,
+                            help_text='Used as icon label')
+    webrs_source = models.ForeignKey(WebRSSource)
+    slug = models.SlugField(unique=True)
+    filter_tree_root = models.CharField(
+        max_length=80,
+        blank=True, null=True,
+        help_text=("Fill in the filter id to use as filter root. "))
+
+    def __unicode__(self):
+        return self.name
+
+
+class FilterCache(models.Model):
+    """Cache of fews-jdbc locations."""
+
+    filterid = models.CharField(primary_key=True, max_length=100)
+    name = models.CharField(max_length=100, null=True, blank=True)
+    description = models.CharField(max_length=100, null=True, blank=True)
+    is_sub_filter = models.BooleanField()
+    parent_id = models.CharField(max_length=100, null=True, blank=True)
+    parent_name = models.CharField(max_length=100, null=True, blank=True)
+    is_end_node = models.BooleanField()
+    webrs_source = models.ForeignKey(WebRSSource, blank=True, null=True)
+
+    def get_filter_url(self, slug):
+        filter_root = FilterRootWebRSSource.objects.get(slug=slug)
+        url = reverse('lizard_fewsjdbc.webrs_source',
+                      kwargs={'webrs_source_slug': filter_root.slug})
+        url += '?filter_id=%s' % self.filterid
+        return url
+
+    def get_filter_as_dict(self, slug):
+        return {
+            'url': self.get_filter_url(slug),
+            'parent_id': self.parent_id,
+            'id': self.filterid,
+            'name': self.name}
+
+    def __unicode__(self):
+        return self.filterid
+
+
+class LocationCache(models.Model):
+    """Cache of fews-jdbc locations."""
+
+    locationid = models.CharField(primary_key=True, max_length=100)
+    name = models.CharField(max_length=100, null=True, blank=True)
+    short_name = models.CharField(max_length=100, null=True, blank=True)
+    description = models.CharField(max_length=250, null=True, blank=True)
+    lng = models.FloatField(null=True, blank=True)
+    lat = models.FloatField(null=True, blank=True)
+    tooltiptext = models.TextField(null=True, blank=True)
+    parent_id = models.CharField(max_length=100, null=True, blank=True)
+    webrs_source = models.ForeignKey(WebRSSource, blank=True, null=True)
+
+    @property
+    def location_as_list(self):
+        return [self.lng, self.lat, self.name, self.locationid]
+
+    def __unicode__(self):
+        return self.locationid
+
+
+class ParameterCache(models.Model):
+    """Cache of fews-jdbc parameter."""
+
+    parameterid = models.CharField(primary_key=True, max_length=50)
+    name = models.CharField(max_length=100, null=True, blank=True)
+    short_name = models.CharField(max_length=100, null=True, blank=True)
+    unit = models.CharField(max_length=100, null=True, blank=True)
+    parameter_type = models.CharField(max_length=100, null=True, blank=True)
+    parameter_group = models.CharField(max_length=100, null=True, blank=True)
+    webrs_source = models.ForeignKey(WebRSSource, blank=True, null=True)
+
+    def __unicode__(self):
+        return self.parameterid
+
+
+class TimeseriesCache(models.Model):
+    """Cache of fews-jdbc timeseries."""
+
+    t_filter = models.ForeignKey(FilterCache)
+    t_location = models.ForeignKey(LocationCache)
+    t_parameter = models.ForeignKey(ParameterCache)
+    webrs_source = models.ForeignKey(WebRSSource, blank=True, null=True)
+
+    def __unicode__(self):
+        return u'{0}:{1}:{2}'.format(
+            self.t_filter.filterid,
+            self.t_location.locationid,
+            self.t_parameter.parameterid)
 
 
 class FewsJdbcNotAvailableError(gaierror):
@@ -143,6 +336,8 @@ class JdbcSource(models.Model):
         data.
 
         """
+        test_q = q
+
         if '"' in q:
             logger.warn(
                 "You used double quotes in the query. "
@@ -202,7 +397,8 @@ class JdbcSource(models.Model):
 
         filter_source_cache_key = '%s::%s::%s' % (
             url_name, FILTER_CACHE_KEY, self.slug)
-        filter_tree = cache.get(filter_source_cache_key)
+        #filter_tree = cache.get(filter_source_cache_key)
+        filter_tree = None
         if filter_tree is None or ignore_cache:
             # Building up the fews filter tree.
             if self.usecustomfilter:
@@ -298,7 +494,6 @@ class JdbcSource(models.Model):
                 unique_parameters,
                 ['filter_name', 'parameterid', 'parameter', 'filter_id'])
             cache.set(parameter_cache_key, named_parameters, cache_timeout)
-
         return named_parameters
 
     def get_filter_name(self, filter_id):
@@ -314,9 +509,13 @@ class JdbcSource(models.Model):
         """Return parameter name corresponding to the given parameter
         id."""
         if filter_id is None:
-            result = self.query(("select distinct parameter from filters where parameterid = '%s'") % (parameter_id,))
+            sql_str = "select distinct parameter " + \
+                      "from filters where parameterid = '%s'"
+            result = self.query((sql_str) % (parameter_id,))
         else:
-            result = self.query(("select distinct parameter from filters where id = '%s' and parameterid = '%s'") % (filter_id, parameter_id))
+            sql_str = "select distinct parameter " + \
+                      "from filters where id='%s' and parameterid='%s'"
+            result = self.query((sql_str) % (filter_id, parameter_id))
 
         if result:
             return result[0][0]
@@ -382,8 +581,9 @@ class JdbcSource(models.Model):
              (filter_id, location_id, parameter_id,
               start_date.strftime(JDBC_DATE_FORMAT),
               end_date.strftime(JDBC_DATE_FORMAT)))
-
+        logger.debug("START Request at {}.".format(datetime.datetime.today().isoformat()))
         query_result = self.query(q)
+        logger.debug("END Request at {}.".format(datetime.datetime.today().isoformat()))
 
         result = named_list(
             query_result, ['time', 'value', 'flag', 'detection', 'comment'])
@@ -447,6 +647,161 @@ class JdbcSource(models.Model):
             return pytz.timezone(self.timezone_string)
         except UnknownTimeZoneError:
             return None
+
+
+class IconStyleWebRS(models.Model):
+    """
+    Customizable icon styles where all "selector fields" are optional.
+
+    The styles are cached for performance.
+
+    Copy of IconStyle, used for WebRSSource.
+    """
+    CACHE_KEY = 'lizard_fewsjdbc.IconStyle'
+
+    # Selector fields.
+    jdbc_source = models.ForeignKey(WebRSSource, null=True, blank=True)
+    fews_filter = models.CharField(max_length=40, null=True, blank=True)
+    fews_location = models.CharField(max_length=40, null=True, blank=True)
+    fews_parameter = models.CharField(max_length=40, null=True, blank=True)
+
+    # Icon properties.
+    icon = models.CharField(max_length=40, choices=list_image_file_names())
+    mask = models.CharField(max_length=40, choices=list_image_file_names())
+    color = ColorField(help_text="Use color format ffffff or 333333")
+
+    class Meta:
+        verbose_name = _("Icon style web rs")
+        verbose_name_plural = _("Icon styles web rs")
+
+    def __unicode__(self):
+        return u'%s' % (self._key)
+
+    @property
+    def _key(self):
+        return '%s::%s::%s::%s' % (
+            self.jdbc_source.id if self.jdbc_source else '',
+            self.fews_filter,
+            self.fews_location,
+            self.fews_parameter)
+
+    @classmethod
+    def _styles(cls):
+        """
+        Return styles in a symbol manager style in a dict.
+
+        The dict key consist of
+        "jdbc_source_id::fews_filter::fews_location::fews_parameter"
+        """
+        result = {}
+        for icon_style in cls.objects.all():
+            result[icon_style._key] = {
+                'icon': icon_style.icon,
+                'mask': (icon_style.mask, ),
+                'color': icon_style.color.to_tuple()
+            }
+        return result
+
+    @classmethod
+    def _lookup(cls):
+        """
+        Return style lookup dictionary based on class objects.
+
+        This lookup dictionary is cached and it is rebuild every time
+        the IconStyle table changes.
+
+        The structure (always) has 4 levels and is used to lookup icon
+        styles with fallback in a fast way:
+
+        level 0 (highest) {None: {level1}, <jdbc_source_id>: {level1},
+        ... }
+
+        level 1 {None: {level2}, "<fews_filter_id>": {level2}, ...}
+
+        level 2 {None: {level3}, "<fews_location_id>": {level3}, ...}
+
+        level 3 {None: icon_key, "<fews_parameter_id>": icon_key, ...}
+        """
+
+        lookup = {}
+
+        # Insert style into lookup
+        for style in cls.objects.all():
+            level0 = style.jdbc_source.id if style.jdbc_source else None
+            level1 = style.fews_filter if style.fews_filter else None
+            level2 = style.fews_location if style.fews_location else None
+            level3 = (style.fews_parameter
+                      if style.fews_parameter else None)
+            if level0 not in lookup:
+                lookup[level0] = {}
+            if level1 not in lookup[level0]:
+                lookup[level0][level1] = {}
+            if level2 not in lookup[level0][level1]:
+                lookup[level0][level1][level2] = {}
+            if level3 not in lookup[level0][level1][level2]:
+                lookup[level0][level1][level2][level3] = style._key
+            # Every 'breach' needs a 'None' / default side.
+            if None not in lookup:
+                lookup[None] = {}
+            if None not in lookup[level0]:
+                lookup[level0][None] = {}
+            if None not in lookup[level0][level1]:
+                lookup[level0][level1][None] = {}
+            if None not in lookup[level0][level1][level2]:
+                lookup[level0][level1][level2][None] = '%s::%s::%s::' % (
+                    level0 if level0 else '',
+                    level1 if level1 else '',
+                    level2 if level2 else '')
+        return lookup
+
+    @classmethod
+    def _styles_lookup(cls, ignore_cache=False):
+        cache_lookup = cache.get(cls.CACHE_KEY)
+
+        if cache_lookup is None or ignore_cache:
+            # Calculate styles and lookup and store in cache.
+            styles = cls._styles()
+            lookup = cls._lookup()
+            cache.set(cls.CACHE_KEY, (styles, lookup))
+        else:
+            # The cache has a 2-tuple (styles, lookup) stored.
+            styles, lookup = cache_lookup
+
+        return styles, lookup
+
+    @classmethod
+    def style(
+        cls,
+        jdbc_source, fews_filter,
+        fews_location, fews_parameter,
+            styles=None, lookup=None, ignore_cache=False):
+        """
+        Return the best corresponding icon style and return in format:
+
+        'xx::yy::zz::aa',
+        {'icon': 'icon.png',
+         'mask': 'mask.png',
+         'color': (1,1,1,0)
+         }
+        """
+        if styles is None or lookup is None:
+            styles, lookup = cls._styles_lookup(ignore_cache)
+
+        try:
+            level1 = lookup.get(jdbc_source.id, lookup[None])
+            level2 = level1.get(fews_filter, level1[None])
+            level3 = level2.get(fews_location, level2[None])
+            found_key = level3.get(fews_parameter, level3[None])
+            result = styles[found_key]
+        except KeyError:
+            # Default, this only occurs when '::::::' is not defined
+            return '::::::', {
+                'icon': 'meetpuntPeil.png',
+                'mask': ('meetpuntPeil_mask.png', ),
+                'color': (0.0, 0.5, 1.0, 1.0)
+            }
+
+        return found_key, result
 
 
 class IconStyle(models.Model):
