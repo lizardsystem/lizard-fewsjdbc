@@ -331,7 +331,7 @@ class JdbcSource(models.Model):
         cache_timeout gives an alternative timeout duration for the
         cache, in seconds.
         """
-        location_cache_key = ('%s::%s::%s::s' %
+        location_cache_key = ('%s::%s::%s::%s' %
                               (LOCATION_CACHE_KEY, filter_id,
                                parameter_id, get_host()))
         named_locations = cache.get(location_cache_key)
