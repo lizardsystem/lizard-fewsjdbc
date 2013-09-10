@@ -15,6 +15,7 @@ install_requires = [
     'django-extensions',
     'djangorestframework',
     'django-braces',
+    'django-tls',
     'lizard-map >= 4.0, < 5.0',
     'lizard-ui >= 4.0, < 5.0',
     'lizard-task',

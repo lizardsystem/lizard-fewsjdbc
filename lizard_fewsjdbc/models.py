@@ -28,8 +28,7 @@ from lizard_map.fields import ColorField
 from lizard_map.symbol_manager import list_image_file_names
 
 from lizard_fewsjdbc import timeout_xmlrpclib
-from lizard_fewsjdbc.utils import format_number
-
+from lizard_fewsjdbc.utils import format_number, get_host
 
 JDBC_NONE = -999
 JDBC_DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
@@ -200,8 +199,8 @@ class JdbcSource(models.Model):
         an alternative timeout duration for the cache, in seconds.
         """
 
-        filter_source_cache_key = '%s::%s::%s' % (
-            url_name, FILTER_CACHE_KEY, self.slug)
+        filter_source_cache_key = '%s::%s::%s::%s' % (
+            url_name, FILTER_CACHE_KEY, self.slug, get_host())
         filter_tree = cache.get(filter_source_cache_key)
         if filter_tree is None or ignore_cache:
             # Building up the fews filter tree.
@@ -276,8 +275,9 @@ class JdbcSource(models.Model):
         Uses cache unless ignore_cache == True. cache_timeout gives
         an alternative timeout duration for the cache, in seconds.
         """
-        parameter_cache_key = ('%s::%s::%s' %
-                               (FILTER_CACHE_KEY, self.slug, str(filter_id)))
+        parameter_cache_key = ('%s::%s::%s::%s' %
+                               (FILTER_CACHE_KEY, self.slug, str(filter_id),
+                                get_host()))
         named_parameters = cache.get(parameter_cache_key)
 
         if find_lowest:
@@ -331,9 +331,9 @@ class JdbcSource(models.Model):
         cache_timeout gives an alternative timeout duration for the
         cache, in seconds.
         """
-        location_cache_key = ('%s::%s::%s' %
+        location_cache_key = ('%s::%s::%s::s' %
                               (LOCATION_CACHE_KEY, filter_id,
-                               parameter_id))
+                               parameter_id, get_host()))
         named_locations = cache.get(location_cache_key)
         if named_locations is None:
             query = ("select longitude, latitude, "
@@ -453,7 +453,7 @@ class IconStyle(models.Model):
 
     The styles are cached for performance.
     """
-    CACHE_KEY = 'lizard_fewsjdbc.IconStyle'
+
 
     # Selector fields.
     jdbc_source = models.ForeignKey(JdbcSource, null=True, blank=True)
@@ -473,6 +473,10 @@ class IconStyle(models.Model):
 
     def __unicode__(self):
         return u'%s' % (self._key)
+
+    @classmethod
+    def CACHE_KEY(cls):
+        return 'lizard_fewsjdbc.IconStyle.%s' % (get_host(), )
 
     @property
     def _key(self):
@@ -554,13 +558,13 @@ class IconStyle(models.Model):
 
     @classmethod
     def _styles_lookup(cls, ignore_cache=False):
-        cache_lookup = cache.get(cls.CACHE_KEY)
+        cache_lookup = cache.get(cls.CACHE_KEY())
 
         if cache_lookup is None or ignore_cache:
             # Calculate styles and lookup and store in cache.
             styles = cls._styles()
             lookup = cls._lookup()
-            cache.set(cls.CACHE_KEY, (styles, lookup))
+            cache.set(cls.CACHE_KEY(), (styles, lookup))
         else:
             # The cache has a 2-tuple (styles, lookup) stored.
             styles, lookup = cache_lookup
@@ -642,8 +646,8 @@ def icon_style_post_save_delete(sender, **kwargs):
     Invalidates cache after saving or deleting an IconStyle.
     """
     logger.debug('Changed IconStyle. Invalidating cache for %s...' %
-                 sender.CACHE_KEY)
-    cache.delete(sender.CACHE_KEY)
+                 sender.CACHE_KEY())
+    cache.delete(sender.CACHE_KEY())
 
 
 post_save.connect(icon_style_post_save_delete, sender=IconStyle)

@@ -11,6 +11,8 @@ Changelog of lizard-fewsjdbc
 
 - Changes to datasource.py -- units and labels now work differently.
 
+- Use host specific cache key for multitenancy use.
+
 
 2.27 (2013-04-17)
 -----------------

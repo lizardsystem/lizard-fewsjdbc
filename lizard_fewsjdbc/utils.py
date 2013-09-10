@@ -1,5 +1,7 @@
 import decimal
 
+from tls import request
+
 
 def format_number(num):
     """Make numbers look pretty.
@@ -26,3 +28,14 @@ def format_number(num):
     if tup.sign:
         return '-' + val
     return val
+
+
+def get_host():
+    """Get the current host.
+
+    Needed in the multitancy Lizard 5 site for cache keys.
+    """
+    host = ''
+    if hasattr(request, 'get_host'):
+        host = request.get_host()
+    return host
