@@ -13,7 +13,7 @@ from lizard_map import coordinates
 from lizard_map import workspace
 from lizard_map.adapter import Graph, FlotGraph
 from lizard_map.operations import named_list
-from lizard_map.mapnik_helper import add_datasource_point
+from lizard_map.mapnik_helper import add_datasource_point, add_datasource_point_mapnik2
 from lizard_map.models import ICON_ORIGINALS
 from lizard_map.models import WorkspaceItemError
 from lizard_map.models import Setting
@@ -170,6 +170,7 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
             layer.datasource = mapnik.PointDatasource()
         else:
             layer.datasource = mapnik.MemoryDatasource()
+            context = mapnik.Context()
 
         try:
             named_locations = self._locations()
@@ -204,10 +205,10 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
                     layer.datasource, named_location['longitude'],
                     named_location['latitude'], 'style', str(point_style_name))
             else:
-                add_datasource_point(
+                add_datasource_point_mapnik2(
                     layer.datasource, named_location['longitude'],
                     named_location['latitude'], 'style',
-                    str(point_style_name), i)
+                    str(point_style_name), _id=i, context=context)
 
             # generate "unique" point style name and append to layer
             # if the same style occurs multiple times, it will overwrite old.
