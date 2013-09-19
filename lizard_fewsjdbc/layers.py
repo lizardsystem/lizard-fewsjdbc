@@ -13,9 +13,11 @@ from lizard_map import coordinates
 from lizard_map import workspace
 from lizard_map.adapter import Graph, FlotGraph
 from lizard_map.operations import named_list
-from lizard_map.mapnik_helper import add_datasource_point, add_datasource_point_mapnik2
+from lizard_map.mapnik_helper import (
+    add_datasource_point,
+    add_datasource_point_mapnik2
+)
 from lizard_map.models import ICON_ORIGINALS
-from lizard_map.models import WorkspaceItemError
 from lizard_map.models import Setting
 from lizard_map.symbol_manager import SymbolManager
 
@@ -30,7 +32,6 @@ from lizard_fewsjdbc.models import (
     TimeseriesCache,
     FilterRootWebRSSource,
     get_cache_filter,
-    get_cache_location,
     get_cache_parameter
 )
 from lizard_fewsjdbc.models import FewsJdbcQueryError
@@ -75,8 +76,8 @@ def fews_symbol_name(jdbc_source, filterkey, locationkey, parameterkey,
         style_name, icon_style = IconStyle.style(
             jdbc_source, filterkey, locationkey, parameterkey, styles, lookup)
     else:
-       style_name, icon_style = IconStyleWebRS.style(
-            jdbc_source, filterkey, locationkey, parameterkey, styles, lookup) 
+        style_name, icon_style = IconStyleWebRS.style(
+            jdbc_source, filterkey, locationkey, parameterkey, styles, lookup)
 
     #make icon grey
     if nodata:
@@ -618,7 +619,7 @@ class WebRS(FewsJdbc):
     def __init__(self, *args, **kwargs):
         super(WebRS, self).__init__(
             *args, **kwargs)
-        
+
         self.jdbc_source_slug = self.layer_arguments['slug']
         self.filterkey = self.layer_arguments['filter']
         self.parameterkey = self.layer_arguments['parameter']
@@ -637,8 +638,7 @@ class WebRS(FewsJdbc):
             't_parameter__parameterid': self.parameterkey,
             'webrs_source': self.jdbc_source
         }
-        #import pdb; pdb
-        timeseries = TimeseriesCache.objects.filter(**options)
+        timeseries = TimeseriesCache.objects.filter(**options).distinct('t_location__id')
         locations = LocationCache.objects.filter(
             id__in=timeseries.values_list('t_location__id'))
 
@@ -656,7 +656,6 @@ class WebRS(FewsJdbc):
     def filter_name(self):
         filter_obj = get_cache_filter(self.filterkey, self.jdbc_source)
         return filter_obj.name
-    
 
     def get_parametername_and_unit(self):
         parameter = get_cache_parameter(self.parameterkey, self.jdbc_source)
@@ -697,7 +696,6 @@ class WebRS(FewsJdbc):
         Search locations by given name.
         Case insensitive.
         '''
-
         search_options = {'webrs_source__source_code': self.jdbc_source.source_code,
                           't_filter__filterid': self.filterkey,
                           't_parameter__parameterid': self.parameterkey,

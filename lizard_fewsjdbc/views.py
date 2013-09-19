@@ -28,8 +28,7 @@ from lizard_fewsjdbc.models import (
     ParameterCache,
     TimeseriesCache,
     FilterRootWebRSSource,
-    get_cache_filter,
-    get_cache_parameter
+    get_cache_filter
 )
 from lizard_fewsjdbc.utils import format_number
 
@@ -90,7 +89,7 @@ class WebRSSourceView(AppView):
 
     def _filter_parameters(self):
         timeseries = TimeseriesCache.objects.filter(
-            t_filter=self._selected_filter, webrs_source=self.webrs_source)
+            t_filter=self._selected_filter, webrs_source=self.webrs_source).distinct('t_parameter__id')
         filter_parameters = ParameterCache.objects.filter(
                 id__in=timeseries.values_list('t_parameter__id'))
         return filter_parameters

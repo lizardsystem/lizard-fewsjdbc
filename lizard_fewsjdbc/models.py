@@ -100,13 +100,10 @@ class WebRSSource(models.Model):
         Create datetime string.
         Expect a datetime string of iso8601 format in UTC.
         """
-        
         events = [{'detection': event['detection'],
                    'time': iso8601.parse_date(event['datetime']),
                    'flag': event['flag'],
                    'value': event['value']} for event in json_result]
-        
-        #events = [5 for x in json_result]
         return events
 
     def get_timeseries(self, filterid, locationid, parameterid, startdate, enddate):
@@ -117,17 +114,11 @@ class WebRSSource(models.Model):
         url_params = '?startdate={0}&enddate={1}'.format(
             self.datetime_to_iso8601_string(startdate),
             self.datetime_to_iso8601_string(enddate))
-        logger.debug("Retrieve events url {0}{1}.".format(
-                events_path, url_params))
-        logger.debug("START Request at {}.".format(datetime.datetime.today().isoformat()))
         result = requests.get('{0}{1}'.format(events_path, url_params))
-        logger.debug("END Request at {}.".format(datetime.datetime.today().isoformat()))
         if not result.ok:
             logger.exception("Error on retrieving events: HTTP "
                              "response status={}.".format(result.status_code))
-        logger.debug("START converting result at {}.".format(datetime.datetime.today().isoformat()))
         events = self.convert_result(result.json())
-        logger.debug("END converting result at {}.".format(datetime.datetime.today().isoformat()))
         return events
 
     def get_source_as_dict(self):
@@ -590,9 +581,7 @@ class JdbcSource(models.Model):
              (filter_id, location_id, parameter_id,
               start_date.strftime(JDBC_DATE_FORMAT),
               end_date.strftime(JDBC_DATE_FORMAT)))
-        logger.debug("START Request at {}.".format(datetime.datetime.today().isoformat()))
         query_result = self.query(q)
-        logger.debug("END Request at {}.".format(datetime.datetime.today().isoformat()))
 
         result = named_list(
             query_result, ['time', 'value', 'flag', 'detection', 'comment'])
@@ -1018,11 +1007,13 @@ def get_cache_filter(filterid, webrs_source):
     if filters.exists():
         return filters[0]
 
+
 def get_cache_location(locationid, webrs_source):
     locations = LocationCache.objects.filter(
         locationid=locationid, webrs_source=webrs_source)
     if locations.exists():
         return locations[0]
+
 
 def get_cache_parameter(parameterid, webrs_source):
     parameters = ParameterCache.objects.filter(
