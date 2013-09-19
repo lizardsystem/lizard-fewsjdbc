@@ -105,10 +105,9 @@ class FewsJDBCImporter(object):
             parameterid = timeseries.get('parameter').get('id')
 
             models.TimeseriesCache(
-                t_filter=models.FilterCache.objects.get(pk=filterid),
-                t_location=models.LocationCache.objects.get(pk=locationid),
-                t_parameter=models.ParameterCache.objects.get(
-                    pk=parameterid),
+                t_filter=models.get_cache_filter(filterid, webrs_source),
+                t_location=models.get_cache_location(locationid, webrs_source),
+                t_parameter=models.get_cache_parameter(parameterid, webrs_source),
                 webrs_source=webrs_source).save()
         self.logger.info("{} timeseries cached.".format(len(result.json())))
         return True

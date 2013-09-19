@@ -158,7 +158,7 @@ class FilterRootWebRSSource(models.Model):
 class FilterCache(models.Model):
     """Cache of fews-jdbc locations."""
 
-    filterid = models.CharField(primary_key=True, max_length=100)
+    filterid = models.CharField(max_length=100)
     name = models.CharField(max_length=100, null=True, blank=True)
     description = models.CharField(max_length=100, null=True, blank=True)
     is_sub_filter = models.BooleanField()
@@ -166,6 +166,9 @@ class FilterCache(models.Model):
     parent_name = models.CharField(max_length=100, null=True, blank=True)
     is_end_node = models.BooleanField()
     webrs_source = models.ForeignKey(WebRSSource, blank=True, null=True)
+
+    class Meta:
+        unique_together = (('filterid', 'webrs_source'),)
 
     def get_filter_url(self, slug):
         filter_root = FilterRootWebRSSource.objects.get(slug=slug)
@@ -188,7 +191,7 @@ class FilterCache(models.Model):
 class LocationCache(models.Model):
     """Cache of fews-jdbc locations."""
 
-    locationid = models.CharField(primary_key=True, max_length=100)
+    locationid = models.CharField(max_length=100)
     name = models.CharField(max_length=100, null=True, blank=True)
     short_name = models.CharField(max_length=100, null=True, blank=True)
     description = models.CharField(max_length=250, null=True, blank=True)
@@ -197,6 +200,9 @@ class LocationCache(models.Model):
     tooltiptext = models.TextField(null=True, blank=True)
     parent_id = models.CharField(max_length=100, null=True, blank=True)
     webrs_source = models.ForeignKey(WebRSSource, blank=True, null=True)
+
+    class Meta:
+        unique_together = (('locationid', 'webrs_source'),)
 
     @property
     def location_as_list(self):
@@ -209,13 +215,16 @@ class LocationCache(models.Model):
 class ParameterCache(models.Model):
     """Cache of fews-jdbc parameter."""
 
-    parameterid = models.CharField(primary_key=True, max_length=50)
+    parameterid = models.CharField(max_length=50)
     name = models.CharField(max_length=100, null=True, blank=True)
     short_name = models.CharField(max_length=100, null=True, blank=True)
     unit = models.CharField(max_length=100, null=True, blank=True)
     parameter_type = models.CharField(max_length=100, null=True, blank=True)
     parameter_group = models.CharField(max_length=100, null=True, blank=True)
     webrs_source = models.ForeignKey(WebRSSource, blank=True, null=True)
+
+    class Meta:
+        unique_together = (('parameterid', 'webrs_source'),)
 
     def __unicode__(self):
         return self.parameterid
@@ -1001,3 +1010,22 @@ def icon_style_post_save_delete(sender, **kwargs):
 
 post_save.connect(icon_style_post_save_delete, sender=IconStyle)
 post_delete.connect(icon_style_post_save_delete, sender=IconStyle)
+
+
+def get_cache_filter(filterid, webrs_source):
+    filters = FilterCache.objects.filter(
+        filterid=filterid, webrs_source=webrs_source)
+    if filters.exists():
+        return filters[0]
+
+def get_cache_location(locationid, webrs_source):
+    locations = LocationCache.objects.filter(
+        locationid=locationid, webrs_source=webrs_source)
+    if locations.exists():
+        return locations[0]
+
+def get_cache_parameter(parameterid, webrs_source):
+    parameters = ParameterCache.objects.filter(
+        parameterid=parameterid, webrs_source=webrs_source)
+    if parameters.exists():
+        return parameters[0]

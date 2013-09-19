@@ -28,9 +28,10 @@ from lizard_fewsjdbc.models import (
     WebRSSource,
     LocationCache,
     TimeseriesCache,
-    ParameterCache,
-    FilterCache,
-    FilterRootWebRSSource
+    FilterRootWebRSSource,
+    get_cache_filter,
+    get_cache_location,
+    get_cache_parameter
 )
 from lizard_fewsjdbc.models import FewsJdbcQueryError
 
@@ -629,15 +630,16 @@ class WebRS(FewsJdbc):
                 "WebRS source %s doesn't exist." % self.jdbc_source_slug)
 
     def _locations(self):
-        #return self.jdbc_source.get_locations(self.filterkey,
-        #                                      self.parameterkey)
+        """Return location for selected filterkey, parameterkey."""
         options = {
-            't_filter': self.filterkey, 't_parameter': self.parameterkey
+            't_filter__filterid': self.filterkey,
+            't_parameter__parameterid': self.parameterkey,
+            'webrs_source': self.jdbc_source
         }
-        
+        #import pdb; pdb
         timeseries = TimeseriesCache.objects.filter(**options)
         locations = LocationCache.objects.filter(
-            locationid__in=timeseries.values_list('t_location'))
+            id__in=timeseries.values_list('t_location__id'))
 
         named_locations = named_list(
                 [l.location_as_list for l in locations],
@@ -646,17 +648,17 @@ class WebRS(FewsJdbc):
 
     @property
     def parameter_name(self):
-        parameter = ParameterCache.objects.get(pk=self.parameterkey)
+        parameter = get_cache_parameter(self.parameterkey, self.jdbc_source)
         return parameter.name
 
     @property
     def filter_name(self):
-        filter_obj = FilterCache.objects.get(pk=self.filterkey)
+        filter_obj = get_cache_filter(self.filterkey, self.jdbc_source)
         return filter_obj.name
     
 
     def get_parametername_and_unit(self):
-        parameter = ParameterCache.objects.get(pk=self.parameterkey)
+        parameter = get_cache_parameter(self.parameterkey, self.jdbc_source)
         return (parameter.name, parameter.unit)
 
     def html(self, snippet_group=None, identifiers=None, layout_options=None):
@@ -681,7 +683,7 @@ class WebRS(FewsJdbc):
         # lizard-fewsjdbc returns "aware" datetime objects (UTC).
         # now localize these according to this site's settings.
         timeseries = astimezone(timeseries)
-        parameter = ParameterCache.objects.get(parameterid=self.parameterkey)
+        parameter = get_cache_parameter(self.parameterkey, self.jdbc_source)
         result = []
         for row in timeseries:
             result.append({'value': row['value'],
