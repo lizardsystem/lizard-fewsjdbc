@@ -7,6 +7,7 @@ Changelog of lizard-fewsjdbc
 
 - Remove/disable test_bails_ou test.
 - Change database setting in testsettings.py.
+- Cache filters, parameters, locations, timeseries per webrs source.
 
 
 2.29 (2013-09-09)
