@@ -26,9 +26,10 @@ from lizard_map.operations import tree_from_list
 from lizard_map.operations import unique_list
 from lizard_map.fields import ColorField
 from lizard_map.symbol_manager import list_image_file_names
+from lizard_map.utility import get_host
 
 from lizard_fewsjdbc import timeout_xmlrpclib
-from lizard_fewsjdbc.utils import format_number, get_host
+from lizard_fewsjdbc.utils import format_number
 
 JDBC_NONE = -999
 JDBC_DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
@@ -453,7 +454,6 @@ class IconStyle(models.Model):
 
     The styles are cached for performance.
     """
-
 
     # Selector fields.
     jdbc_source = models.ForeignKey(JdbcSource, null=True, blank=True)
