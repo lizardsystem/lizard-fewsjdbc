@@ -90,7 +90,7 @@ def fews_symbol_name(jdbc_source, filterkey, locationkey, parameterkey,
     output_filename = symbol_manager.get_symbol_transformed(
         icon_style['icon'], **icon_style)
 
-    return style_name, output_filename
+    return style_name, output_filename, icon_style['draw_in_legend']
 
 
 def fews_point_style(jdbc_source, filterkey, locationkey, parameterkey,
@@ -99,7 +99,7 @@ def fews_point_style(jdbc_source, filterkey, locationkey, parameterkey,
     Make mapnik point_style for fews point with given filterkey.
     Copied from lizard_fewsunblobbed.
     """
-    point_style_name, output_filename = fews_symbol_name(
+    point_style_name, output_filename, draw_in_legend = fews_symbol_name(
         jdbc_source, filterkey, locationkey, parameterkey,
         nodata, styles, lookup)
     output_filename_abs = os.path.join(
@@ -112,6 +112,11 @@ def fews_point_style(jdbc_source, filterkey, locationkey, parameterkey,
     else:
         point_looks = mapnik.PointSymbolizer(
             mapnik.PathExpression(str(output_filename_abs)))
+    
+    # LIZARD5
+    # point_looks = mapnik.PointSymbolizer()
+    # point_looks.filename = str(output_filename_abs)
+
     point_looks.allow_overlap = True
     layout_rule = mapnik.Rule()
     layout_rule.symbols.append(point_looks)
@@ -168,11 +173,15 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         layers = []
         styles = {}
         layer = mapnik.Layer("FEWS JDBC points layer", coordinates.WGS84)
+
         if mapnik.mapnik_version() < 800:
             layer.datasource = mapnik.PointDatasource()
         else:
             layer.datasource = mapnik.MemoryDatasource()
             context = mapnik.Context()
+
+        # LIZARD5
+        # layer.datasource = mapnik.MemoryDatasource()
 
         try:
             named_locations = self._locations()
@@ -202,6 +211,7 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
                 lookup=fews_style_lookup)
 
             # Put style in point, filters work on these styles.
+
             if mapnik.mapnik_version() < 800:
                 add_datasource_point(
                     layer.datasource, named_location['longitude'],
@@ -211,6 +221,11 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
                     layer.datasource, named_location['longitude'],
                     named_location['latitude'], 'style',
                     str(point_style_name), _id=i, context=context)
+
+            # LIZARD5
+            # add_datasource_point(
+            #     layer.datasource, named_location['longitude'],
+            #     named_location['latitude'], 'style', str(point_style_name), i)
 
             # generate "unique" point style name and append to layer
             # if the same style occurs multiple times, it will overwrite old.
@@ -514,7 +529,7 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         TODO: the identifier is always None, so individual symbols
         cannot be retrieved.
         """
-        _, output_filename = fews_symbol_name(
+        ignored, output_filename, draw_in_legend = fews_symbol_name(
             self.jdbc_source, self.filterkey, '',
             self.parameterkey, nodata=False)
         return '%sgenerated_icons/%s' % (settings.MEDIA_URL, output_filename)
@@ -582,11 +597,16 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         TODO: the identifier is always None, so individual symbols
         cannot be retrieved.
         """
-        _, output_filename = fews_symbol_name(
+        ignored, output_filename, draw_in_legend = fews_symbol_name(
             self.jdbc_source, self.filterkey, '',
             self.parameterkey, nodata=False)
+
         icon = '%sgenerated_icons/%s' % (settings.MEDIA_URL, output_filename)
-        return [icon]
+
+        if draw_in_legend:
+            return [icon]
+        else:
+            return []
 
     def location_list(self, name=''):
         '''
