@@ -31,7 +31,7 @@ def load_parameters(timeout, jdbc_source,
         if item["children"]:
             params.extend(
                 load_parameters(
-                    jdbc_source, item["children"],
+                    timeout, jdbc_source, item["children"],
                     url_name, default_url_name, logger=logger))
         else:
             logger.debug("Getting named parameters for %s." %
@@ -106,10 +106,10 @@ def rebuild_jdbc_cache(logger, *args, **options):
 
             if options.get('deep', False):
                 if default_url_name:
-                    params = load_parameters(jdbc_source, tree,
+                    params = load_parameters(timeout, jdbc_source, tree,
                                              default_url_name, logger=logger)
                 else:
-                    params = load_parameters(jdbc_source, tree, url_name,
+                    params = load_parameters(timeout, jdbc_source, tree, url_name,
                                              default_url_name, logger=logger)
                 for filter_id, param_id in params:
                     logger.debug(
