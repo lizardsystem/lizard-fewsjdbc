@@ -674,6 +674,7 @@ class IconStyleWebRS(models.Model):
     icon = models.CharField(max_length=40, choices=list_image_file_names())
     mask = models.CharField(max_length=40, choices=list_image_file_names())
     color = ColorField(help_text="Use color format ffffff or 333333")
+    draw_in_legend = models.BooleanField(default=True)
 
     class Meta:
         verbose_name = _("Icon style web rs")
@@ -703,7 +704,8 @@ class IconStyleWebRS(models.Model):
             result[icon_style._key] = {
                 'icon': icon_style.icon,
                 'mask': (icon_style.mask, ),
-                'color': icon_style.color.to_tuple()
+                'color': icon_style.color.to_tuple(),
+                'draw_in_legend': icon_style.draw_in_legend
             }
         return result
 
@@ -786,7 +788,8 @@ class IconStyleWebRS(models.Model):
         'xx::yy::zz::aa',
         {'icon': 'icon.png',
          'mask': 'mask.png',
-         'color': (1,1,1,0)
+         'color': (1,1,1,0),
+         'draw_in_legend': True
          }
         """
         if styles is None or lookup is None:
@@ -803,7 +806,8 @@ class IconStyleWebRS(models.Model):
             return '::::::', {
                 'icon': 'meetpuntPeil.png',
                 'mask': ('meetpuntPeil_mask.png', ),
-                'color': (0.0, 0.5, 1.0, 1.0)
+                'color': (0.0, 0.5, 1.0, 1.0),
+                'draw_in_legend': True
             }
 
         return found_key, result

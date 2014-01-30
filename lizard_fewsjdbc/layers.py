@@ -71,7 +71,6 @@ def fews_symbol_name(jdbc_source, filterkey, locationkey, parameterkey,
     Find fews symbol name.
     Copied from lizard_fewsunblobbed.
     """
-
     if isinstance(jdbc_source, JdbcSource):
         style_name, icon_style = IconStyle.style(
             jdbc_source, filterkey, locationkey, parameterkey, styles, lookup)
