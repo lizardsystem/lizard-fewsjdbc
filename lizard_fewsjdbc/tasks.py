@@ -50,7 +50,7 @@ def load_parameters(timeout, jdbc_source,
 
 @task
 def rebuild_jdbc_cache_task(username=None, db_name=None,
-                       taskname=None, *args, **options):
+                            taskname=None, *args, **options):
     """
     Rebuild filter cache for fewsjdbc.
 
@@ -106,8 +106,9 @@ def rebuild_jdbc_cache(logger, *args, **options):
                     params = load_parameters(timeout, jdbc_source, tree,
                                              default_url_name, logger=logger)
                 else:
-                    params = load_parameters(timeout, jdbc_source, tree, url_name,
-                                             default_url_name, logger=logger)
+                    params = load_parameters(
+                        timeout, jdbc_source, tree, url_name,
+                        default_url_name, logger=logger)
                 for filter_id, param_id in params:
                     logger.debug(
                         "Getting locations: %s, %s" %
