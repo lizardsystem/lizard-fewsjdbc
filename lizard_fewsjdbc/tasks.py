@@ -1,24 +1,10 @@
 import logging
 
 from celery.task import task
+from lizard_ui.multitenancy import set_host
 
-from lizard_task.handler import get_handler
 from lizard_fewsjdbc.models import JdbcSource
 from lizard_fewsjdbc.models import CACHE_TIMEOUT
-
-
-@task
-def test_task(username=None, db_name=None, taskname=None):
-    """
-    Test task
-    """
-    handler = get_handler(username=username, taskname=taskname)
-    logger = logging.getLogger(__name__)
-    logger.addHandler(handler)
-    logger.setLevel(20)
-
-    logger.info('I did my job')
-    return 'OK'
 
 
 def load_parameters(timeout, jdbc_source,
@@ -49,8 +35,7 @@ def load_parameters(timeout, jdbc_source,
 
 
 @task
-def rebuild_jdbc_cache_task(username=None, db_name=None,
-                       taskname=None, *args, **options):
+def rebuild_jdbc_cache_task(*args, **options):
     """
     Rebuild filter cache for fewsjdbc.
 
@@ -58,11 +43,12 @@ def rebuild_jdbc_cache_task(username=None, db_name=None,
         timeout
         deep
     """
-    handler = get_handler(username=username, taskname=taskname)
-    logger = logging.getLogger('rebuild_jdbc_cache')
-    logger.addHandler(handler)
-    logger.setLevel(20)
 
+    # Set the host for multitenant lizard5 sites
+    if 'host' in options:
+        set_host(options['host'])
+
+    logger = None
     rebuild_jdbc_cache(logger, *args, **options)
 
 
@@ -106,8 +92,9 @@ def rebuild_jdbc_cache(logger, *args, **options):
                     params = load_parameters(timeout, jdbc_source, tree,
                                              default_url_name, logger=logger)
                 else:
-                    params = load_parameters(timeout, jdbc_source, tree, url_name,
-                                             default_url_name, logger=logger)
+                    params = load_parameters(
+                        timeout, jdbc_source, tree, url_name,
+                        default_url_name, logger=logger)
                 for filter_id, param_id in params:
                     logger.debug(
                         "Getting locations: %s, %s" %

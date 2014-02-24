@@ -18,7 +18,6 @@ install_requires = [
     'django-tls',
     'lizard-map >= 4.0, < 5.0',
     'lizard-ui >= 4.0, < 5.0',
-    'lizard-task',
     'django-nose',
     'iso8601',
     'pkginfo',
