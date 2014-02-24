@@ -1,7 +1,7 @@
 import logging
 
 from celery.task import task
-from lizard5_site.router import set_host
+from lizard_ui.multitenancy import set_host
 
 from lizard_fewsjdbc.models import JdbcSource
 from lizard_fewsjdbc.models import CACHE_TIMEOUT
