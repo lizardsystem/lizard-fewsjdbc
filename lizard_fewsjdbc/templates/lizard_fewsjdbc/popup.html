@@ -34,6 +34,20 @@
                  title="bewerk drempelwaarde(n)">drempelwaarden</a>
             </td>
           {% endif %}
+
+          <td>
+            <a href="{% url lizard_map_collage_add %}"
+               class="collage-add"
+               data-name="{{ collage_item_prop.name }}, {{ parameter }}"
+               data-adapter-class="{{ collage_item_prop.adapter_class }}"
+               data-adapter-layer-json="{{ collage_item_prop.adapter_layer_json }}"
+               data-identifier="{{ collage_item_prop.identifier }}"
+               data-target-id="#edit-collage"
+               title="Toevoegen aan selectie">
+              <i class="icon-picture"></i>
+              Toevoegen aan dashboard
+            </a>
+          </td>
         </tr>
       {% endfor %}
     </table>
