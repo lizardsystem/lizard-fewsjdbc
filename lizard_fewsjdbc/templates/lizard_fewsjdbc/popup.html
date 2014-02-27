@@ -3,37 +3,39 @@
 
 {# header #}
 {% block popup_title %}
-<div>
-  <strong>{{ parameter|truncatewords:16 }}</strong>
-</div>
+  <div>
+    <strong>{{ parameter|truncatewords:16 }}</strong>
+  </div>
 {% endblock %}
 
 {% if flot_graph_data_url or image_graph_url %}
-<div style="width: 100%; height: 240px;"
-     class="dynamic-graph"
-     data-flot-graph-data-url="{{ flot_graph_data_url }}"
-     data-image-graph-url="{{ image_graph_url }}">
-</div>
+  <div style="width: 100%; height: 240px;"
+       class="dynamic-graph"
+       data-flot-graph-data-url="{{ flot_graph_data_url }}"
+       data-image-graph-url="{{ image_graph_url }}">
+  </div>
 {% endif %}
 
 {% if collage_item_props %}
-<div style="margin-top:10px;">
-  <table class="table table-condensed table-bordered">
-  {% for collage_item_prop in collage_item_props %}
-  <tr>
-  <td>{{ collage_item_prop.name }}, {{ parameter }}</td>
-  <td><a href="{{ collage_item_prop.url }}"
-     class="ss_table_save ss_sprite"
-     title="exporteer tijdreeksen">exporteer tijdreeksen</a></td>
-  {% if perms.lizard_fewsjdbc.change_threshold %}
-  <td>
-  <a href="{% url lizard_fewsjdbc.thresholds %}?workspace_item_id={{ adapter.workspace_item.id }}&identifier={{ collage_item_prop.identifier }}"
-     class="ss_chart_line_edit ss_sprite"
-     title="bewerk drempelwaarde(n)">drempelwaarden</a>
-  </td>
-  {% endif %}
-  </tr>
-  {% endfor %}
-  </table>
-</div>
+  <div style="margin-top:10px;">
+    <table class="table table-condensed table-bordered">
+      {% for collage_item_prop in collage_item_props %}
+        <tr>
+          <td>{{ collage_item_prop.name }}, {{ parameter }}</td>
+          <td>
+            <a href="{{ collage_item_prop.url }}"
+               class="ss_table_save ss_sprite"
+               title="exporteer tijdreeksen">exporteer tijdreeksen</a>
+          </td>
+          {% if perms.lizard_fewsjdbc.change_threshold %}
+            <td>
+              <a href="{% url lizard_fewsjdbc.thresholds %}?workspace_item_id={{ adapter.workspace_item.id }}&identifier={{ collage_item_prop.identifier }}"
+                 class="ss_chart_line_edit ss_sprite"
+                 title="bewerk drempelwaarde(n)">drempelwaarden</a>
+            </td>
+          {% endif %}
+        </tr>
+      {% endfor %}
+    </table>
+  </div>
 {% endif %}
