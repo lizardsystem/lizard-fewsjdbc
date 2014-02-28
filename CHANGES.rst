@@ -13,6 +13,9 @@ Changelog of lizard-fewsjdbc
 
 - Use host specific cache key for multitenancy use.
 
+- Re-added 'add to collage' links. And adjusted the name for the collage
+  screen (as the parameter name isn't really needed anymore).
+
 
 2.27 (2013-04-17)
 -----------------
