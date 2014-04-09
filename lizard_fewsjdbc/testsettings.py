@@ -11,7 +11,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': 'test.db',
-        }
+    }
 }
 
 SITE_ID = 1
@@ -31,7 +31,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
-    ]
+]
 ROOT_URLCONF = 'lizard_fewsjdbc.urls'
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
@@ -46,7 +46,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     # Needs to be added for django-staticfiles to allow you to use
     # {{ STATIC_URL }}myapp/my.css in your templates.
     'staticfiles.context_processors.static_url',
-    )
+)
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
@@ -101,7 +101,7 @@ MAP_SETTINGS = {
     'startlocation_zoom': '7',
     'base_layer_osm': (
         'http://tile.openstreetmap.nl/tiles/${z}/${x}/${y}.png'),
-    }
+}
 
 # Set the default period in days.
 DEFAULT_START_DAYS = -20

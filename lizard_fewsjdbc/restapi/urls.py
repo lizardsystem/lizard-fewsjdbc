@@ -13,7 +13,8 @@ def make_patterns(subclassed_view=views.JdbcRestAPIView):
     _jdbc_filter_parameter_location = (_jdbc_filter_parameter +
                                        r'(?P<location_id>[^/]+)/')
 
-    return patterns('',
+    return patterns(
+        '',
         url(r'^$', subclassed_view.as_view(),
             name='fewsjdbc.restapi.home_view'),
         url(r'^%s$' % _jdbc_filter, subclassed_view.as_view(),
@@ -23,4 +24,4 @@ def make_patterns(subclassed_view=views.JdbcRestAPIView):
         url(r'^%s$' % _jdbc_filter_parameter_location,
             subclassed_view.as_view(),
             name='fewsjdbc.restapi.location_view'),
-        )
+    )

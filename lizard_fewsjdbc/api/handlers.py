@@ -60,7 +60,7 @@ def start_end_dates(request):
     if start_date > end_date:
         # Yes, Reinout made that happen...
         raise ValueError("Start date %s is later than end date %s ..." % (
-                start_date, end_date))
+            start_date, end_date))
     return start_date, end_date
 
 
@@ -144,7 +144,7 @@ class ParameterHandler(BaseHandler):
         jdbc_source = JdbcSource.objects.get(slug=jdbc_source_slug)
         data = []
         for parameter in jdbc_source.get_named_parameters(
-            filter_id):
+                filter_id):
             safe_parameter_id = urllib.quote(parameter['parameterid'], '')
             url = request.build_absolute_uri(
                 reverse(
@@ -307,7 +307,7 @@ class TimeseriePngHandler(BaseHandler):
             'slug': jdbc_source_slug,
             'filter': filter_id,
             'parameter': parameter_id,
-            }
+        }
         adapter = FewsJdbc(None, layer_arguments=layer_arguments)
         identifiers = [{'location': location_id}]
         start_date, end_date = start_end_dates(request)

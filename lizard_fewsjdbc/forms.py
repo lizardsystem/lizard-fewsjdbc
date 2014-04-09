@@ -46,7 +46,7 @@ class ThresholdUpdateForm(forms.Form):
             result = pattern.match(value)
             if not result:
                 logger.error(_("Color must be in hexadecimal"
-                    "format, e.g. FF05A9, got %s") % value)
+                               "format, e.g. FF05A9, got %s") % value)
                 # return the default color
                 self.cleaned_data['value'] = '000000'
             else:
