@@ -58,4 +58,4 @@ urlpatterns = patterns(
     url(r'^%scsv/$' % _jdbc_filter_parameter_location,
         timeserie_csv_handler,
         name=TIMESERIE_URL_NAME + '_csv'),
-    )
+)

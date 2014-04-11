@@ -5,23 +5,22 @@
 {% block subtitle %} Apps overview {% endblock %}
 
 {% block sidebar %}
-<div id="iconbox" class="sidebarbox sidebarbox-stretched iconlist">
-  <h2>Gegevensbronnen</h2>
-  <ul>
-    {% for jdbc_source in view.jdbc_sources %}
-    <li>
-      <a href="{% url lizard_fewsjdbc.jdbc_source jdbc_source_slug=jdbc_source.slug %}"
-         class="lizard-map-link">
-        <img src="{{ STATIC_URL }}lizard_ui/app_icons/meetgegevens.png" />
-        <div>{{ jdbc_source }}</div>
-      </a>
-    </li>
-    {% empty %}
-    <li>
-      No Jdbc sources configurated.
-    </li>
-    {% endfor %}
-  </ul>
-</div>
-
+  <div id="iconbox" class="sidebarbox sidebarbox-stretched iconlist">
+    <h2>Gegevensbronnen</h2>
+    <ul>
+      {% for jdbc_source in view.jdbc_sources %}
+        <li>
+          <a href="{% url lizard_fewsjdbc.jdbc_source jdbc_source_slug=jdbc_source.slug %}"
+             class="lizard-map-link">
+            <img src="{{ STATIC_URL }}lizard_ui/app_icons/meetgegevens.png" />
+            <div>{{ jdbc_source }}</div>
+          </a>
+        </li>
+      {% empty %}
+        <li>
+          No Jdbc sources configurated.
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
 {% endblock %}

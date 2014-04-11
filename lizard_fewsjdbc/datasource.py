@@ -16,7 +16,7 @@ class FewsJdbcDataSource(datasource.DataSource):
     PROPERTIES = (
         properties.LAYER_POINTS,
         properties.DATA_CAN_HAVE_VALUE_LAYER_SCRIPT
-        )
+    )
 
     def __init__(self, jdbc_source):
         self.jdbc_source = jdbc_source
@@ -51,7 +51,7 @@ class FewsJdbcDataSource(datasource.DataSource):
                 description='Parameter',
                 datatype=criteria.Criterion.TYPE_SELECT,
                 prerequisites=('filter',))
-            )
+        )
 
     def _filtertree(self):
         def tree_list(nodes):
@@ -95,12 +95,12 @@ class FewsJdbcDataSource(datasource.DataSource):
     def options_for_criterion(self, criterion):
         if criterion.identifier == 'appname':
             return criteria.OptionList([
-                    criteria.Option('lizard_fewsjdbc', 'FEWS JDBC')])
+                criteria.Option('lizard_fewsjdbc', 'FEWS JDBC')])
         if criterion.identifier == 'jdbc_source_slug':
             return criteria.OptionList([
                 criteria.Option(
-                        self.jdbc_source.slug,
-                        self.jdbc_source.name)])
+                    self.jdbc_source.slug,
+                    self.jdbc_source.name)])
         if criterion.identifier == 'filter':
             return self._filtertree()
         if criterion.identifier == 'parameter':
@@ -167,7 +167,7 @@ class FewsJdbcDataSource(datasource.DataSource):
             for loc in self.jdbc_source.get_locations(
                 self._choices_made['filter'],
                 self._choices_made['parameter'])
-            ]
+        ]
 
     def timeseries(self, location_id, start_datetime=None, end_datetime=None):
         try:
@@ -185,9 +185,9 @@ class FewsJdbcDataSource(datasource.DataSource):
         series_name = self.cached_unit()
 
         dataframe = timeseries.DataFrame({
-                series_name: timeseries.Series(dict(
-                        (dates.to_utc(point['time']), point['value'])
-                        for point in jdbc_result))})
+            series_name: timeseries.Series(dict(
+                (dates.to_utc(point['time']), point['value'])
+                for point in jdbc_result))})
 
         return timeseries.Timeseries(dataframe)
 

@@ -17,7 +17,7 @@ class IconStyleAdmin(admin.ModelAdmin):
 
 class ThresholdAdmin(admin.ModelAdmin):
     list_display = ('name', 'filter_id', 'parameter_id', 'location_id',
-        'value')
+                    'value')
 
 
 admin.site.register(JdbcSource, JdbcSourceAdmin)

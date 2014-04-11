@@ -1,17 +1,16 @@
-import time
 import datetime
 import logging
+import time
 
 from django.core.urlresolvers import reverse
-
 from djangorestframework.response import Response
 from djangorestframework.views import View
-
-from lizard_fewsjdbc.restapi.renderers import RENDERERS
-from lizard_fewsjdbc.models import JdbcSource
-
-from lizard_map.daterange import default_start
 from lizard_map.daterange import default_end
+from lizard_map.daterange import default_start
+
+from lizard_fewsjdbc.models import JdbcSource
+from lizard_fewsjdbc.restapi.renderers import RENDERERS
+
 
 GET_PARAM_DATE_FORMAT = '%Y-%m-%d'
 
@@ -126,26 +125,26 @@ class JdbcRestAPIView(View):
             'filterid': self.filter_id,
             'filtertype': "node",
             'subfilters': [],
-            }
+        }
 
         subfilters = self.get_subfilters(self.filter_id)
 
         for item in subfilters:
             if "children" in item and item["children"]:
                 items['subfilters'].append({
-                        "name": item["name"],
-                        "id": item["id"],
-                        "url": reverse('fewsjdbc.restapi.filter_view',
-                                       kwargs={'filter_id':
-                                                   item["id"]})})
+                    "name": item["name"],
+                    "id": item["id"],
+                    "url": reverse('fewsjdbc.restapi.filter_view',
+                                   kwargs={'filter_id':
+                                           item["id"]})})
             else:
                 items['subfilters'].append({
-                        "name": item["name"],
-                        "id": item["id"],
-                        "url": reverse('fewsjdbc.restapi.filter_view',
-                                       kwargs={'filter_id':
-                                                   item["id"]})
-                        })
+                    "name": item["name"],
+                    "id": item["id"],
+                    "url": reverse('fewsjdbc.restapi.filter_view',
+                                   kwargs={'filter_id':
+                                           item["id"]})
+                })
 
         if self.filter_id:
             self.name = 'Filter "%s"' % (self.filter_id,)
@@ -176,13 +175,13 @@ class JdbcRestAPIView(View):
                         kwargs={
                             'filter_id': filter_id,
                             'parameter_id': parameter["parameterid"]
-                            })
-                    })
-        return Response(200, {
-                'filterid': filter_id,
-                'filtertype': "leaf",
-                'parameters': filter,
+                        })
                 })
+        return Response(200, {
+            'filterid': filter_id,
+            'filtertype': "leaf",
+            'parameters': filter,
+        })
 
     def get_parameter(self, request, filter_id, parameter_id):
         locations = self.jdbc_source.get_locations(filter_id, parameter_id)
@@ -193,14 +192,15 @@ class JdbcRestAPIView(View):
         parameter = []
         for location in locations:
             parameter.append({
-                    "name": location["location"],
-                    "id": location["locationid"],
-                    "latitude": location["latitude"],
-                    "longitude": location["longitude"],
-                    "url": reverse('fewsjdbc.restapi.location_view',
-                        kwargs={'filter_id': filter_id,
-                                'parameter_id': parameter_id,
-                                'location_id': location["locationid"]})})
+                "name": location["location"],
+                "id": location["locationid"],
+                "latitude": location["latitude"],
+                "longitude": location["longitude"],
+                "url": reverse('fewsjdbc.restapi.location_view',
+                               kwargs={
+                                   'filter_id': filter_id,
+                                   'parameter_id': parameter_id,
+                                   'location_id': location["locationid"]})})
 
         return Response(200, parameter)
 

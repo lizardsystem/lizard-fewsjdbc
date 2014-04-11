@@ -21,7 +21,7 @@ URLs, or give None as an argument to not generate any URLs.'''
         make_option('--timeout', '-t', dest='timeout',
                     help='Cache timeout in seconds. Default is 8*60*60'
                     ' = 8 hours.'),
-        )
+    )
 
     def handle(self, *args, **options):
         rebuild_jdbc_cache(None, None, *args, **options)
