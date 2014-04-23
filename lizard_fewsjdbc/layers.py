@@ -3,6 +3,7 @@ import logging
 import math
 import os
 import pytz
+import time
 
 from django.conf import settings
 from django.core.cache import cache
@@ -20,6 +21,7 @@ from lizard_fewsjdbc.dtu import astimezone
 from lizard_fewsjdbc.models import FewsJdbcQueryError
 from lizard_fewsjdbc.models import IconStyle, Threshold
 from lizard_fewsjdbc.models import JdbcSource
+from lizard_fewsjdbc.douglas_peucker import decimate
 
 logger = logging.getLogger(__name__)
 
@@ -390,13 +392,26 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
                 if location['locationid'] == location_id][0]
 
             parameter_id = self.parameterkey
+
+            start_time = time.time()
             timeseries = self.jdbc_source.get_timeseries(
                 filter_id, location_id, parameter_id, start_date, end_date)
+            elapsed = (time.time() - start_time)
+            logger.debug("Gathered %s fews values in %s secs",
+                         len(timeseries), elapsed)
+
             if timeseries:
                 is_empty = False
             # Plot data if available.
             dates = [row['time'] for row in timeseries]
             values = [row['value'] for row in timeseries]
+
+            start_time = time.time()
+            dates, values = decimate(dates, values)
+            elapsed = (time.time() - start_time)
+            logger.debug("Decimated to %s fews values in %s secs",
+                         len(dates), elapsed)
+
             if values:
                 graph.axes.plot(dates, values,
                                 lw=1,
