@@ -1,14 +1,12 @@
 import datetime
 import logging
-import mapnik
 import math
 import os
 import pytz
 
 from django.conf import settings
-from django.http import Http404
 from django.core.cache import cache
-
+from django.http import Http404
 from lizard_map import coordinates
 from lizard_map import workspace
 from lizard_map.adapter import Graph, FlotGraph
@@ -16,13 +14,14 @@ from lizard_map.mapnik_helper import add_datasource_point
 from lizard_map.models import ICON_ORIGINALS
 from lizard_map.models import WorkspaceItemError
 from lizard_map.symbol_manager import SymbolManager
+import mapnik
 
 from lizard_fewsjdbc.dtu import astimezone
+from lizard_fewsjdbc.models import FewsJdbcQueryError
 from lizard_fewsjdbc.models import IconStyle, Threshold
 from lizard_fewsjdbc.models import JdbcSource
-from lizard_fewsjdbc.models import FewsJdbcQueryError
 
-logger = logging.getLogger('lizard_fewsunblobbed.layers')
+logger = logging.getLogger(__name__)
 
 JDBC_API_URL_NAME = 'api_jdbcs'
 LAYER_STYLES = {
