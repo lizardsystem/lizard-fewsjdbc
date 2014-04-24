@@ -166,11 +166,11 @@ class JdbcSource(models.Model):
         if isinstance(result, int):
             raise FewsJdbcQueryError(result, q)
         if LOG_JDBC_QUERIES:
-            ping_time = 1000 * (t2 - t1)
-            tag_check_time = 1000 * (t3 - t2)
-            query_time = 1000 * (t4 - t3)
-            total_time = 1000 * (t4 - t1)
-            logger.debug("%sms (%s ping, %s tag check, %s query):\n    %s",
+            ping_time = round(1000 * (t2 - t1))
+            tag_check_time = round(1000 * (t3 - t2))
+            query_time = round(1000 * (t4 - t3))
+            total_time = round(1000 * (t4 - t1))
+            logger.debug("%dms (%d ping, %d tag check, %d query):\n    %s",
                          total_time, ping_time, tag_check_time, query_time, q)
         return result
 
