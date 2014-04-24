@@ -465,27 +465,47 @@ class JdbcSource(models.Model):
             query_result, ['time', 'value'])
         t3 = time.time()
 
-        for row in result:
-            # Expecting dateTime.iso8601 in a mixed format (basic date +
-            # extended time) with time zone indication (Z = UTC),
-            # for example: 20110828T00:00:00Z.
-            date_time = row['time'].value
-            date_time_adjusted = '%s-%s-%s' % (
-                date_time[0:4], date_time[4:6], date_time[6:])
-            row['time'] = iso8601.parse_date(date_time_adjusted)
-            # print(date_time, date_time_adjusted, row['time'])
-            if self.timezone:
-                # Bit of a hack. This is used when the timezone FEWS reported
-                # (usually UTC) is incorrect, and allows overriding it.
-                t = row['time']
-                row['time'] = datetime.datetime(
-                    year=t.year,
-                    month=t.month,
-                    day=t.day,
-                    hour=t.hour,
-                    minute=t.minute,
-                    second=t.second,
-                    tzinfo=self.timezone)
+        normal_time_behaviour = True
+        if self.timezone:
+            logger.debug("Timezone is set for this jdbc")
+            normal_time_behaviour = False
+        if result:
+            date_time = result[0]['time'].value
+            if not date_time.endswith('Z'):
+                logger.debug("JDBC result isn't in UTC")
+                normal_time_behaviour = False
+
+        if normal_time_behaviour:
+            # Expecting 20140424T01:00:00Z
+            datetime_format = "%Y%m%dT%H:%M:%SZ"
+            for row in result:
+                row['time'] = datetime.datetime.strptime(
+                    row['time'].value, datetime_format).replace(
+                        tzinfo=pytz.UTC)
+        else:
+            for row in result:
+                # Expecting dateTime.iso8601 in a mixed format (basic date +
+                # extended time) with time zone indication (Z = UTC),
+                # for example: 20110828T00:00:00Z.
+                date_time = row['time'].value
+                date_time_adjusted = '%s-%s-%s' % (
+                    date_time[0:4], date_time[4:6], date_time[6:])
+                row['time'] = iso8601.parse_date(date_time_adjusted)
+                # print(date_time, date_time_adjusted, row['time'])
+                if self.timezone:
+                    # Bit of a hack. This is used when the timezone FEWS reported
+                    # (usually UTC) is incorrect, and allows overriding it.
+                    t = row['time']
+                    row['time'] = datetime.datetime(
+                        year=t.year,
+                        month=t.month,
+                        day=t.day,
+                        hour=t.hour,
+                        minute=t.minute,
+                        second=t.second,
+                        tzinfo=self.timezone)
+
+
         t4 = time.time()
         logger.debug("""Raw query timing data (ms):
         Getting query data from server: %d
@@ -531,7 +551,6 @@ class JdbcSource(models.Model):
     @cached_property
     def timezone(self):
         """Return a tzinfo object for the current JDBC source."""
-
         try:
             return pytz.timezone(self.timezone_string)
         except UnknownTimeZoneError:
