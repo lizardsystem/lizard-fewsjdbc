@@ -18,8 +18,9 @@ from django.core.cache import cache
 from django.core.cache import get_cache
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.db.models.signals import post_save
 from django.db.models.signals import post_delete
+from django.db.models.signals import post_save
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
 from lizard_map.operations import named_list
@@ -472,7 +473,7 @@ class JdbcSource(models.Model):
             date_time_adjusted = '%s-%s-%s' % (
                 date_time[0:4], date_time[4:6], date_time[6:])
             row['time'] = iso8601.parse_date(date_time_adjusted)
-
+            # print(date_time, date_time_adjusted, row['time'])
             if self.timezone:
                 # Bit of a hack. This is used when the timezone FEWS reported
                 # (usually UTC) is incorrect, and allows overriding it.
@@ -527,7 +528,7 @@ class JdbcSource(models.Model):
         return reverse('lizard_fewsjdbc.jdbc_source',
                        kwargs={'jdbc_source_slug': self.slug})
 
-    @property
+    @cached_property
     def timezone(self):
         """Return a tzinfo object for the current JDBC source."""
 
@@ -567,7 +568,7 @@ class IconStyle(models.Model):
     def CACHE_KEY(cls):
         return 'lizard_fewsjdbc.IconStyle.%s' % (get_host(), )
 
-    @property
+    @cached_property
     def _key(self):
         return '%s::%s::%s::%s' % (
             self.jdbc_source.id if self.jdbc_source else '',
