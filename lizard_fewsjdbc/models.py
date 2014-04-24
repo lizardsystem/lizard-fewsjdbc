@@ -1,5 +1,6 @@
 # (c) Nelen & Schuurmans.  GPL licensed, see LICENSE.txt.
 import datetime
+import hashlib
 import iso8601
 import logging
 import time
@@ -14,6 +15,7 @@ from xml.parsers.expat import ExpatError
 from socket import gaierror
 
 from django.core.cache import cache
+from django.core.cache import get_cache
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models.signals import post_save
@@ -367,6 +369,76 @@ class JdbcSource(models.Model):
 
     def get_timeseries(self, filter_id, location_id,
                        parameter_id, start_date, end_date):
+        """Wrapper around _get_timeseries() with some date normalization."""
+        date_range_size = end_date - start_date
+        if date_range_size < datetime.timedelta(days=7):
+            # Normalize the start and end date to start at midnight.
+            normalized_start_date = datetime.datetime(
+                year=start_date.year,
+                month=start_date.month,
+                day=start_date.day,
+                tzinfo=start_date.tzinfo)
+            end_date_plus_one = end_date + datetime.timedelta(days=1)
+            normalized_end_date = datetime.datetime(
+                year=end_date_plus_one.year,
+                month=end_date_plus_one.month,
+                day=end_date_plus_one.day,
+                tzinfo=end_date_plus_one.tzinfo)
+            cache_timeout = 60
+        else:
+            # Normalize the start and end date to start at start of the month.
+            normalized_start_date = datetime.datetime(
+                year=start_date.year,
+                month=start_date.month,
+                day=1,
+                tzinfo=start_date.tzinfo)
+            end_date_plus_one_month = end_date + datetime.timedelta(days=30)
+            normalized_end_date = datetime.datetime(
+                year=end_date_plus_one_month.year,
+                month=end_date_plus_one_month.month,
+                day=1,
+                tzinfo=end_date_plus_one_month.tzinfo)
+            if date_range_size < datetime.timedelta(days=90):
+                cache_timeout = 15 * 60
+            else:
+                cache_timeout = 20 * 60 * 60
+
+        logger.debug("Timeseries req from %s to %s", start_date, end_date)
+        logger.debug("We're querying from %s to %s", normalized_start_date, normalized_end_date)
+        CACHE_VERSION = 2
+        cache_key = ':'.join(['get_timeseries',
+                              str(CACHE_VERSION),
+                              str(filter_id),
+                              str(location_id),
+                              str(parameter_id),
+                              str(normalized_start_date),
+                              str(normalized_end_date)])
+        cache_key = hashlib.md5(cache_key).hexdigest()
+        try:
+            big_cache = get_cache('big_cache')
+            # This is supposed to be a filesystem cache: for big items.
+        except:
+            big_cache = cache
+        logger.debug(cache_key)
+        result = big_cache.get(cache_key)
+        if result is None:
+            logger.debug("Cache miss for %s", cache_key)
+            result = self._get_timeseries(filter_id, location_id,
+                                          parameter_id, normalized_start_date,
+                                          normalized_end_date)
+            big_cache.set(cache_key, result, cache_timeout)
+        else:
+            logger.debug("Cache hit for %s", cache_key)
+
+        result = [row for row in result
+                  if row['time'] >= start_date and row['time'] <= end_date]
+        if result:
+            logger.debug("Start date: %s, first returned result's time: %s",
+                         start_date, result[0]['time'])
+        return result
+
+    def _get_timeseries(self, filter_id, location_id,
+                       parameter_id, start_date, end_date):
         """
         SELECT TIME,VALUE,FLAG,DETECTION,COMMENT from
         ExTimeSeries WHERE filterId = 'MFPS' AND parameterId =
@@ -387,8 +459,6 @@ class JdbcSource(models.Model):
         result = named_list(
             query_result, ['time', 'value', 'flag', 'detection', 'comment'])
 
-        timezone = self.timezone
-
         for row in result:
             # Expecting dateTime.iso8601 in a mixed format (basic date +
             # extended time) with time zone indication (Z = UTC),
@@ -398,7 +468,7 @@ class JdbcSource(models.Model):
                 date_time[0:4], date_time[4:6], date_time[6:])
             row['time'] = iso8601.parse_date(date_time_adjusted)
 
-            if timezone:
+            if self.timezone:
                 # Bit of a hack. This is used when the timezone FEWS reported
                 # (usually UTC) is incorrect, and allows overriding it.
                 t = row['time']
@@ -409,7 +479,7 @@ class JdbcSource(models.Model):
                     hour=t.hour,
                     minute=t.minute,
                     second=t.second,
-                    tzinfo=timezone)
+                    tzinfo=self.timezone)
         return result
 
     def get_unit(self, parameter_id):
