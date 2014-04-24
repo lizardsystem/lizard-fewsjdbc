@@ -451,7 +451,7 @@ class JdbcSource(models.Model):
 
         Apparently only used by the API.
         """
-        q = ("select time, value, flag, detection, comment from "
+        q = ("select time, value from "
              "extimeseries where filterid='%s' and locationid='%s' "
              "and parameterid='%s' and time between '%s' and '%s'" %
              (filter_id, location_id, parameter_id,
@@ -461,7 +461,7 @@ class JdbcSource(models.Model):
         query_result = self.query(q)
 
         result = named_list(
-            query_result, ['time', 'value', 'flag', 'detection', 'comment'])
+            query_result, ['time', 'value'])
 
         for row in result:
             # Expecting dateTime.iso8601 in a mixed format (basic date +
