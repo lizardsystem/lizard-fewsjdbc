@@ -302,24 +302,28 @@ class JdbcSource(models.Model):
     def get_filter_name(self, filter_id):
         """Return the filter name corresponding to the given filter
         id."""
-        cache_key = 'filter_name:%s:%s' % (get_host(), filter_id)
+        cache_key = 'filter_name:%s:%s:%s' % (get_host(), filter_id, self.slug)
         result = cache.get(cache_key)
         if result is None:
             result = self.query("select distinct name from filters where id='%s'"
                                 % (filter_id,))
             if result:
                 result = result[0][0]
-            cache.set(cache_key, result, 60 * 60)
+                cache.set(cache_key, result, 60 * 60)
         return result
 
     def get_parameter_name(self, parameter_id):
         """Return parameter name corresponding to the given parameter
         id."""
-        result = self.query(("select distinct parameter from filters where " +
-                            "parameterid = '%s'") % (parameter_id,))
-
-        if result:
-            return result[0][0]
+        cache_key = 'parameter_name:%s:%s:%s' % (get_host(), parameter_id, self.slug)
+        result = cache.get(cache_key)
+        if result is None:
+            result = self.query(("select distinct parameter from filters where " +
+                                 "parameterid = '%s'") % (parameter_id,))
+            if result:
+                result = result[0][0]
+                cache.set(cache_key, result, 60 * 60)
+        return result
 
     def get_locations(self, filter_id, parameter_id,
                       cache_timeout=CACHE_TIMEOUT):
@@ -409,6 +413,7 @@ class JdbcSource(models.Model):
                               str(CACHE_VERSION),
                               str(filter_id),
                               str(location_id),
+                              str(self.slug),
                               str(parameter_id),
                               str(normalized_start_date),
                               str(normalized_end_date)])
@@ -499,9 +504,14 @@ class JdbcSource(models.Model):
 
         Assumes 1 row is fetched.
         """
-        q = ("select name, unit from parameters where id='%s'" % parameter_id)
-        query_result = self.query(q)
-        return query_result[0]  # First row, first column.
+        cache_key = 'name_and_unit:%s:%s:%s' % (get_host(), parameter_id, self.slug)
+        result = cache.get(cache_key)
+        if result is None:
+            q = ("select name, unit from parameters where id='%s'" % parameter_id)
+            query_result = self.query(q)
+            result = query_result[0]  # First row, first column.
+            cache.set(cache_key, result, 60 * 60)
+        return result
 
     def get_absolute_url(self):
         return reverse('lizard_fewsjdbc.jdbc_source',
