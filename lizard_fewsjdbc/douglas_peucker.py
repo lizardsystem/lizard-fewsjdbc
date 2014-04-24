@@ -24,24 +24,26 @@ from numpy import arange, array, sqrt, argmax, zeros, absolute
 logger = logging.getLogger(__name__)
 
 
-def decimate_until(x, y, tolerance, max_values=1200, max_steps=35, step_factor=8.0):
-    if len(x) <= max_values:
-        # nothing to do
-        return x, y
+def decimate_until(datetimes, values, max_values=2000, max_steps=35, step_factor=2.0):
+    np_datetimes = array(datetimes)
+    np_values = array(values)
+    tolerance_multiplier = 1
+
     for step in range(max_steps):
-        logger.debug('decimate_until: step %s', step)
-        # operate on a copy, so the errors don't accumulate
-        x2 = x.copy()
-        y2 = y.copy()
-        x2, y2 = decimate(x2, y2, tolerance)
-        if len(x2) > max_values:
-            tolerance *= step_factor
-        else:
+        if len(np_datetimes) <= max_values:
+            # The result is small enough.
             break
-    return x2, y2
+        logger.debug('Decimation step %s, start size is %s',
+                     step, len(np_datetimes))
+        np_datetimes, np_values = _decimate(np_datetimes,
+                                            np_values,
+                                            tolerance_multiplier)
+        tolerance_multiplier += step_factor
+
+    return list(np_datetimes), list(np_values)
 
 
-def decimate(datetimes, values):
+def _decimate(np_datetimes, np_values, tolerance_multiplier=1):
     """ Returns decimated x and y arrays.
 
     This is Douglas and Peucker's algorithm rewritten to use Numeric arrays.
@@ -51,14 +53,11 @@ def decimate(datetimes, values):
     Compression ratios for large seismic and well data sets can be significant.
 
     """
-    np_datetimes = array(datetimes)
-    np_values = array(values)
-
     RESOLUTION = 2000.0  # Assumption for resolution in pixels.
-    x = arange(len(datetimes))  # In fews, the data is pretty evenly spread.
-    tolerance = len(datetimes) / RESOLUTION
+    x = arange(len(np_datetimes))  # In fews, the data is pretty evenly spread.
+    tolerance = len(np_datetimes) / RESOLUTION * tolerance_multiplier
     y_data_height = np_values.max() - np_values.min()
-    y = np.multiply(np_values, len(datetimes) / y_data_height)
+    y = np.multiply(np_values, len(np_datetimes) / y_data_height)
 
     keep = zeros(len(x), dtype=np.bool)
     segments = deque([(0, len(x) - 1)])
@@ -94,4 +93,4 @@ def decimate(datetimes, values):
             segments.append((si, abs_index))
             segments.append((abs_index, ei))
 
-    return list(np_datetimes[keep]), list(np_values[keep])
+    return np_datetimes[keep], np_values[keep]

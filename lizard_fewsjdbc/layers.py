@@ -21,7 +21,7 @@ from lizard_fewsjdbc.dtu import astimezone
 from lizard_fewsjdbc.models import FewsJdbcQueryError
 from lizard_fewsjdbc.models import IconStyle, Threshold
 from lizard_fewsjdbc.models import JdbcSource
-from lizard_fewsjdbc.douglas_peucker import decimate
+from lizard_fewsjdbc.douglas_peucker import decimate_until
 
 logger = logging.getLogger(__name__)
 
@@ -407,7 +407,7 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
             values = [row['value'] for row in timeseries]
 
             start_time = time.time()
-            dates, values = decimate(dates, values)
+            dates, values = decimate_until(dates, values)
             elapsed = (time.time() - start_time)
             logger.debug("Decimated to %s fews values in %s secs",
                          len(dates), elapsed)
