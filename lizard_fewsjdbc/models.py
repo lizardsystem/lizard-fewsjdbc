@@ -39,8 +39,7 @@ FILTER_CACHE_KEY = 'lizard_fewsjdbc.models.filter_cache_key'
 PARAMETER_NAME_CACHE_KEY = 'lizard_fewsjdbc.models.parameter_name_cache_key'
 LOCATION_CACHE_KEY = 'lizard_fewsjdbc.layers.location_cache_key'
 CACHE_TIMEOUT = 8 * 60 * 60  # Default is 8 hours
-LOG_JDBC_QUERIES = getattr(settings, 'LOG_JDBC_QUERIES', False)
-
+LOG_JDBC_QUERIES = True
 
 logger = logging.getLogger(__name__)
 
@@ -140,10 +139,6 @@ class JdbcSource(models.Model):
         FewsJdbcQueryError if the jdbc server returns a ``-1`` or
         ``-2`` error code.
 
-        Set ``LOG_JDBC_QUERIES = True`` in your django settings if you
-        want info-level logging of the jdbc queries including timing
-        data.
-
         """
         if '"' in q:
             logger.warn(
@@ -175,8 +170,8 @@ class JdbcSource(models.Model):
             tag_check_time = 1000 * (t3 - t2)
             query_time = 1000 * (t4 - t3)
             total_time = 1000 * (t4 - t1)
-            logger.info("%sms (%s ping, %s tag check, %s query): %s",
-                        total_time, ping_time, tag_check_time, query_time, q)
+            logger.debug("%sms (%s ping, %s tag check, %s query):\n    %s",
+                         total_time, ping_time, tag_check_time, query_time, q)
         return result
 
     @property
