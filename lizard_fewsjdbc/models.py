@@ -18,9 +18,9 @@ from django.core.cache import cache
 from django.core.cache import get_cache
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.db.models.signals import post_save
 from django.db.models.signals import post_delete
-from django.conf import settings
+from django.db.models.signals import post_save
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
 from lizard_map.operations import named_list
@@ -39,8 +39,7 @@ FILTER_CACHE_KEY = 'lizard_fewsjdbc.models.filter_cache_key'
 PARAMETER_NAME_CACHE_KEY = 'lizard_fewsjdbc.models.parameter_name_cache_key'
 LOCATION_CACHE_KEY = 'lizard_fewsjdbc.layers.location_cache_key'
 CACHE_TIMEOUT = 8 * 60 * 60  # Default is 8 hours
-LOG_JDBC_QUERIES = getattr(settings, 'LOG_JDBC_QUERIES', False)
-
+LOG_JDBC_QUERIES = True
 
 logger = logging.getLogger(__name__)
 
@@ -140,10 +139,6 @@ class JdbcSource(models.Model):
         FewsJdbcQueryError if the jdbc server returns a ``-1`` or
         ``-2`` error code.
 
-        Set ``LOG_JDBC_QUERIES = True`` in your django settings if you
-        want info-level logging of the jdbc queries including timing
-        data.
-
         """
         if '"' in q:
             logger.warn(
@@ -171,12 +166,12 @@ class JdbcSource(models.Model):
         if isinstance(result, int):
             raise FewsJdbcQueryError(result, q)
         if LOG_JDBC_QUERIES:
-            ping_time = 1000 * (t2 - t1)
-            tag_check_time = 1000 * (t3 - t2)
-            query_time = 1000 * (t4 - t3)
-            total_time = 1000 * (t4 - t1)
-            logger.info("%sms (%s ping, %s tag check, %s query): %s",
-                        total_time, ping_time, tag_check_time, query_time, q)
+            ping_time = round(1000 * (t2 - t1))
+            tag_check_time = round(1000 * (t3 - t2))
+            query_time = round(1000 * (t4 - t3))
+            total_time = round(1000 * (t4 - t1))
+            logger.debug("%dms (%d ping, %d tag check, %d query):\n    %s",
+                         total_time, ping_time, tag_check_time, query_time, q)
         return result
 
     @property
@@ -307,20 +302,28 @@ class JdbcSource(models.Model):
     def get_filter_name(self, filter_id):
         """Return the filter name corresponding to the given filter
         id."""
-        result = self.query("select distinct name from filters where id='%s'"
-                            % (filter_id,))
-
-        if result:
-            return result[0][0]
+        cache_key = 'filter_name:%s:%s:%s' % (get_host(), filter_id, self.slug)
+        result = cache.get(cache_key)
+        if result is None:
+            result = self.query("select distinct name from filters where id='%s'"
+                                % (filter_id,))
+            if result:
+                result = result[0][0]
+                cache.set(cache_key, result, 60 * 60)
+        return result
 
     def get_parameter_name(self, parameter_id):
         """Return parameter name corresponding to the given parameter
         id."""
-        result = self.query(("select distinct parameter from filters where " +
-                            "parameterid = '%s'") % (parameter_id,))
-
-        if result:
-            return result[0][0]
+        cache_key = 'parameter_name:%s:%s:%s' % (get_host(), parameter_id, self.slug)
+        result = cache.get(cache_key)
+        if result is None:
+            result = self.query(("select distinct parameter from filters where " +
+                                 "parameterid = '%s'") % (parameter_id,))
+            if result:
+                result = result[0][0]
+                cache.set(cache_key, result, 60 * 60)
+        return result
 
     def get_locations(self, filter_id, parameter_id,
                       cache_timeout=CACHE_TIMEOUT):
@@ -410,6 +413,7 @@ class JdbcSource(models.Model):
                               str(CACHE_VERSION),
                               str(filter_id),
                               str(location_id),
+                              str(self.slug),
                               str(parameter_id),
                               str(normalized_start_date),
                               str(normalized_end_date)])
@@ -447,39 +451,70 @@ class JdbcSource(models.Model):
 
         Apparently only used by the API.
         """
-        q = ("select time, value, flag, detection, comment from "
+        q = ("select time, value from "
              "extimeseries where filterid='%s' and locationid='%s' "
              "and parameterid='%s' and time between '%s' and '%s'" %
              (filter_id, location_id, parameter_id,
               start_date.strftime(JDBC_DATE_FORMAT),
               end_date.strftime(JDBC_DATE_FORMAT)))
 
+        t1 = time.time()
         query_result = self.query(q)
-
+        t2 = time.time()
         result = named_list(
-            query_result, ['time', 'value', 'flag', 'detection', 'comment'])
+            query_result, ['time', 'value'])
+        t3 = time.time()
 
-        for row in result:
-            # Expecting dateTime.iso8601 in a mixed format (basic date +
-            # extended time) with time zone indication (Z = UTC),
-            # for example: 20110828T00:00:00Z.
-            date_time = row['time'].value
-            date_time_adjusted = '%s-%s-%s' % (
-                date_time[0:4], date_time[4:6], date_time[6:])
-            row['time'] = iso8601.parse_date(date_time_adjusted)
+        normal_time_behaviour = True
+        if self.timezone:
+            logger.debug("Timezone is set for this jdbc")
+            normal_time_behaviour = False
+        if result:
+            date_time = result[0]['time'].value
+            if not date_time.endswith('Z'):
+                logger.debug("JDBC result isn't in UTC")
+                normal_time_behaviour = False
 
-            if self.timezone:
-                # Bit of a hack. This is used when the timezone FEWS reported
-                # (usually UTC) is incorrect, and allows overriding it.
-                t = row['time']
-                row['time'] = datetime.datetime(
-                    year=t.year,
-                    month=t.month,
-                    day=t.day,
-                    hour=t.hour,
-                    minute=t.minute,
-                    second=t.second,
-                    tzinfo=self.timezone)
+        if normal_time_behaviour:
+            # Expecting 20140424T01:00:00Z
+            datetime_format = "%Y%m%dT%H:%M:%SZ"
+            for row in result:
+                row['time'] = datetime.datetime.strptime(
+                    row['time'].value, datetime_format).replace(
+                        tzinfo=pytz.UTC)
+        else:
+            for row in result:
+                # Expecting dateTime.iso8601 in a mixed format (basic date +
+                # extended time) with time zone indication (Z = UTC),
+                # for example: 20110828T00:00:00Z.
+                date_time = row['time'].value
+                date_time_adjusted = '%s-%s-%s' % (
+                    date_time[0:4], date_time[4:6], date_time[6:])
+                row['time'] = iso8601.parse_date(date_time_adjusted)
+                # print(date_time, date_time_adjusted, row['time'])
+                if self.timezone:
+                    # Bit of a hack. This is used when the timezone FEWS reported
+                    # (usually UTC) is incorrect, and allows overriding it.
+                    t = row['time']
+                    row['time'] = datetime.datetime(
+                        year=t.year,
+                        month=t.month,
+                        day=t.day,
+                        hour=t.hour,
+                        minute=t.minute,
+                        second=t.second,
+                        tzinfo=self.timezone)
+
+
+        t4 = time.time()
+        logger.debug("""Raw query timing data (ms):
+        Getting query data from server: %d
+        Converting to named list: %d
+        Parsing time and adding timezone: %d""",
+                     round(1000 * (t2 - t1)),
+                     round(1000 * (t3 - t3)),
+                     round(1000 * (t4 - t3))
+                 )
         return result
 
     def get_unit(self, parameter_id):
@@ -500,18 +535,22 @@ class JdbcSource(models.Model):
 
         Assumes 1 row is fetched.
         """
-        q = ("select name, unit from parameters where id='%s'" % parameter_id)
-        query_result = self.query(q)
-        return query_result[0]  # First row, first column.
+        cache_key = 'name_and_unit:%s:%s:%s' % (get_host(), parameter_id, self.slug)
+        result = cache.get(cache_key)
+        if result is None:
+            q = ("select name, unit from parameters where id='%s'" % parameter_id)
+            query_result = self.query(q)
+            result = query_result[0]  # First row, first column.
+            cache.set(cache_key, result, 60 * 60)
+        return result
 
     def get_absolute_url(self):
         return reverse('lizard_fewsjdbc.jdbc_source',
                        kwargs={'jdbc_source_slug': self.slug})
 
-    @property
+    @cached_property
     def timezone(self):
         """Return a tzinfo object for the current JDBC source."""
-
         try:
             return pytz.timezone(self.timezone_string)
         except UnknownTimeZoneError:
@@ -548,7 +587,7 @@ class IconStyle(models.Model):
     def CACHE_KEY(cls):
         return 'lizard_fewsjdbc.IconStyle.%s' % (get_host(), )
 
-    @property
+    @cached_property
     def _key(self):
         return '%s::%s::%s::%s' % (
             self.jdbc_source.id if self.jdbc_source else '',
