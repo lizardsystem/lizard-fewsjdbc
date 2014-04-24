@@ -458,10 +458,12 @@ class JdbcSource(models.Model):
               start_date.strftime(JDBC_DATE_FORMAT),
               end_date.strftime(JDBC_DATE_FORMAT)))
 
+        t1 = time.time()
         query_result = self.query(q)
-
+        t2 = time.time()
         result = named_list(
             query_result, ['time', 'value'])
+        t3 = time.time()
 
         for row in result:
             # Expecting dateTime.iso8601 in a mixed format (basic date +
@@ -484,6 +486,15 @@ class JdbcSource(models.Model):
                     minute=t.minute,
                     second=t.second,
                     tzinfo=self.timezone)
+        t4 = time.time()
+        logger.debug("""Raw query timing data (ms):
+        Getting query data from server: %d
+        Converting to named list: %d
+        Parsing time and adding timezone: %d""",
+                     round(1000 * (t2 - t1)),
+                     round(1000 * (t3 - t3)),
+                     round(1000 * (t4 - t3))
+                 )
         return result
 
     def get_unit(self, parameter_id):
