@@ -302,11 +302,15 @@ class JdbcSource(models.Model):
     def get_filter_name(self, filter_id):
         """Return the filter name corresponding to the given filter
         id."""
-        result = self.query("select distinct name from filters where id='%s'"
-                            % (filter_id,))
-
-        if result:
-            return result[0][0]
+        cache_key = 'filter_name:%s:%s' % (get_host(), filter_id)
+        result = cache.get(cache_key)
+        if result is None:
+            result = self.query("select distinct name from filters where id='%s'"
+                                % (filter_id,))
+            if result:
+                result = result[0][0]
+            cache.set(cache_key, result, 60 * 60)
+        return result
 
     def get_parameter_name(self, parameter_id):
         """Return parameter name corresponding to the given parameter
