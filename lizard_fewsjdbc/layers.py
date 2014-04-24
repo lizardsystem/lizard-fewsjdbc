@@ -371,9 +371,18 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         line_styles = self.line_styles(identifiers)
         named_locations = self._locations()
         today = datetime.datetime.now()
+
         graph = GraphClass(start_date, end_date, today=today,
                            tz=pytz.timezone(settings.TIME_ZONE),
                            **extra_params)
+        # start_date_for_query = start_date.replace(
+        #     tzinfo=pytz.utc)
+        # # .astimezone(pytz.timezone(settings.TIME_ZONE))
+        # end_date_for_query = end_date.replace(
+        #     tzinfo=pytz.utc)
+        # logger.debug("Start date from js: %s, start date for query: %s",
+        #              start_date, start_date_for_query)
+
         graph.axes.grid(True)
         parameter_name, unit = self.jdbc_source.get_name_and_unit(
             self.parameterkey)
@@ -395,7 +404,8 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
 
             start_time = time.time()
             timeseries = self.jdbc_source.get_timeseries(
-                filter_id, location_id, parameter_id, start_date, end_date)
+                filter_id, location_id, parameter_id,
+                start_date, end_date)
             elapsed = (time.time() - start_time)
             logger.debug("Gathered %s fews values in %s secs",
                          len(timeseries), elapsed)

@@ -405,7 +405,7 @@ class JdbcSource(models.Model):
 
         logger.debug("Timeseries req from %s to %s", start_date, end_date)
         logger.debug("We're querying from %s to %s", normalized_start_date, normalized_end_date)
-        CACHE_VERSION = 1
+        CACHE_VERSION = 2
         cache_key = ':'.join(['get_timeseries',
                               str(CACHE_VERSION),
                               str(filter_id),
@@ -432,6 +432,9 @@ class JdbcSource(models.Model):
 
         result = [row for row in result
                   if row['time'] >= start_date and row['time'] <= end_date]
+        if result:
+            logger.debug("Start date: %s, first returned result's time: %s",
+                         start_date, result[0]['time'])
         return result
 
     def _get_timeseries(self, filter_id, location_id,
