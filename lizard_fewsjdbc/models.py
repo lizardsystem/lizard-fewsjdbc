@@ -371,42 +371,42 @@ class JdbcSource(models.Model):
         return locations
 
     def get_timeseries(self, filter_id, location_id,
-                       parameter_id, start_date, end_date):
+                       parameter_id, zoom_start_date, zoom_end_date):
         """Wrapper around _get_timeseries() with some date normalization."""
-        date_range_size = end_date - start_date
+        date_range_size = zoom_end_date - zoom_start_date
         if date_range_size < datetime.timedelta(days=7):
             # Normalize the start and end date to start at midnight.
             normalized_start_date = datetime.datetime(
-                year=start_date.year,
-                month=start_date.month,
-                day=start_date.day,
-                tzinfo=start_date.tzinfo)
-            end_date_plus_one = end_date + datetime.timedelta(days=1)
+                year=zoom_start_date.year,
+                month=zoom_start_date.month,
+                day=zoom_start_date.day,
+                tzinfo=zoom_start_date.tzinfo)
+            zoom_end_date_plus_one = zoom_end_date + datetime.timedelta(days=1)
             normalized_end_date = datetime.datetime(
-                year=end_date_plus_one.year,
-                month=end_date_plus_one.month,
-                day=end_date_plus_one.day,
-                tzinfo=end_date_plus_one.tzinfo)
+                year=zoom_end_date_plus_one.year,
+                month=zoom_end_date_plus_one.month,
+                day=zoom_end_date_plus_one.day,
+                tzinfo=zoom_end_date_plus_one.tzinfo)
             cache_timeout = 60
         else:
             # Normalize the start and end date to start at start of the month.
             normalized_start_date = datetime.datetime(
-                year=start_date.year,
-                month=start_date.month,
+                year=zoom_start_date.year,
+                month=zoom_start_date.month,
                 day=1,
-                tzinfo=start_date.tzinfo)
-            end_date_plus_one_month = end_date + datetime.timedelta(days=30)
+                tzinfo=zoom_start_date.tzinfo)
+            zoom_end_date_plus_one_month = zoom_end_date + datetime.timedelta(days=30)
             normalized_end_date = datetime.datetime(
-                year=end_date_plus_one_month.year,
-                month=end_date_plus_one_month.month,
+                year=zoom_end_date_plus_one_month.year,
+                month=zoom_end_date_plus_one_month.month,
                 day=1,
-                tzinfo=end_date_plus_one_month.tzinfo)
-            if date_range_size < datetime.timedelta(days=90):
+                tzinfo=zoom_end_date_plus_one_month.tzinfo)
+            if date_range_size < datetime.timedelta(days=60):
                 cache_timeout = 15 * 60
             else:
                 cache_timeout = 20 * 60 * 60
 
-        logger.debug("Timeseries req from %s to %s", start_date, end_date)
+        logger.debug("Timeseries req from %s to %s", zoom_start_date, zoom_end_date)
         logger.debug("We're querying from %s to %s", normalized_start_date, normalized_end_date)
         CACHE_VERSION = 2
         cache_key = ':'.join(['get_timeseries',
@@ -435,10 +435,10 @@ class JdbcSource(models.Model):
             logger.debug("Cache hit for %s", cache_key)
 
         result = [row for row in result
-                  if row['time'] >= start_date and row['time'] <= end_date]
+                  if row['time'] >= zoom_start_date and row['time'] <= zoom_end_date]
         if result:
             logger.debug("Start date: %s, first returned result's time: %s",
-                         start_date, result[0]['time'])
+                         zoom_start_date, result[0]['time'])
         return result
 
     def _get_timeseries(self, filter_id, location_id,
