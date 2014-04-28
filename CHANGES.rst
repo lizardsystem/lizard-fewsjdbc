@@ -16,6 +16,20 @@ Changelog of lizard-fewsjdbc
 - Re-added 'add to collage' links. And adjusted the name for the collage
   screen (as the parameter name isn't really needed anymore).
 
+- Added caching for timeseries lookups.
+
+- Added caching for several names that are looked up via queries every single
+  time.
+
+- Increased the speed by simply using python's datetime parsing in a smart way
+  instead of using the iso8601 library. Observed speed-up of timeseries query
+  results: on average 4x!
+
+- Not grabbing unused flag/detection/comment fields anymore.
+
+- Added Douglas-Peucker graph decimation for in-browser speed increases. This
+  makes year-long minute data possible.
+
 
 2.27 (2013-04-17)
 -----------------
