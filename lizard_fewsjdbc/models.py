@@ -13,6 +13,7 @@ from pytz import UnknownTimeZoneError
 
 from xml.parsers.expat import ExpatError
 from socket import gaierror
+from tls import request as tls_request
 
 from django.core.cache import cache
 from django.core.cache import get_cache
@@ -23,12 +24,13 @@ from django.db.models.signals import post_save
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
+from lizard_map.fields import ColorField
 from lizard_map.operations import named_list
 from lizard_map.operations import tree_from_list
 from lizard_map.operations import unique_list
-from lizard_map.fields import ColorField
 from lizard_map.symbol_manager import list_image_file_names
 from lizard_map.utility import get_host
+from lizard_map.views import get_view_state
 
 from lizard_fewsjdbc import timeout_xmlrpclib
 from lizard_fewsjdbc.utils import format_number
@@ -370,43 +372,55 @@ class JdbcSource(models.Model):
         locations = self.query(query)
         return locations
 
-    def get_timeseries(self, filter_id, location_id,
-                       parameter_id, start_date, end_date):
+    def get_timeseries(self, filter_id, location_id, parameter_id,
+                       zoom_start_date, zoom_end_date):
         """Wrapper around _get_timeseries() with some date normalization."""
-        date_range_size = end_date - start_date
+        try:
+            view_state = get_view_state(tls_request)
+            view_state_start_date = view_state['dt_start']
+            view_state_end_date = view_state['dt_end']
+        except:  # yes, bare except.
+            view_state_start_date = zoom_start_date
+            view_state_end_date = zoom_end_date
+
+        date_range_size = zoom_end_date - zoom_start_date
         if date_range_size < datetime.timedelta(days=7):
             # Normalize the start and end date to start at midnight.
             normalized_start_date = datetime.datetime(
-                year=start_date.year,
-                month=start_date.month,
-                day=start_date.day,
-                tzinfo=start_date.tzinfo)
-            end_date_plus_one = end_date + datetime.timedelta(days=1)
+                year=zoom_start_date.year,
+                month=zoom_start_date.month,
+                day=zoom_start_date.day,
+                tzinfo=zoom_start_date.tzinfo)
+            zoom_end_date_plus_one = zoom_end_date + datetime.timedelta(days=1)
             normalized_end_date = datetime.datetime(
-                year=end_date_plus_one.year,
-                month=end_date_plus_one.month,
-                day=end_date_plus_one.day,
-                tzinfo=end_date_plus_one.tzinfo)
+                year=zoom_end_date_plus_one.year,
+                month=zoom_end_date_plus_one.month,
+                day=zoom_end_date_plus_one.day,
+                tzinfo=zoom_end_date_plus_one.tzinfo)
             cache_timeout = 60
         else:
             # Normalize the start and end date to start at start of the month.
+            # And do it from the start/end date that's set in the view state.
             normalized_start_date = datetime.datetime(
-                year=start_date.year,
-                month=start_date.month,
+                year=view_state_start_date.year,
+                month=view_state_start_date.month,
                 day=1,
-                tzinfo=start_date.tzinfo)
-            end_date_plus_one_month = end_date + datetime.timedelta(days=30)
+                tzinfo=view_state_start_date.tzinfo)
+            view_state_end_date_plus_one_month = (view_state_end_date +
+                                                  datetime.timedelta(days=30))
             normalized_end_date = datetime.datetime(
-                year=end_date_plus_one_month.year,
-                month=end_date_plus_one_month.month,
+                year=view_state_end_date_plus_one_month.year,
+                month=view_state_end_date_plus_one_month.month,
                 day=1,
-                tzinfo=end_date_plus_one_month.tzinfo)
-            if date_range_size < datetime.timedelta(days=90):
+                tzinfo=view_state_end_date_plus_one_month.tzinfo)
+            if ((view_state_end_date - view_state_start_date)
+                < datetime.timedelta(days=60)):
                 cache_timeout = 15 * 60
             else:
                 cache_timeout = 20 * 60 * 60
 
-        logger.debug("Timeseries req from %s to %s", start_date, end_date)
+        logger.debug("Timeseries req from %s to %s", zoom_start_date, zoom_end_date)
+        logger.debug("View state is  from %s to %s", view_state_start_date, view_state_end_date)
         logger.debug("We're querying from %s to %s", normalized_start_date, normalized_end_date)
         CACHE_VERSION = 2
         cache_key = ':'.join(['get_timeseries',
@@ -423,7 +437,6 @@ class JdbcSource(models.Model):
             # This is supposed to be a filesystem cache: for big items.
         except:
             big_cache = cache
-        logger.debug(cache_key)
         result = big_cache.get(cache_key)
         if result is None:
             logger.debug("Cache miss for %s", cache_key)
@@ -431,14 +444,15 @@ class JdbcSource(models.Model):
                                           parameter_id, normalized_start_date,
                                           normalized_end_date)
             big_cache.set(cache_key, result, cache_timeout)
+            logger.debug("Stored the cache for %s", cache_key)
         else:
             logger.debug("Cache hit for %s", cache_key)
 
         result = [row for row in result
-                  if row['time'] >= start_date and row['time'] <= end_date]
+                  if row['time'] >= zoom_start_date and row['time'] <= zoom_end_date]
         if result:
             logger.debug("Start date: %s, first returned result's time: %s",
-                         start_date, result[0]['time'])
+                         zoom_start_date, result[0]['time'])
         return result
 
     def _get_timeseries(self, filter_id, location_id,
