@@ -437,7 +437,6 @@ class JdbcSource(models.Model):
             # This is supposed to be a filesystem cache: for big items.
         except:
             big_cache = cache
-        logger.debug(cache_key)
         result = big_cache.get(cache_key)
         if result is None:
             logger.debug("Cache miss for %s", cache_key)
@@ -445,6 +444,7 @@ class JdbcSource(models.Model):
                                           parameter_id, normalized_start_date,
                                           normalized_end_date)
             big_cache.set(cache_key, result, cache_timeout)
+            logger.debug("Stored the cache for %s", cache_key)
         else:
             logger.debug("Cache hit for %s", cache_key)
 
