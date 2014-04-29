@@ -379,6 +379,7 @@ class JdbcSource(models.Model):
             view_state = get_view_state(tls_request)
             view_state_start_date = view_state['dt_start']
             view_state_end_date = view_state['dt_end']
+            assert view_state_start_date is not None  # Upon first site visit.
         except:  # yes, bare except.
             view_state_start_date = zoom_start_date
             view_state_end_date = zoom_end_date
