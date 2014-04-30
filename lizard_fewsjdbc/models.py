@@ -149,6 +149,8 @@ class JdbcSource(models.Model):
         t1 = time.time()
         try:
             sp = timeout_xmlrpclib.ServerProxy(self.jdbc_url, timeout=30)
+            # For debugging: add 'verbose=True' in the line above. This prints
+            # ALL the output.
             sp.Ping.isAlive('', '')
         except gaierror, e:
             # Re-raise as more recognizable error.
