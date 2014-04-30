@@ -82,8 +82,8 @@ class TimeoutTransport(xmlrpclib.Transport):
                      round(1000 * (t3 - t1)),
                      len(result))
         if not len(result):
-            logger.warn("0 results. This is the whole response string: %s",
-                        whole_string)
+            if '<i4>-2</i4>' in whole_string:
+                return -2  # Fews error code
         return result
 
 
