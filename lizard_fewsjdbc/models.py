@@ -427,7 +427,7 @@ class JdbcSource(models.Model):
         logger.debug("Timeseries req from %s to %s", zoom_start_date, zoom_end_date)
         logger.debug("View state is  from %s to %s", view_state_start_date, view_state_end_date)
         logger.debug("We're querying from %s to %s", normalized_start_date, normalized_end_date)
-        CACHE_VERSION = 3
+        CACHE_VERSION = 4
         cache_key = ':'.join(['get_timeseries',
                               str(CACHE_VERSION),
                               str(filter_id),
@@ -448,7 +448,8 @@ class JdbcSource(models.Model):
             result = self._get_timeseries(filter_id, location_id,
                                           parameter_id, normalized_start_date,
                                           normalized_end_date)
-            big_cache.set(cache_key, result, cache_timeout)
+            if result:  # Don't store empty results
+                big_cache.set(cache_key, result, cache_timeout)
             logger.debug("Stored the cache for %s", cache_key)
         else:
             logger.debug("Cache hit for %s", cache_key)
