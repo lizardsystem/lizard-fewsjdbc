@@ -83,6 +83,7 @@ class TimeoutTransport(xmlrpclib.Transport):
                      len(result))
         if not len(result):
             if '<i4>-2</i4>' in whole_string:
+                logger.warn("-2 error code detected, returning that.")
                 return -2  # Fews error code
         return result
 
