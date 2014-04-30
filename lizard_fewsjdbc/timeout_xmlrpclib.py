@@ -86,14 +86,14 @@ class TimeoutTransport(xmlrpclib.Transport):
 
 def extract_times_and_values(whole_string):
     for match in re.finditer(TIMESERIES_REGEX, whole_string):
-        timestamp = match.group('timestamp')
+        timestamp_string = match.group('timestamp')
         # Expecting 20140424T01:00:00Z
         datetime_format = "%Y%m%dT%H:%M:%SZ"
         timestamp = datetime.datetime.strptime(
-            timestamp, datetime_format).replace(
+            timestamp_string, datetime_format).replace(
                     tzinfo=pytz.UTC)
-        yield(dict(time=timestamp,
-                   value=float(match.group('value'))))
+        yield({'time': timestamp,
+               'value': float(match.group('value'))})
 
 
 class TimeoutServerProxy(xmlrpclib.ServerProxy):
