@@ -30,6 +30,9 @@ Changelog of lizard-fewsjdbc
 - Added Douglas-Peucker graph decimation for in-browser speed increases. This
   makes year-long minute data possible.
 
+- Parsing timeseries with regex instead of as xml. This is a big time saver.
+  Possible drawback: we depend upon all jdbcs to be correctly configured.
+
 
 2.27 (2013-04-17)
 -----------------
