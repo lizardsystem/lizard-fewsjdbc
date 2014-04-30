@@ -132,7 +132,7 @@ class JdbcSource(models.Model):
     def __unicode__(self):
         return u'%s' % self.name
 
-    def query(self, q):
+    def query(self, q, is_timeseries_query=False):
         """
         Tries to connect to the Jdbc source and fire query. Returns
         list of lists.
@@ -164,6 +164,8 @@ class JdbcSource(models.Model):
             sp.Config.put('', '', self.jdbc_tag_name, self.connector_string)
 
         t3 = time.time()
+        if is_timeseries_query:
+            sp.mark_as_timeseries_query()
         result = sp.Query.execute('', '', q, [self.jdbc_tag_name])
         t4 = time.time()
 
@@ -425,7 +427,7 @@ class JdbcSource(models.Model):
         logger.debug("Timeseries req from %s to %s", zoom_start_date, zoom_end_date)
         logger.debug("View state is  from %s to %s", view_state_start_date, view_state_end_date)
         logger.debug("We're querying from %s to %s", normalized_start_date, normalized_end_date)
-        CACHE_VERSION = 2
+        CACHE_VERSION = 3
         cache_key = ':'.join(['get_timeseries',
                               str(CACHE_VERSION),
                               str(filter_id),
@@ -460,79 +462,13 @@ class JdbcSource(models.Model):
 
     def _get_timeseries(self, filter_id, location_id,
                        parameter_id, start_date, end_date):
-        """
-        SELECT TIME,VALUE,FLAG,DETECTION,COMMENT from
-        ExTimeSeries WHERE filterId = 'MFPS' AND parameterId =
-        'H.meting' AND locationId = 'BW_NZ_04' AND time BETWEEN
-        '2007-01-01 13:00:00' AND '2008-01-10 13:00:00'
-
-        Apparently only used by the API.
-        """
         q = ("select time, value from "
              "extimeseries where filterid='%s' and locationid='%s' "
              "and parameterid='%s' and time between '%s' and '%s'" %
              (filter_id, location_id, parameter_id,
               start_date.strftime(JDBC_DATE_FORMAT),
               end_date.strftime(JDBC_DATE_FORMAT)))
-
-        t1 = time.time()
-        query_result = self.query(q)
-        t2 = time.time()
-        result = named_list(
-            query_result, ['time', 'value'])
-        t3 = time.time()
-
-        normal_time_behaviour = True
-        if self.timezone:
-            logger.debug("Timezone is set for this jdbc")
-            normal_time_behaviour = False
-        if result:
-            date_time = result[0]['time'].value
-            if not date_time.endswith('Z'):
-                logger.debug("JDBC result isn't in UTC")
-                normal_time_behaviour = False
-
-        if normal_time_behaviour:
-            # Expecting 20140424T01:00:00Z
-            datetime_format = "%Y%m%dT%H:%M:%SZ"
-            for row in result:
-                row['time'] = datetime.datetime.strptime(
-                    row['time'].value, datetime_format).replace(
-                        tzinfo=pytz.UTC)
-        else:
-            for row in result:
-                # Expecting dateTime.iso8601 in a mixed format (basic date +
-                # extended time) with time zone indication (Z = UTC),
-                # for example: 20110828T00:00:00Z.
-                date_time = row['time'].value
-                date_time_adjusted = '%s-%s-%s' % (
-                    date_time[0:4], date_time[4:6], date_time[6:])
-                row['time'] = iso8601.parse_date(date_time_adjusted)
-                # print(date_time, date_time_adjusted, row['time'])
-                if self.timezone:
-                    # Bit of a hack. This is used when the timezone FEWS reported
-                    # (usually UTC) is incorrect, and allows overriding it.
-                    t = row['time']
-                    row['time'] = datetime.datetime(
-                        year=t.year,
-                        month=t.month,
-                        day=t.day,
-                        hour=t.hour,
-                        minute=t.minute,
-                        second=t.second,
-                        tzinfo=self.timezone)
-
-
-        t4 = time.time()
-        logger.debug("""Raw query timing data (ms):
-        Getting query data from server: %d
-        Converting to named list: %d
-        Parsing time and adding timezone: %d""",
-                     round(1000 * (t2 - t1)),
-                     round(1000 * (t3 - t3)),
-                     round(1000 * (t4 - t3))
-                 )
-        return result
+        return self.query(q, is_timeseries_query=True)
 
     def get_unit(self, parameter_id):
         """
