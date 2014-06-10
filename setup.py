@@ -11,19 +11,20 @@ long_description = '\n\n'.join([
 
 install_requires = [
     'Django',
-    'django-staticfiles',
-    'django-extensions',
-    'djangorestframework',
+    'ciso8601',
     'django-braces',
+    'django-extensions',
+    'django-nose',
+    'django-staticfiles',
     'django-tls',
+    'djangorestframework',
+    'factory_boy',
+    'iso8601',
     'lizard-map >= 4.0, < 5.0',
     'lizard-ui >= 4.0, < 5.0',
-    'django-nose',
-    'iso8601',
     'pkginfo',
     'pytz',
     'south',
-    'factory_boy',
     ],
 
 tests_require = [

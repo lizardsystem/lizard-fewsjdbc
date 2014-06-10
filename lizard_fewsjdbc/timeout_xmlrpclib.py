@@ -13,6 +13,7 @@ import re
 import socket
 import time
 
+import ciso8601
 import pytz
 
 logger = logging.getLogger(__name__)
@@ -92,10 +93,7 @@ def extract_times_and_values(whole_string):
     for match in re.finditer(TIMESERIES_REGEX, whole_string):
         timestamp_string = match.group('timestamp')
         # Expecting 20140424T01:00:00Z
-        datetime_format = "%Y%m%dT%H:%M:%SZ"
-        timestamp = datetime.datetime.strptime(
-            timestamp_string, datetime_format).replace(
-                    tzinfo=pytz.UTC)
+        timestamp = ciso8601.parse_datetime(timestamp_string)
         yield({'time': timestamp,
                'value': float(match.group('value'))})
 
