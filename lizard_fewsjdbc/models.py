@@ -47,14 +47,14 @@ class FewsJdbcNotAvailableError(gaierror):
 
 class FewsJdbcQueryError(Exception):
     """Proper exception instead of -1 or -2 ints that the query returns."""
-    def __init__(self, value, query=None, jdbc_url=None):
+    def __init__(self, value, query=None, connector_string=None):
         self.value = value
         self.query = query
-        self.jdbc_url = jdbc_url
+        self.connector_string = connector_string
 
     def __str__(self):
         return 'The FEWS jdbc query [%s] to [%s] returned error code %s' % (
-            self.query, self.value, self.jdbc_url)
+            self.query, self.connector_string, self.value)
 
 
 def lowest_filters(id_value, tree, below_id_value=False):
@@ -164,11 +164,11 @@ class JdbcSource(models.Model):
         t4 = time.time()
 
         if isinstance(result, int):
-            raise FewsJdbcQueryError(result, q, self.jdbc_url)
+            raise FewsJdbcQueryError(result, q, self.connector_string)
         if result == [-2]:
             logger.warn("Should not happen. Reinout wants this 'if' "
                         "removed if it doesn't occur in sentry.")
-            raise FewsJdbcQueryError(result, q, self.jdbc_url)
+            raise FewsJdbcQueryError(result, q, self.connector_string)
         if LOG_JDBC_QUERIES:
             ping_time = round(1000 * (t2 - t1))
             tag_check_time = round(1000 * (t3 - t2))
