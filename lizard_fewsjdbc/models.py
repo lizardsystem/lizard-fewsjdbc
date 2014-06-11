@@ -1,19 +1,8 @@
 # (c) Nelen & Schuurmans.  GPL licensed, see LICENSE.txt.
 import datetime
 import hashlib
-import iso8601
 import logging
 import time
-import pytz
-
-# Older Ubuntus (our web servers right now) have an older pytz version.
-# New versions have the exception in pytz.exceptions, old versions in pytz
-# itself. This import works with both old and new pytz versions.
-from pytz import UnknownTimeZoneError
-
-from xml.parsers.expat import ExpatError
-from socket import gaierror
-from tls import request as tls_request
 
 from django.core.cache import cache
 from django.core.cache import get_cache
@@ -23,7 +12,6 @@ from django.db.models.signals import post_delete
 from django.db.models.signals import post_save
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
-
 from lizard_map.fields import ColorField
 from lizard_map.operations import named_list
 from lizard_map.operations import tree_from_list
@@ -31,6 +19,11 @@ from lizard_map.operations import unique_list
 from lizard_map.symbol_manager import list_image_file_names
 from lizard_map.utility import get_host
 from lizard_map.views import get_view_state
+from pytz import UnknownTimeZoneError
+from socket import gaierror
+from tls import request as tls_request
+from xml.parsers.expat import ExpatError
+import pytz
 
 from lizard_fewsjdbc import timeout_xmlrpclib
 from lizard_fewsjdbc.utils import format_number
