@@ -165,6 +165,10 @@ class JdbcSource(models.Model):
 
         if isinstance(result, int):
             raise FewsJdbcQueryError(result, q, self.jdbc_url)
+        if result == [-2]:
+            logger.warn("Should not happen. Reinout wants this 'if' "
+                        "removed if it doesn't occur in sentry.")
+            raise FewsJdbcQueryError(result, q, self.jdbc_url)
         if LOG_JDBC_QUERIES:
             ping_time = round(1000 * (t2 - t1))
             tag_check_time = round(1000 * (t3 - t2))

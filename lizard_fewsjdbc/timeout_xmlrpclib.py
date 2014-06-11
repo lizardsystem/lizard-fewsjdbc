@@ -85,7 +85,11 @@ class TimeoutTransport(xmlrpclib.Transport):
         if not len(result):
             if '<i4>-2</i4>' in whole_string:
                 logger.warn("-2 error code detected, returning that.")
-                return -2  # Fews error code
+                return [-2]
+                # ^^^ Fews error code, wrapped in list to prevent xmlrpclib
+                # from crashing on len(response)...
+                # Apparently xmlrpclib 'unpacks' the list if there's only one
+                # item, if Reinout has debugged the issue correctly.
         return result
 
 
