@@ -33,6 +33,10 @@ Changelog of lizard-fewsjdbc
 - Parsing timeseries with regex instead of as xml. This is a big time saver.
   Possible drawback: we depend upon all jdbcs to be correctly configured.
 
+- Using ciso8601 for even quicker datetime parsing. Seems to be 6x faster than
+  the pure python datetime parsing (which itself was 4x faster than the the
+  iso8601 lib we used before).
+
 
 2.27 (2013-04-17)
 -----------------
