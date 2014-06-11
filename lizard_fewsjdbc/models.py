@@ -47,13 +47,14 @@ class FewsJdbcNotAvailableError(gaierror):
 
 class FewsJdbcQueryError(Exception):
     """Proper exception instead of -1 or -2 ints that the query returns."""
-    def __init__(self, value, query=None):
+    def __init__(self, value, query=None, jdbc_url=None):
         self.value = value
         self.query = query
+        self.jdbc_url = jdbc_url
 
     def __str__(self):
-        return 'The FEWS jdbc query [%s] returned error code %s' % (
-            self.query, self.value)
+        return 'The FEWS jdbc query [%s] to [%s] returned error code %s' % (
+            self.query, self.value, self.jdbc_url)
 
 
 def lowest_filters(id_value, tree, below_id_value=False):
@@ -163,7 +164,7 @@ class JdbcSource(models.Model):
         t4 = time.time()
 
         if isinstance(result, int):
-            raise FewsJdbcQueryError(result, q)
+            raise FewsJdbcQueryError(result, q, self.jdbc_url)
         if LOG_JDBC_QUERIES:
             ping_time = round(1000 * (t2 - t1))
             tag_check_time = round(1000 * (t3 - t2))
@@ -212,7 +213,9 @@ class JdbcSource(models.Model):
                     return [{'name': 'Jdbc2Ei server not available.',
                              'error': e}]
                 except FewsJdbcQueryError, e:
-                    logger.error("JdbcSource returned an error: %s" % e)
+                    logger.error("JdbcSource returned an error: %s" % e,
+                                 extra={'jdbc_url': e.jdbc_url})
+                    # ^^^ 'extra' ends up as tags in sentry.
                     return [{'name': 'Jdbc data source not available.',
                              'error code': e}]
 
