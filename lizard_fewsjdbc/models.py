@@ -454,6 +454,10 @@ class JdbcSource(models.Model):
         else:
             logger.debug("Cache hit for %s", cache_key)
 
+        if isinstance(result, dict):
+            # Corner case due to xmlrpclib returning lists with len(1) as a
+            # value instead.
+            result = [result]
         result = [row for row in result
                   if row['time'] >= zoom_start_date and row['time'] <= zoom_end_date]
         if result:
