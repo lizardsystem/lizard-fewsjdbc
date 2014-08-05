@@ -3,6 +3,10 @@
 {% load workspaces %}
 {% load utility %}
 
+{% block awesome %}
+<!--Remove awesome box-->
+{% endblock awesome %}
+
 {% block content %}
   <h1>{{ location_name }}</h1>
   {% if flot_graph_data_url or image_graph_url %}

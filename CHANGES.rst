@@ -37,6 +37,8 @@ Changelog of lizard-fewsjdbc
   the pure python datetime parsing (which itself was 4x faster than the the
   iso8601 lib we used before).
 
+- Remove awesome box from threshold template.
+
 
 2.27 (2013-04-17)
 -----------------
