@@ -8,18 +8,148 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-10-15 03:25-0500\n"
+"POT-Creation-Date: 2014-08-15 06:49-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: models.py:46
-msgid "Jdbc Source"
+#: forms.py:48
+#, python-format
+msgid "Color must be in hexadecimalformat, e.g. FF05A9, got %s"
 msgstr ""
 
-#: models.py:47
-msgid "Jdbc Sources"
+#: models.py:123
+msgid "Jdbc source"
+msgstr ""
+
+#: models.py:124
+msgid "Jdbc sources"
+msgstr ""
+
+#: models.py:217
+msgid "Jdbc2Ei server not available."
+msgstr ""
+
+#: models.py:538
+msgid "Icon style"
+msgstr ""
+
+#: models.py:539
+msgid "Icon styles"
+msgstr ""
+
+#: models.py:684
+msgid "name"
+msgstr ""
+
+#: models.py:685
+msgid "Label on plot."
+msgstr ""
+
+#: models.py:686
+msgid "label"
+msgstr ""
+
+#: models.py:691
+msgid "value"
+msgstr ""
+
+#: models.py:692
+msgid "color"
+msgstr ""
+
+#: models.py:696
+msgid "threshold"
+msgstr ""
+
+#: models.py:697 templates/lizard_fewsjdbc/popup.html:34
+msgid "thresholds"
+msgstr ""
+
+#: views.py:189
+msgid "Back to homepage"
+msgstr ""
+
+#: templates/lizard_fewsjdbc/homepage.html:9
+msgid "Data sources"
+msgstr ""
+
+#: templates/lizard_fewsjdbc/homepage.html:21
+msgid "No Jdbc sources configurated."
+msgstr ""
+
+#: templates/lizard_fewsjdbc/jdbc_source.html:11
+msgid "Filters"
+msgstr ""
+
+#: templates/lizard_fewsjdbc/jdbc_source.html:22
+msgid "Parameters"
+msgstr ""
+
+#: templates/lizard_fewsjdbc/jdbc_source.html:34
+msgid "No parameters found/loaded"
+msgstr ""
+
+#: templates/lizard_fewsjdbc/popup.html:28
+msgid "export time series"
+msgstr ""
+
+#: templates/lizard_fewsjdbc/popup.html:34
+msgid "edit threshold(s)"
+msgstr ""
+
+#: templates/lizard_fewsjdbc/popup.html:47
+msgid "add to dashboard"
+msgstr ""
+
+#: templates/lizard_fewsjdbc/thresholds/overview.html:21
+msgid "Thresholds"
+msgstr ""
+
+#: templates/lizard_fewsjdbc/thresholds/overview.html:23
+msgid "Change threshold names or values or colors by clicking on it."
+msgstr ""
+
+#: templates/lizard_fewsjdbc/thresholds/overview.html:24
+msgid "To delete a threshold, click on the remove icon on the right."
+msgstr ""
+
+#: templates/lizard_fewsjdbc/thresholds/overview.html:29
+msgid "Name"
+msgstr ""
+
+#: templates/lizard_fewsjdbc/thresholds/overview.html:30
+msgid "Value"
+msgstr ""
+
+#: templates/lizard_fewsjdbc/thresholds/overview.html:31
+msgid "Color"
+msgstr ""
+
+#: templates/lizard_fewsjdbc/thresholds/overview.html:41
+msgid "Click to change this name"
+msgstr ""
+
+#: templates/lizard_fewsjdbc/thresholds/overview.html:45
+msgid "Click to change this value"
+msgstr ""
+
+#: templates/lizard_fewsjdbc/thresholds/overview.html:49
+msgid "Click to change this color"
+msgstr ""
+
+#: templates/lizard_fewsjdbc/thresholds/overview.html:51
+msgid "Remove this threshold"
+msgstr ""
+
+#: templates/lizard_fewsjdbc/thresholds/overview.html:63
+msgid "To add a new threshold, fill out the form below and press submit."
+msgstr ""
+
+#: templates/lizard_fewsjdbc/thresholds/overview.html:67
+msgid "Submit"
 msgstr ""

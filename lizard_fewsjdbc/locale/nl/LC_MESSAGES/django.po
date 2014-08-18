@@ -1,126 +1,159 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
+# Translators:
+#   <>, 2014.
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: Lizard 5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-01-22 05:00-0600\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Sander Smits <sander.smits@nelen-schuurmans.nl>\n"
+"POT-Creation-Date: 2014-08-15 06:49-0500\n"
+"PO-Revision-Date: 2014-08-15 11:56+0000\n"
+"Last-Translator: alexandr <>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: nl\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
 #: forms.py:48
 #, python-format
 msgid "Color must be in hexadecimalformat, e.g. FF05A9, got %s"
 msgstr "Kleur dient hexadecimaal te zijn, b.v. FF05A9, ontvangen %s"
 
-#: models.py:126
+#: models.py:123
 msgid "Jdbc source"
 msgstr "Jdbc databron"
 
-#: models.py:127
+#: models.py:124
 msgid "Jdbc sources"
 msgstr "Jdbc databronnen"
 
-#: models.py:470
+#: models.py:217
+msgid "Jdbc2Ei server not available."
+msgstr "Jdbc2Ei server niet beschikbaar is."
+
+#: models.py:538
 msgid "Icon style"
 msgstr "Icoonstijl"
 
-#: models.py:471
+#: models.py:539
 msgid "Icon styles"
 msgstr "Icoonstijlen"
 
-#: models.py:609
+#: models.py:684
 msgid "name"
 msgstr "naam"
 
-#: models.py:610
+#: models.py:685
 msgid "Label on plot."
 msgstr "Grafieklabel"
 
-#: models.py:611
+#: models.py:686
 msgid "label"
 msgstr "label"
 
-#: models.py:616
+#: models.py:691
 msgid "value"
 msgstr "waarde"
 
-#: models.py:617
+#: models.py:692
 msgid "color"
 msgstr "kleur"
 
-#: models.py:621
+#: models.py:696
 msgid "threshold"
 msgstr "drempelwaarde"
 
-#: models.py:622
+#: models.py:697 templates/lizard_fewsjdbc/popup.html:34
 msgid "thresholds"
 msgstr "drempelwaarden"
 
-#: views.py:191
+#: views.py:189
 msgid "Back to homepage"
 msgstr "Naar de voorpagina"
 
-#: templates/lizard_fewsjdbc/jdbc_source.html:38
-msgid "Search for locations"
-msgstr "Zoek lokaties"
+#: templates/lizard_fewsjdbc/homepage.html:9
+msgid "Data sources"
+msgstr "Gegevensbronnen"
 
-#: templates/lizard_fewsjdbc/thresholds/overview.html:17
+#: templates/lizard_fewsjdbc/homepage.html:21
+msgid "No Jdbc sources configurated."
+msgstr ""
+
+#: templates/lizard_fewsjdbc/jdbc_source.html:11
+msgid "Filters"
+msgstr "Filters"
+
+#: templates/lizard_fewsjdbc/jdbc_source.html:22
+msgid "Parameters"
+msgstr "Parameters"
+
+#: templates/lizard_fewsjdbc/jdbc_source.html:34
+msgid "No parameters found/loaded"
+msgstr "Geen parameters gevonden/geladen"
+
+#: templates/lizard_fewsjdbc/popup.html:28
+msgid "export time series"
+msgstr "exporteer tijdreeksen"
+
+#: templates/lizard_fewsjdbc/popup.html:34
+msgid "edit threshold(s)"
+msgstr "bewerk drempelwaarde(n)"
+
+#: templates/lizard_fewsjdbc/popup.html:47
+msgid "add to dashboard"
+msgstr "toevoegen aan dashboard"
+
+#: templates/lizard_fewsjdbc/thresholds/overview.html:21
 msgid "Thresholds"
 msgstr "Drempelwaarden"
 
-#: templates/lizard_fewsjdbc/thresholds/overview.html:18
+#: templates/lizard_fewsjdbc/thresholds/overview.html:23
 msgid "Change threshold names or values or colors by clicking on it."
 msgstr "Verander namen, waardes of kleuren door er op te klikken."
 
-#: templates/lizard_fewsjdbc/thresholds/overview.html:19
+#: templates/lizard_fewsjdbc/thresholds/overview.html:24
 msgid "To delete a threshold, click on the remove icon on the right."
 msgstr ""
 "Klik op het verwijder icoon rechts om een drempelwaarde te verwijderen."
 
-#: templates/lizard_fewsjdbc/thresholds/overview.html:23
+#: templates/lizard_fewsjdbc/thresholds/overview.html:29
 msgid "Name"
 msgstr "Naam"
 
-#: templates/lizard_fewsjdbc/thresholds/overview.html:24
+#: templates/lizard_fewsjdbc/thresholds/overview.html:30
 msgid "Value"
 msgstr "Waarde"
 
-#: templates/lizard_fewsjdbc/thresholds/overview.html:25
+#: templates/lizard_fewsjdbc/thresholds/overview.html:31
 msgid "Color"
 msgstr "Kleur"
 
-#: templates/lizard_fewsjdbc/thresholds/overview.html:32
+#: templates/lizard_fewsjdbc/thresholds/overview.html:41
 msgid "Click to change this name"
 msgstr "Klik om naam te veranderen"
 
-#: templates/lizard_fewsjdbc/thresholds/overview.html:33
+#: templates/lizard_fewsjdbc/thresholds/overview.html:45
 msgid "Click to change this value"
 msgstr "Klik om waarde te veranderen"
 
-#: templates/lizard_fewsjdbc/thresholds/overview.html:34
+#: templates/lizard_fewsjdbc/thresholds/overview.html:49
 msgid "Click to change this color"
 msgstr "Klik om kleur te veranderen"
 
-#: templates/lizard_fewsjdbc/thresholds/overview.html:35
+#: templates/lizard_fewsjdbc/thresholds/overview.html:51
 msgid "Remove this threshold"
 msgstr "Verwijder deze drempelwaarde"
 
-#: templates/lizard_fewsjdbc/thresholds/overview.html:44
+#: templates/lizard_fewsjdbc/thresholds/overview.html:63
 msgid "To add a new threshold, fill out the form below and press submit."
 msgstr ""
 "Voeg een drempelwaarde toe door onderstaande formulier in te vullen en te "
 "verzenden."
 
-#: templates/lizard_fewsjdbc/thresholds/overview.html:48
+#: templates/lizard_fewsjdbc/thresholds/overview.html:67
 msgid "Submit"
 msgstr "Verzend"

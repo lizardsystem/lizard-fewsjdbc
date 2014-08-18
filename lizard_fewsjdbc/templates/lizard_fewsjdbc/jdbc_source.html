@@ -8,7 +8,7 @@
 {% block sidebar %}
   <div class="sidebarbox sidebarbox-stretched"
        id="accordion">
-    <h2>1: Filters</h2>
+    <h2>1: {% trans 'Filters' %}</h2>
     <ul class="automatic-tree filetree pane accordion-load-next"
         data-next-pane-id="#parameter-pane"
         id="filter-pane">
@@ -19,7 +19,7 @@
         {% endwith %}
       {% endwith %}
     </ul>
-    <h2>2: Parameters{% if view.filter %} ({{ view.filter.name }}){% endif %}{% block linkback %}{% endblock %}</h2>
+    <h2>2: {% trans 'Parameters' %}{% if view.filter %} ({{ view.filter.name }}){% endif %}{% block linkback %}{% endblock %}</h2>
     <ul class="without-bullets pane"
         id="parameter-pane">
       {% for parameter in view.parameters %}
@@ -31,7 +31,7 @@
           {{ parameter.name }} ({{ parameter.filter_name }})
         </li>
       {% empty %}
-        <li>Geen parameters gevonden/geladen.</li>
+        <li>{% trans 'No parameters found/loaded' %}.</li>
       {% endfor %}
     </ul>
   </div>

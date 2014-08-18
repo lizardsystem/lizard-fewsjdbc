@@ -214,7 +214,7 @@ class JdbcSource(models.Model):
                     filters = self.query(
                         "select distinct id, name, parentid from filters;")
                 except FewsJdbcNotAvailableError, e:
-                    return [{'name': 'Jdbc2Ei server not available.',
+                    return [{'name': _('Jdbc2Ei server not available.'),
                              'error': e}]
                 except FewsJdbcQueryError, e:
                     logger.error("JdbcSource returned an error: %s" % e,

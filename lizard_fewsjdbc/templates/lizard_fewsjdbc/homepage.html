@@ -6,7 +6,7 @@
 
 {% block sidebar %}
   <div id="iconbox" class="sidebarbox sidebarbox-stretched iconlist">
-    <h2>Gegevensbronnen</h2>
+    <h2>{% trans 'Data sources' %}</h2>
     <ul>
       {% for jdbc_source in view.jdbc_sources %}
         <li>
@@ -18,7 +18,7 @@
         </li>
       {% empty %}
         <li>
-          No Jdbc sources configurated.
+          {% trans 'No Jdbc sources configurated.' %}
         </li>
       {% endfor %}
     </ul>

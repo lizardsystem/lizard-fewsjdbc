@@ -25,6 +25,7 @@ install_requires = [
     'pkginfo',
     'pytz',
     'south',
+    'translations',
     ],
 
 tests_require = [

@@ -25,13 +25,13 @@
           <td>
             <a href="{{ collage_item_prop.url }}"
                class="ss_table_save ss_sprite"
-               title="exporteer tijdreeksen">exporteer tijdreeksen</a>
+               title="{% trans 'export time series' %}">{% trans 'export time series' %}</a>
           </td>
           {% if perms.lizard_fewsjdbc.change_threshold %}
             <td>
               <a href="{% url lizard_fewsjdbc.thresholds %}?workspace_item_id={{ adapter.workspace_item.id }}&identifier={{ collage_item_prop.identifier }}"
                  class="ss_chart_line_edit ss_sprite"
-                 title="bewerk drempelwaarde(n)">drempelwaarden</a>
+                 title="{% trans 'edit threshold(s)' %}">{% trans 'thresholds' %}</a>
             </td>
           {% endif %}
 
@@ -44,7 +44,7 @@
                data-identifier="{{ collage_item_prop.identifier }}"
                data-target-id="#edit-collage">
               <i class="icon-dashboard"></i>
-              Toevoegen aan dashboard
+              {% trans 'add to dashboard' %}
             </a>
           </td>
         </tr>
