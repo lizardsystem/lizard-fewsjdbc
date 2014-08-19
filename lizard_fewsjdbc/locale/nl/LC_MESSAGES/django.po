@@ -4,13 +4,14 @@
 #
 # Translators:
 #   <>, 2014.
+# Alexander Hoff <>, 2014.
 msgid ""
 msgstr ""
 "Project-Id-Version: Lizard 5\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-08-15 06:49-0500\n"
-"PO-Revision-Date: 2014-08-15 11:56+0000\n"
-"Last-Translator: alexandr <>\n"
+"PO-Revision-Date: 2014-08-19 11:37+0000\n"
+"Last-Translator: Alexander Hoff <>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -81,7 +82,7 @@ msgstr "Gegevensbronnen"
 
 #: templates/lizard_fewsjdbc/homepage.html:21
 msgid "No Jdbc sources configurated."
-msgstr ""
+msgstr "Er zijn geen Jdbc databronnen geconfigureerd."
 
 #: templates/lizard_fewsjdbc/jdbc_source.html:11
 msgid "Filters"
