@@ -1,4 +1,5 @@
 # (c) Nelen & Schuurmans.  GPL licensed, see LICENSE.txt.
+import json
 import logging
 
 from braces.views import LoginRequiredMixin
@@ -9,7 +10,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
-from django.utils import simplejson as json
 from django.utils.translation import ugettext as _
 from django.views.generic import View, CreateView
 from django.views.generic.edit import DeleteView
