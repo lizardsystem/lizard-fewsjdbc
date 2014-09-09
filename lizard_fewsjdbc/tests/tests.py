@@ -25,13 +25,15 @@ class TestIntegration(TestCase):
     """
     fixtures = ['lizard_fewsjdbc_test']
 
-    def mock_query(self, q):
+    def mock_query(self, q, is_timeseries_query=False):
         """
         Mock query function for JdbcSource. We have to see 'which' of
         the JdbcSource functions it is called from.
         """
 
-        if 'timeseries' in q:
+        print(q)
+
+        if 'timeseries' in q or is_timeseries_query:
             # Timeseries: time, value, flag, detection, comment.
             return self.mock_query_result.get('timeseries', [])
         elif 'unit' in q:
@@ -136,7 +138,7 @@ class TestIntegration(TestCase):
 class TestModelMockQuery(TestCase):
     fixtures = ['lizard_fewsjdbc']
 
-    def mock_query(self, q):
+    def mock_query(self, q, is_timeseries_query=False):
         return self.mock_query_result
 
     def setUp(self):
@@ -202,10 +204,6 @@ class TestModelMockQuery(TestCase):
         self.assertEqual(result, result_good)
 
     def test_get_timeseries(self):
-        class MockTime(object):
-            def __init__(self, value):
-                self.value = value
-
         class MockTzInfo(datetime.tzinfo):
             def utcoffset(self, dt):
                 # Note: hardcoded to GMT+1.
@@ -213,11 +211,16 @@ class TestModelMockQuery(TestCase):
             # time, value, flag, detection, comment; time has a property
         # 'value'
         self.mock_query_result = [
-            [MockTime('20100501T00:00:00'), '1.2', '0', '0', None],
-            [MockTime('20100502T00:00:00'), '1.3', '0', '0', None],
-            [MockTime('20100503T00:00:00'), '1.4', '0', '0', None],
-            [MockTime('20100504T00:00:00'), '1.5', '0', '0', None],
-            [MockTime('20100505T00:00:00'), '1.6', '0', '0', None],
+            {'time': datetime.datetime(2010, 5, 1),
+             'value': '1.2', 'flag': '0', 'detection': '0', 'comment': None},
+            {'time': datetime.datetime(2010, 5, 2),
+             'value': '1.3', 'flag': '0', 'detection': '0', 'comment': None},
+            {'time': datetime.datetime(2010, 5, 3),
+             'value': '1.4', 'flag': '0', 'detection': '0', 'comment': None},
+            {'time': datetime.datetime(2010, 5, 4),
+             'value': '1.5', 'flag': '0', 'detection': '0', 'comment': None},
+            {'time': datetime.datetime(2010, 5, 5),
+             'value': '1.6', 'flag': '0', 'detection': '0', 'comment': None},
         ]
         start_date = datetime.datetime(2010, 5, 1)
         end_date = datetime.datetime(2010, 6, 1)
@@ -341,7 +344,7 @@ class TestIconStyle(TestCase):
         expected = {
             '::::::':
             {'icon': 'icon.png', 'mask': ('mask.png', ),
-             'color': (1.0, 0.0, 1.0, 1.0)}}
+             'color': (1.0, 0.0, 1.0, 1.0), 'draw_in_legend': True}}
 
         self.assertEqual(IconStyle._styles(), expected)
 
@@ -358,10 +361,10 @@ class TestIconStyle(TestCase):
         expected = {
             '::::::':
             {'icon': 'icon.png', 'mask': ('mask.png', ),
-             'color': (1.0, 0.0, 1.0, 1.0)},
+             'color': (1.0, 0.0, 1.0, 1.0), 'draw_in_legend': True},
             '::filter1::::':
             {'icon': 'filter1.png', 'mask': ('mask.png', ),
-             'color': (1.0, 0.0, 1.0, 1.0)}}
+             'color': (1.0, 0.0, 1.0, 1.0), 'draw_in_legend': True}}
 
         self.assertEqual(IconStyle._styles(), expected)
 
@@ -440,7 +443,7 @@ class TestIconStyle(TestCase):
         expected1 = (
             '::::::',
             {'icon': 'icon.png', 'mask': ('mask.png', ),
-             'color': (1.0, 0.0, 1.0, 1.0)})
+             'color': (1.0, 0.0, 1.0, 1.0), 'draw_in_legend': True})
         self.assertEqual(
             IconStyle.style(jdbc_source, 'filterx', 'locy', 'parz'),
             expected1)
@@ -452,7 +455,7 @@ class TestIconStyle(TestCase):
         expected2 = (
             '::filter1::::',
             {'icon': 'filter1.png', 'mask': ('mask.png', ),
-             'color': (0.0, 1.0, 1.0, 1.0)})
+             'color': (0.0, 1.0, 1.0, 1.0), 'draw_in_legend': True})
         self.assertEqual(
             IconStyle.style(jdbc_source, 'filter1', 'l', 'p'),
             expected2)
@@ -464,7 +467,7 @@ class TestIconStyle(TestCase):
         expected3 = (
             '::filter1::loc1::',
             {'icon': 'loc1.png', 'mask': ('mask.png', ),
-             'color': (0.0, 1.0, 1.0, 1.0)})
+             'color': (0.0, 1.0, 1.0, 1.0), 'draw_in_legend': True})
         self.assertEqual(
             IconStyle.style(jdbc_source, 'filter1', 'loc1', 'p'),
             expected3)
@@ -472,7 +475,7 @@ class TestIconStyle(TestCase):
         expected4 = (
             '::filter1::loc1::par1',
             {'icon': 'par1.png', 'mask': ('mask.png', ),
-             'color': (0.0, 1.0, 1.0, 1.0)})
+             'color': (0.0, 1.0, 1.0, 1.0), 'draw_in_legend': True})
         self.assertEqual(
             IconStyle.style(jdbc_source, 'filter1', 'loc1', 'par1'),
             expected4)
@@ -480,7 +483,7 @@ class TestIconStyle(TestCase):
         expected5 = (
             '::::loc1::par1',
             {'icon': 'loc1par1.png', 'mask': ('mask.png', ),
-             'color': (0.0, 1.0, 1.0, 1.0)})
+             'color': (0.0, 1.0, 1.0, 1.0), 'draw_in_legend': True})
         self.assertEqual(
             IconStyle.style(jdbc_source, 'filterx', 'loc1', 'par1'),
             expected5)
@@ -492,12 +495,12 @@ class TestIconStyle(TestCase):
         expected = (
             '::::::',
             {'icon': 'meetpuntPeil.png', 'mask': ('meetpuntPeil_mask.png', ),
-             'color': (0.0, 0.5, 1.0, 1.0)})
+             'color': (0.0, 0.5, 1.0, 1.0), 'draw_in_legend': True})
 
         jdbc_source = JdbcSource.objects.all()[0]
-        self.assertEqual(
-            IconStyle.style(jdbc_source, 'filterx', 'loc1', 'par1'),
-            expected)
+        actual = IconStyle.style(jdbc_source, 'filterx', 'loc1', 'par1')
+
+        self.assertEqual(actual, expected)
 
     def test_not_found(self):
         """Do not crash when corresponding iconstyle is notavailable,
@@ -510,7 +513,7 @@ class TestIconStyle(TestCase):
         expected = (
             '::::::',
             {'icon': 'meetpuntPeil.png', 'mask': ('meetpuntPeil_mask.png', ),
-             'color': (0.0, 0.5, 1.0, 1.0)})
+             'color': (0.0, 0.5, 1.0, 1.0), 'draw_in_legend': True})
 
         jdbc_source = JdbcSource.objects.all()[0]
         self.assertEqual(

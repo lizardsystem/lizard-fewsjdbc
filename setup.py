@@ -10,18 +10,18 @@ long_description = '\n\n'.join([
     ])
 
 install_requires = [
-    'Django',
+    'Django >= 1.4, < 1.7',
     'ciso8601',
     'django-braces',
     'django-extensions',
     'django-nose',
-    'django-staticfiles',
     'django-tls',
     'djangorestframework',
-    'factory_boy',
+    'factory_boy > 2.0',
     'iso8601',
-    'lizard-map >= 4.0, < 5.0',
-    'lizard-ui >= 4.0, < 5.0',
+    'lizard-map',
+    'lizard-ui',
+    'lizard-wms',  # Because lizard-map imports from it...
     'pkginfo',
     'pytz',
     'south',
@@ -53,12 +53,12 @@ setup(name='lizard-fewsjdbc',
       extras_require={'test': tests_require},
       entry_points={
           'console_scripts': [
-            ],
+          ],
           'lizard_map.adapter_class': [
-            'adapter_fewsjdbc = lizard_fewsjdbc.layers:FewsJdbc'
-            ],
+              'adapter_fewsjdbc = lizard_fewsjdbc.layers:FewsJdbc'
+          ],
           'lizard_datasource': [
-            'lizard_fewsjdbc = lizard_fewsjdbc.datasource:factory'
-            ],
-          },
-      )
+              'lizard_fewsjdbc = lizard_fewsjdbc.datasource:factory'
+          ],
+      },
+  )

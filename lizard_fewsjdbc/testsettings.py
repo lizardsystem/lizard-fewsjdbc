@@ -20,7 +20,9 @@ INSTALLED_APPS = [
     'lizard_map',
     'lizard_ui',
     'lizard_security',
-    'staticfiles',
+    'lizard_maptree',
+    'lizard_wms',
+    'django.contrib.staticfiles',
     'compressor',
     'south',
     'django_extensions',
@@ -45,7 +47,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.media",
     # Needs to be added for django-staticfiles to allow you to use
     # {{ STATIC_URL }}myapp/my.css in your templates.
-    'staticfiles.context_processors.static_url',
+    'django.core.context_processors.static',
 )
 
 # Language code for this installation. All choices can be found here:
@@ -108,6 +110,8 @@ DEFAULT_START_DAYS = -20
 DEFAULT_END_DAYS = 5
 
 LIZARD_FEWSJDBC_STANDALONE = True
+
+SECRET_KEY = "Does not need to be secret in testsettings"
 
 try:
     # Import local settings that aren't stored in svn.

@@ -27,6 +27,8 @@ urlpatterns = patterns(
         name="lizard_fewsjdbc.threshold_delete"),
     url(r'^thresholds/$', ThresholdsView.as_view(),
         name="lizard_fewsjdbc.thresholds"),
+    (r'^jsi18n/$', 'django.views.i18n.javascript_catalog', {
+        'packages': ('lizard_fewsjdbc',)})
 )
 
 if getattr(settings, 'LIZARD_FEWSJDBC_STANDALONE', False):
@@ -35,6 +37,6 @@ if getattr(settings, 'LIZARD_FEWSJDBC_STANDALONE', False):
         '',
         (r'^map/', include('lizard_map.urls')),
         (r'^ui/', include('lizard_ui.urls')),
-        (r'', include('staticfiles.urls')),
+        (r'', include('django.contrib.staticfiles.urls')),
         (r'^admin/', include(admin.site.urls)),
     )

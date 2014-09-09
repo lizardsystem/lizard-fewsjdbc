@@ -30,14 +30,14 @@
           </td>
           {% if perms.lizard_fewsjdbc.change_threshold %}
             <td>
-              <a href="{% url lizard_fewsjdbc.thresholds %}?workspace_item_id={{ adapter.workspace_item.id }}&identifier={{ collage_item_prop.identifier }}"
+              <a href="{% url "lizard_fewsjdbc.thresholds" %}?workspace_item_id={{ adapter.workspace_item.id }}&identifier={{ collage_item_prop.identifier }}"
                  class="ss_chart_line_edit ss_sprite"
                  title="{% trans 'edit threshold(s)' %}">{% trans 'thresholds' %}</a>
             </td>
           {% endif %}
 
           <td>
-            <a href="{% url lizard_map_collage_add %}"
+            <a href="{% url "lizard_map_collage_add" %}"
                class="collage-add"
                data-name="{{ collage_item_prop.name }}"
                data-adapter-class="{{ collage_item_prop.adapter_class }}"

@@ -5,6 +5,8 @@ Changelog of lizard-fewsjdbc
 2.28 (unreleased)
 -----------------
 
+- Move to Django 1.6.6 compatibility
+
 - Move to mapnik 2.2.0.
 
 - Add draw_in_legend option to icon style.

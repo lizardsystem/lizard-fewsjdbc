@@ -48,7 +48,7 @@
                   rel="tooltip"
                   title="{% trans 'Click to change this color' %}">{{ threshold.color }}</td>
               <td class="delete-icon">
-                <a href="{% url lizard_fewsjdbc.threshold_delete threshold.id %}?workspace_item_id={{ adapter.workspace_item.id }}&location={{ location }}" rel="tooltip" title="{% trans 'Remove this threshold' %}"><i class="icon-remove-sign"></i>
+                <a href="{% url "lizard_fewsjdbc.threshold_delete" threshold.id %}?workspace_item_id={{ adapter.workspace_item.id }}&location={{ location }}" rel="tooltip" title="{% trans 'Remove this threshold' %}"><i class="icon-remove-sign"></i>
                 </a>
               </td>
             </tr>
@@ -61,7 +61,7 @@
   <div>
     <div class="span4" style="margin-left: 0px;">
       <div>{% blocktrans %}To add a new threshold, fill out the form below and press submit.{% endblocktrans %}</div>
-      <form data-validate="parsley" class="well" method="post" action="{% url lizard_fewsjdbc.threshold_create %}">
+      <form data-validate="parsley" class="well" method="post" action="{% url "lizard_fewsjdbc.threshold_create" %}">
         {% csrf_token %}
         {{ form }}
         <input type="submit" class="btn" value="{% trans "Submit" %}" />
@@ -99,7 +99,7 @@
   <script type="text/javascript" src="{{ STATIC_URL }}lizard_fewsjdbc/parsley-standalone.min.js"></script>
   <script type="text/javascript">
     $(document).ready(function () {
-        $('td.edit').editable('{% url lizard_fewsjdbc.threshold_update %}', {
+        $('td.edit').editable('{% url "lizard_fewsjdbc.threshold_update" %}', {
             callback  : function(value, settings) {
             // submit successful
             $(this).html(value.replace(/['"]/g,''));
