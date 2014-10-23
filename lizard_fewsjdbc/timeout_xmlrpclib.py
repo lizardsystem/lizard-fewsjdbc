@@ -6,7 +6,6 @@ except ImportError:
     # Python 3.0 portability fix...
     import xmlrpc.client as xmlrpclib
 
-import datetime
 import httplib
 import logging
 import re
@@ -14,7 +13,6 @@ import socket
 import time
 
 import ciso8601
-import pytz
 
 logger = logging.getLogger(__name__)
 
