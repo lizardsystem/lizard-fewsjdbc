@@ -277,6 +277,16 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
                      'google_coords': (x, y),
                      'object': None})
         result.sort(key=lambda item: item['distance'])
+        # Normally, only return the closest three points. But if the closest
+        # location has multiple measurements, return all of them.
+        normal_max_number = 3
+        shortest_distance = result[0]['distance']
+        closest_results = [item for item in result
+                           if item['distance'] == shortest_distance]
+        logger.debug("Found %s results, %s with the same distance as the closest one",
+                     len(result), len(closest_results))
+        if len(closest_results) >= normal_max_number:
+            return closest_results
         return result[:3]  # Max 3.
 
     def value_aggregate(self, identifier, aggregate_functions,
