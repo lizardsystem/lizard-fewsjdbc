@@ -5,6 +5,12 @@ Changelog of lizard-fewsjdbc
 2.28 (unreleased)
 -----------------
 
+- Allowing more than 3 results when they're all in the same location as the
+  closest result.
+
+- Added threshold line colors for the new orangered color. Orangered has
+  replace yellow in lizard-map as HHNK wants that.
+
 - Move to Django 1.6.6 compatibility
 
 - Move to mapnik 2.2.0.
