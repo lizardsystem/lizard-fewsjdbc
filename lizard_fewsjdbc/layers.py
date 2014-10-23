@@ -45,6 +45,7 @@ THRESHOLD_COLORS_DEFAULT = {
     'black': ['#332424', '#4C4C4C', '#4C3636', '#999999'],  # base #000000
     'cyan': ['#4BFFFF', '#007F7F', '#00CCCC', '#267F7F'],  # base #00FFFF
     'yellow': ['#FFFF48', '#7F7F00', '#CCCC00', '#7F7F26'],  # base #FFFF00
+    'orangered': ['#FF950D', '#E8670C', '#E8270C', '#FF0D1E'],  # base #FF4500
     'lightblue': ['#6BCBEA', '#4D6066', '#2E5966', '#87A8B3'],  # base #ADD8E6
     'grey': ['#956969', '#CCCCCC', '#CC8F8F', '#4D4D4D']  # base #808080
 }
@@ -276,6 +277,16 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
                      'google_coords': (x, y),
                      'object': None})
         result.sort(key=lambda item: item['distance'])
+        # Normally, only return the closest three points. But if the closest
+        # location has multiple measurements, return all of them.
+        normal_max_number = 3
+        shortest_distance = result[0]['distance']
+        closest_results = [item for item in result
+                           if item['distance'] == shortest_distance]
+        logger.debug("Found %s results, %s with the same distance as the closest one",
+                     len(result), len(closest_results))
+        if len(closest_results) >= normal_max_number:
+            return closest_results
         return result[:3]  # Max 3.
 
     def value_aggregate(self, identifier, aggregate_functions,
