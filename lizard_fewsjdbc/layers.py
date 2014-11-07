@@ -280,6 +280,9 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         # Normally, only return the closest three points. But if the closest
         # location has multiple measurements, return all of them.
         normal_max_number = 3
+        if len(result) == 0:
+            return result
+
         shortest_distance = result[0]['distance']
         closest_results = [item for item in result
                            if item['distance'] == shortest_distance]
