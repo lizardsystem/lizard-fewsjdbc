@@ -21,6 +21,9 @@ class FewsJdbcDataSource(datasource.DataSource):
     def __init__(self, jdbc_source):
         self.jdbc_source = jdbc_source
 
+    def __str__(self):
+        return "JDBC datasource for %s" % self.jdbc_source.slug
+
     @property
     def identifier(self):
         return self.jdbc_source.slug
