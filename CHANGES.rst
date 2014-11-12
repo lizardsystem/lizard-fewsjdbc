@@ -5,6 +5,9 @@ Changelog of lizard-fewsjdbc
 2.28 (unreleased)
 -----------------
 
+- Only caching the filter_tree/named_parameters/named_locations when there are
+  results.
+
 - Allowing more than 3 results when they're all in the same location as the
   closest result.
 
