@@ -254,7 +254,10 @@ class JdbcSource(models.Model):
                 children_field='children',
                 root_parent=root_parent)
 
-            cache.set(filter_source_cache_key, filter_tree, cache_timeout)
+            if filter_tree:
+                # Only cache it when we actually get a tree. Otherwise a
+                # one-time fewsjdbc error can propagate.
+                cache.set(filter_source_cache_key, filter_tree, cache_timeout)
         return filter_tree
 
     def get_named_parameters(self, filter_id, ignore_cache=False,
@@ -301,7 +304,10 @@ class JdbcSource(models.Model):
             named_parameters = named_list(
                 unique_parameters,
                 ['filter_name', 'parameterid', 'parameter', 'filter_id'])
-            cache.set(parameter_cache_key, named_parameters, cache_timeout)
+            if named_parameters:
+                # Only cache it when we actually get parameters. Otherwise a
+                # one-time fewsjdbc error can propagate.
+                cache.set(parameter_cache_key, named_parameters, cache_timeout)
 
         return named_parameters
 
@@ -358,7 +364,11 @@ class JdbcSource(models.Model):
                 locations,
                 ['longitude', 'latitude',
                  'location', 'locationid'])
-            cache.set(location_cache_key, named_locations, cache_timeout)
+            if named_locations:
+                # Only cache when we actually have found locations. It might
+                # otherwise just be fewsjdbc that tricks us with an empty
+                # list.
+                cache.set(location_cache_key, named_locations, cache_timeout)
         return named_locations
 
     def location_list(self, filter_id, parameter_id, name=''):
@@ -631,7 +641,8 @@ class IconStyle(models.Model):
             # Calculate styles and lookup and store in cache.
             styles = cls._styles()
             lookup = cls._lookup()
-            cache.set(cls.CACHE_KEY(), (styles, lookup))
+            cache_timeout = 60 * 60
+            cache.set(cls.CACHE_KEY(), (styles, lookup), cache_timeout)
         else:
             # The cache has a 2-tuple (styles, lookup) stored.
             styles, lookup = cache_lookup
