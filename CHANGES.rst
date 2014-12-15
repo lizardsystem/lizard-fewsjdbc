@@ -2,8 +2,8 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-2.28 (unreleased)
------------------
+3.0 (2014-12-15)
+----------------
 
 - Only caching the filter_tree/named_parameters/named_locations when there are
   results.
