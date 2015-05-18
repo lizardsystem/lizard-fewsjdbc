@@ -2,7 +2,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-3.1 (unreleased)
+3.1 (2015-05-18)
 ----------------
 
 - Fixed threshold input form. A html5 input "type=number" triggers **integer**
