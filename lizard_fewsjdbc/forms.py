@@ -67,7 +67,7 @@ class ThresholdCreateForm(forms.ModelForm):
         self.fields['name'].widget.attrs = name_attrs
         value_attrs = {}
         value_attrs.update(parsley_attrs)
-        value_attrs.update({'data-type': 'number'})
+        value_attrs.update({'data-parsley-type': 'number'})
         self.fields['value'].widget.attrs = value_attrs
         color_attrs = {}
         color_attrs.update(parsley_attrs)
@@ -79,6 +79,7 @@ class ThresholdCreateForm(forms.ModelForm):
         fields = ('name', 'value', 'color', 'location_id')
         widgets = {
             'location_id': forms.HiddenInput,
+            'value': forms.TextInput,  # Otherwise parsley js requires an int...
         }
 
     def save(self, commit=True):
