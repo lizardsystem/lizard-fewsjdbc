@@ -8,6 +8,7 @@
 {% endblock awesome %}
 
 {% block content %}
+  <div id="textual">
   <h1>{{ location_name }}</h1>
   {% if flot_graph_data_url or image_graph_url %}
     <div style="width: 75%; height: 240px;"
@@ -68,6 +69,7 @@
       </form>
     </div>
   </div>
+  </div>
 {% endblock content %}
 
 {% block head-extras %}
@@ -90,6 +92,11 @@
     }
     i.icon-plus-sign {
       color: #007F00;
+    }
+    span.helptext {
+    display: block;
+    color: #888;
+    font-style: italic;
     }
   </style>
 {% endblock head-extras %}
