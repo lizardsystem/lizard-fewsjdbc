@@ -5,7 +5,10 @@ Changelog of lizard-fewsjdbc
 3.1 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Fixed threshold input form. A html5 input "type=number" triggers **integer**
+  validation in the javascript validation library. Fixed by using a
+  textfield. (Not that the validation library is used for *editing* the
+  existing rows...)
 
 
 3.0 (2014-12-15)
