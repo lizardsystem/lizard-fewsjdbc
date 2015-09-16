@@ -33,14 +33,14 @@ class TimeoutTransport(xmlrpclib.Transport):
         self.timeout = timeout
 
     def make_connection(self, host):
-        #return an existing connection if possible.  This allows
-        #HTTP/1.1 keep-alive.
+        # return an existing connection if possible.  This allows
+        # HTTP/1.1 keep-alive.
         if self._connection and host == self._connection[0]:
             return self._connection[1]
 
         # create a HTTP connection object from a host descriptor
         chost, self._extra_headers, x509 = self.get_host_info(host)
-        #store the host argument along with the connection object
+        # store the host argument along with the connection object
         self._connection = host, httplib.HTTPConnection(
             chost,
             timeout=self.timeout
@@ -55,7 +55,7 @@ class TimeoutTransport(xmlrpclib.Transport):
 
     def parse_timeseries_response(self, response):
         # Check for new http response object, else it is a file object
-        if hasattr(response,'getheader'):
+        if hasattr(response, 'getheader'):
             if response.getheader("Content-Encoding", "") == "gzip":
                 stream = xmlrpclib.GzipDecodedResponse(response)
             else:

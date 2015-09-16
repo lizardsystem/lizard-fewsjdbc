@@ -70,7 +70,7 @@ def fews_symbol_name(jdbc_source, filterkey, locationkey, parameterkey,
     style_name, icon_style = IconStyle.style(
         jdbc_source, filterkey, locationkey, parameterkey, styles, lookup)
 
-    #make icon grey
+    # make icon grey
     if nodata:
         icon_style['color'] = (0.9, 0.9, 0.9, 0)
 
@@ -167,10 +167,6 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
 
         logger.debug("Number of point objects: %d", len(named_locations))
         for i, named_location in enumerate(named_locations):
-            #logger.debug('layer coordinates %s %s %s' % (
-            #        named_location['locationid'],
-            #        named_location['longitude'],
-            #        named_location['latitude']))
 
             point_style_name, point_style = fews_point_style(
                 self.jdbc_source,
@@ -286,7 +282,8 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
         shortest_distance = result[0]['distance']
         closest_results = [item for item in result
                            if item['distance'] == shortest_distance]
-        logger.debug("Found %s results, %s with the same distance as the closest one",
+        logger.debug("Found %s results, %s with the same distance as the "
+                     "closest one",
                      len(result), len(closest_results))
         if len(closest_results) >= normal_max_number:
             return closest_results

@@ -317,8 +317,9 @@ class JdbcSource(models.Model):
         cache_key = 'filter_name:%s:%s:%s' % (get_host(), filter_id, self.slug)
         result = cache.get(cache_key)
         if result is None:
-            result = self.query("select distinct name from filters where id='%s'"
-                                % (filter_id,))
+            result = self.query(
+                "select distinct name from filters where id='%s'"
+                % (filter_id,))
             if result:
                 result = result[0][0]
                 cache.set(cache_key, result, 60 * 60)
@@ -327,11 +328,13 @@ class JdbcSource(models.Model):
     def get_parameter_name(self, parameter_id):
         """Return parameter name corresponding to the given parameter
         id."""
-        cache_key = 'parameter_name:%s:%s:%s' % (get_host(), parameter_id, self.slug)
+        cache_key = 'parameter_name:%s:%s:%s' % (
+            get_host(), parameter_id, self.slug)
         result = cache.get(cache_key)
         if result is None:
-            result = self.query(("select distinct parameter from filters where " +
-                                 "parameterid = '%s'") % (parameter_id,))
+            result = self.query(
+                "select distinct parameter from filters where "
+                "parameterid = '%s'" % (parameter_id,))
             if result:
                 result = result[0][0]
                 cache.set(cache_key, result, 60 * 60)
@@ -372,12 +375,6 @@ class JdbcSource(models.Model):
         return named_locations
 
     def location_list(self, filter_id, parameter_id, name=''):
-#        query = (
-#            "select name, x, y, id "
-#            "from locations "
-#            "where id='%s' and parameterid='%s' "
-#            "and location.name like '%{}%'"
-#        ).format(name)
         query = (
             "select locationid, location "
             "from filters "
@@ -434,9 +431,12 @@ class JdbcSource(models.Model):
             else:
                 cache_timeout = 20 * 60 * 60
 
-        logger.debug("Timeseries req from %s to %s", zoom_start_date, zoom_end_date)
-        logger.debug("View state is  from %s to %s", view_state_start_date, view_state_end_date)
-        logger.debug("We're querying from %s to %s", normalized_start_date, normalized_end_date)
+        logger.debug("Timeseries req from %s to %s",
+                     zoom_start_date, zoom_end_date)
+        logger.debug("View state is  from %s to %s",
+                     view_state_start_date, view_state_end_date)
+        logger.debug("We're querying from %s to %s",
+                     normalized_start_date, normalized_end_date)
         CACHE_VERSION = 4
         cache_key = ':'.join(['get_timeseries',
                               str(CACHE_VERSION),
@@ -469,14 +469,15 @@ class JdbcSource(models.Model):
             # value instead.
             result = [result]
         result = [row for row in result
-                  if row['time'] >= zoom_start_date and row['time'] <= zoom_end_date]
+                  if row['time'] >= zoom_start_date
+                  and row['time'] <= zoom_end_date]
         if result:
             logger.debug("Start date: %s, first returned result's time: %s",
                          zoom_start_date, result[0]['time'])
         return result
 
     def _get_timeseries(self, filter_id, location_id,
-                       parameter_id, start_date, end_date):
+                        parameter_id, start_date, end_date):
         q = ("select time, value from "
              "extimeseries where filterid='%s' and locationid='%s' "
              "and parameterid='%s' and time between '%s' and '%s'" %
@@ -503,10 +504,12 @@ class JdbcSource(models.Model):
 
         Assumes 1 row is fetched.
         """
-        cache_key = 'name_and_unit:%s:%s:%s' % (get_host(), parameter_id, self.slug)
+        cache_key = 'name_and_unit:%s:%s:%s' % (
+            get_host(), parameter_id, self.slug)
         result = cache.get(cache_key)
         if result is None:
-            q = ("select name, unit from parameters where id='%s'" % parameter_id)
+            q = ("select name, unit from parameters where id='%s'"
+                 % parameter_id)
             query_result = self.query(q)
             result = query_result[0]  # First row, first column.
             cache.set(cache_key, result, 60 * 60)

@@ -4,7 +4,6 @@ import logging
 import re
 
 from django import forms
-from django.utils.translation import ugettext_lazy as _
 
 from lizard_fewsjdbc.models import Threshold
 from lizard_map.models import WorkspaceEditItem
@@ -79,7 +78,7 @@ class ThresholdCreateForm(forms.ModelForm):
         fields = ('name', 'value', 'color', 'location_id')
         widgets = {
             'location_id': forms.HiddenInput,
-            'value': forms.TextInput,  # Otherwise parsley js requires an int...
+            'value': forms.TextInput,  # Otherwise parsley js requires an int.
         }
 
     def save(self, commit=True):

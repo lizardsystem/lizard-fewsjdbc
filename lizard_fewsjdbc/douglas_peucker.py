@@ -1,4 +1,4 @@
-#------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
 # Copyright (c) 2005, Enthought, Inc.
 # All rights reserved.
 #
@@ -11,9 +11,9 @@
 # Author: Enthought, Inc.
 # Description: <Enthought util package component>
 #
-# Changed by ejnens: added decimate_until, fixed decimate recusion causing a stack
-# overflow, properly use numpy bool arrays
-#------------------------------------------------------------------------------
+# Changed by ejnens: added decimate_until, fixed decimate recusion causing a
+# stack overflow, properly use numpy bool arrays
+# --------------------------------------------------------------------------
 
 from collections import deque
 import logging
@@ -24,7 +24,11 @@ from numpy import arange, array, sqrt, argmax, zeros, absolute
 logger = logging.getLogger(__name__)
 
 
-def decimate_until(datetimes, values, max_values=2000, max_steps=35, step_factor=2.0):
+def decimate_until(datetimes,
+                   values,
+                   max_values=2000,
+                   max_steps=35,
+                   step_factor=2.0):
     np_datetimes = array(datetimes)
     np_values = array(values)
     tolerance_multiplier = 1
@@ -77,11 +81,12 @@ def _decimate(np_datetimes, np_values, tolerance_multiplier=1):
         xei_minux_xsi = x[ei] - x[si]
         yei_minux_ysi = y[ei] - y[si]
 
-        top = absolute(xei_minux_xsi * (y[si] - y0) - (x[si] - x0) * yei_minux_ysi)
+        top = absolute(xei_minux_xsi * (y[si] - y0) -
+                       (x[si] - x0) * yei_minux_ysi)
 
-        # The algorithm currently does an expensive sqrt operation which is not
-        # strictly necessary except that it makes the tolerance correspond to a real
-        # world quantity.
+        # The algorithm currently does an expensive sqrt operation which is
+        # not strictly necessary except that it makes the tolerance correspond
+        # to a real world quantity.
         bot = sqrt(xei_minux_xsi*xei_minux_xsi + yei_minux_ysi*yei_minux_ysi)
         dist = top / bot
 

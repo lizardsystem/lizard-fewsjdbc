@@ -39,8 +39,8 @@ class TestIntegration(TestCase):
         elif 'unit' in q:
             # Unit: unit.
             return self.mock_query_result.get('unit', [])
-        elif 'where' in q:  # From here, the call is from filter_tree
-        # or parameters
+        elif 'where' in q:
+            # From here, the call is from filter_tree or parameters
             # Parameters: (filter) name, parameterid, parameter.
             return self.mock_query_result.get('parameter', [])
         else:

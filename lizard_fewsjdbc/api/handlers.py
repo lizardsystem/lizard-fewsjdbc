@@ -100,7 +100,7 @@ class FilterHandler(BaseHandler):
         for item in tree:
             node = {}
             node['title'] = item['name']
-            if not 'children' in item:
+            if 'children' not in item:
                 # Some jdbc connection error.
                 result = [node]
                 return result
@@ -173,7 +173,7 @@ class LocationHandler(BaseHandler):
         data = []
         for location in jdbc_source.get_locations(filter_id, parameter_id):
             safe_location_id = urllib.quote(location['locationid'], '')
-             # TODO: add geojson coordinates!!!
+            # TODO: add geojson coordinates!!!
             url = request.build_absolute_uri(
                 reverse(
                     TIMESERIE_URL_NAME,
