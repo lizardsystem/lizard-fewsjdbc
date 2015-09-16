@@ -8,6 +8,7 @@ addons:
     - libboost-python-dev
 sudo: false
 install:
+  - deactivate
   - pip install psycopg2 mapnik2 matplotlib
   - python bootstrap.py
   - bin/buildout
