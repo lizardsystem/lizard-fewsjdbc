@@ -5,7 +5,9 @@ Changelog of lizard-fewsjdbc
 3.3 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Default xmlrpc timeout is now 29 seconds instead of 30. Should help with
+  some of the sentry errors.
+  [reinout]
 
 
 3.2 (2015-09-16)
