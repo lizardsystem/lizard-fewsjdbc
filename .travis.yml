@@ -14,8 +14,7 @@ sudo: false
 install:
   - deactivate
   - pip install --user psycopg2 matplotlib
-#  - python bootstrap.py
-#  - bin/buildout
+  - python bootstrap.py
+  - bin/buildout
 script:
-#  - bin/test
-   - echo "cache is full, I hope"
+  - bin/test
