@@ -14,7 +14,6 @@ install_requires = [
     'ciso8601',
     'django-braces',
     'django-extensions',
-    'django-nose',
     'django-tls',
     'djangorestframework',
     'factory_boy > 2.0',
@@ -29,6 +28,9 @@ install_requires = [
     ],
 
 tests_require = [
+    'django-nose',
+    'mock',
+    'coverage',
     ]
 
 setup(name='lizard-fewsjdbc',
