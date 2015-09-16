@@ -1,7 +1,12 @@
 language: python
-cache: pip
 python:
   - 2.7
+addons:
+  apt:
+    packages:
+    - python-psycopg2
+    - python-mapnik
+    - python-matplotlib
 sudo: false
 notifications:
   irc:
@@ -9,7 +14,6 @@ notifications:
     on_success: change
   email: false
 install:
-  - pip install matplotlib psycopg2 mapnik
   - python bootstrap.py
   - bin/buildout
 script:
