@@ -9,7 +9,7 @@ addons:
 sudo: false
 install:
   - deactivate
-  - pip install psycopg2 matplotlib
+  - pip install --user psycopg2 matplotlib
   - python bootstrap.py
   - bin/buildout
 script:
