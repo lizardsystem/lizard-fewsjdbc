@@ -9,8 +9,9 @@ notifications:
     on_success: change
   email: false
 install:
-  - pip install matplotlib psycopg2
+  - pip install matplotlib psycopg2 mapnik
   - python bootstrap.py
-  - bin/buildout
+#  - bin/buildout
 script:
-  - bin/test
+#  - bin/test
+  - echo 'hallo'
