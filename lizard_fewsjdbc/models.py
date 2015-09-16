@@ -142,7 +142,7 @@ class JdbcSource(models.Model):
                 "Is it intended? Query: %s", q)
         t1 = time.time()
         try:
-            sp = timeout_xmlrpclib.ServerProxy(self.jdbc_url, timeout=30)
+            sp = timeout_xmlrpclib.ServerProxy(self.jdbc_url, timeout=29)
             # For debugging: add 'verbose=True' in the line above. This prints
             # ALL the output.
             sp.Ping.isAlive('', '')
