@@ -330,11 +330,12 @@ Changelog of lizard-fewsjdbc
 1.28 (2012-03-09)
 -----------------
 
-- Added two more arguments to the fews_jdbc_cache command:
-  -d / --deep : Do a "deep" tree traversal, in the sense that not only
-                filters are cached, but parameters and locations too.
-  -t / --timeout : Give the duration that values will be kept in the
-                   cache, in seconds (the default is currently 8 hours).
+- Added two more arguments to the fews_jdbc_cache command::
+
+    -d / --deep : Do a "deep" tree traversal, in the sense that not only
+                  filters are cached, but parameters and locations too.
+    -t / --timeout : Give the duration that values will be kept in the
+                     cache, in seconds (the default is currently 8 hours).
 
 
 1.27 (2012-03-07)
