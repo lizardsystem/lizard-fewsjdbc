@@ -8,6 +8,8 @@ Changelog of lizard-fewsjdbc
 - Fixed logging statements. No more direct ``.format()`` calls but just
   logging's regular ``%s`` handling. Very helpful for sentry.
 
+- Fixed the setup and got the tests running again.
+
 
 3.1 (2015-05-18)
 ----------------
