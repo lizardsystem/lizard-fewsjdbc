@@ -1,4 +1,9 @@
-# Include docs in the root.
-include *.rst
-# Include everything in our project directory.
+exclude .coveragerc
+exclude buildout.cfg
+global-exclude *.pyc
 graft lizard_fewsjdbc
+include *.rst
+include *py
+prune .tx
+recursive-include doc *.py
+recursive-include doc *.rst
