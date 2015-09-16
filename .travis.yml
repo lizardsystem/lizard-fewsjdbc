@@ -5,6 +5,7 @@ addons:
   apt:
     packages:
     - libboost-dev
+    - libboost-python-dev
 sudo: false
 install:
   - pip install psycopg2 mapnik2 matplotlib
