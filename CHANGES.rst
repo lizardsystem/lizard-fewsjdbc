@@ -2,7 +2,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-3.2 (unreleased)
+3.2 (2015-09-16)
 ----------------
 
 - Fixed logging statements. No more direct ``.format()`` calls but just
