@@ -6,6 +6,7 @@ addons:
     packages:
     - libboost-dev
     - libboost-python-dev
+    - libboost-all
 sudo: false
 install:
   - deactivate
