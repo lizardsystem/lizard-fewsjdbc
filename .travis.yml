@@ -1,10 +1,10 @@
 language: python
 python:
   - 2.7
-# addons:
-#   apt:
-#     packages:
-#     - python-matplotlib
+addons:
+  apt:
+    packages:
+    - libboost-dev
 sudo: false
 notifications:
   irc:
