@@ -253,6 +253,7 @@ class TestModelMockQuery(TestCase):
 
 
 class TestJdbcSource(TestCase):
+
     def test_timezone_property_can_return_utc(self):
         jdbcsource = JdbcSourceFactory(timezone_string="UTC")
         self.assertEquals(jdbcsource.timezone, pytz.UTC)
