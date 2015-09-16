@@ -1,18 +1,15 @@
 language: python
+cache: pip
 python:
   - 2.7
-# before_install:
-#   - wget -q http://packages.lizardsystem.nl/ubuntu/public.gpg -O- | sudo apt-key add -
-#   - echo 'deb http://packages.lizardsystem.nl/ubuntu/precise32/ ./' | sudo tee -a /etc/apt/sources.list
-#   - sudo apt-get update
-#   - sudo apt-get install python-psycopg2 libgeos-dev python-matplotlib python-pyproj python-mapnik
+sudo: false
 notifications:
   irc:
     channels: "irc.freenode.org#nens"
     on_success: change
   email: false
 install:
-  - pip install matplotlib
+  - pip install matplotlib psycopg2
   - python bootstrap.py
   - bin/buildout
 script:
