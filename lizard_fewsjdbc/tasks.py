@@ -17,8 +17,8 @@ def load_parameters(timeout, jdbc_source,
                     timeout, jdbc_source, item["children"],
                     url_name, default_url_name, logger=logger))
         else:
-            logger.debug("Getting named parameters for %s." %
-                         (item["id"],))
+            logger.debug("Getting named parameters for %s.",
+                         item["id"])
             if default_url_name:
                 parameters = jdbc_source.get_named_parameters(
                     item["id"], ignore_cache=True,
@@ -30,7 +30,7 @@ def load_parameters(timeout, jdbc_source,
             for p in parameters:
                 params.append((item["id"], p["parameterid"]))
 
-    logger.debug("PARAMS: " + str(params))
+    logger.debug("PARAMS: %s", str(params))
     return params
 
 
@@ -69,7 +69,7 @@ def rebuild_jdbc_cache(logger, *args, **options):
         logger.info("Traversing deep tree.")
 
     for jdbc_source in JdbcSource.objects.all():
-        logger.info('Processing %s ...' % jdbc_source)
+        logger.info('Processing %s ...', jdbc_source)
         if args:
             default_url_name = False
             if args[0] == 'None':
@@ -97,13 +97,13 @@ def rebuild_jdbc_cache(logger, *args, **options):
                         default_url_name, logger=logger)
                 for filter_id, param_id in params:
                     logger.debug(
-                        "Getting locations: %s, %s" %
-                        (filter_id, param_id))
+                        "Getting locations: %s, %s",
+                        filter_id, param_id)
                     jdbc_source.get_locations(
                         filter_id, param_id,
                         cache_timeout=timeout)
 
         except Exception:
-            logger.exception('Exception while syncing %s.' % jdbc_source)
+            logger.exception('Exception while syncing %s.', jdbc_source)
     logger.info('Finished.')
     return 'OK'

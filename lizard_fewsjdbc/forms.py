@@ -45,8 +45,8 @@ class ThresholdUpdateForm(forms.Form):
             pattern = re.compile(r'^([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$')
             result = pattern.match(value)
             if not result:
-                logger.error(_("Color must be in hexadecimal"
-                               "format, e.g. FF05A9, got %s") % value)
+                logger.error("Color must be in hexadecimal"
+                             "format, e.g. FF05A9, got %s", value)
                 # return the default color
                 self.cleaned_data['value'] = '000000'
             else:

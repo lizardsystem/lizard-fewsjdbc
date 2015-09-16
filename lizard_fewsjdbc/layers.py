@@ -165,7 +165,7 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
 
         fews_styles, fews_style_lookup = IconStyle._styles_lookup()
 
-        logger.debug("Number of point objects: %d" % len(named_locations))
+        logger.debug("Number of point objects: %d", len(named_locations))
         for i, named_location in enumerate(named_locations):
             #logger.debug('layer coordinates %s %s %s' % (
             #        named_location['locationid'],
@@ -230,9 +230,9 @@ class FewsJdbc(workspace.WorkspaceItemAdapter):
                     if y > north or north is None:
                         north = y
                 else:
-                    logger.warn("Location (%s, %s) at RD coordinates 0,0" %
-                                (named_location['location'],
-                                 named_location['locationid']))
+                    logger.warn("Location (%s, %s) at RD coordinates 0,0",
+                                named_location['location'],
+                                named_location['locationid'])
             west_transformed, north_transformed = coordinates.wgs84_to_google(
                 west, north)
             east_transformed, south_transformed = coordinates.wgs84_to_google(

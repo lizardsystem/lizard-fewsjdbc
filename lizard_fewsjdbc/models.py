@@ -139,7 +139,7 @@ class JdbcSource(models.Model):
         if '"' in q:
             logger.warn(
                 "You used double quotes in the query. "
-                "Is it intended? Query: %s" % q)
+                "Is it intended? Query: %s", q)
         t1 = time.time()
         try:
             sp = timeout_xmlrpclib.ServerProxy(self.jdbc_url, timeout=30)
@@ -217,7 +217,7 @@ class JdbcSource(models.Model):
                     return [{'name': _('Jdbc2Ei server not available.'),
                              'error': e}]
                 except FewsJdbcQueryError, e:
-                    logger.error("JdbcSource returned an error: %s" % e,
+                    logger.error("JdbcSource returned an error: %s", e,
                                  extra={'jdbc_url': e.jdbc_url})
                     # ^^^ 'extra' ends up as tags in sentry.
                     return [{'name': 'Jdbc data source not available.',
@@ -726,7 +726,7 @@ def icon_style_post_save_delete(sender, **kwargs):
     """
     Invalidates cache after saving or deleting an IconStyle.
     """
-    logger.debug('Changed IconStyle. Invalidating cache for %s...' %
+    logger.debug('Changed IconStyle. Invalidating cache for %s...',
                  sender.CACHE_KEY())
     cache.delete(sender.CACHE_KEY())
 

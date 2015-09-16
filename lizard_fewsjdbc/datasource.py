@@ -181,7 +181,7 @@ class FewsJdbcDataSource(datasource.DataSource):
                 start_datetime,
                 end_datetime)
         except Exception as e:
-            logger.warn("Oh no, an exception: {0}:".format(e))
+            logger.warn("Oh no, an exception: %s", e)
             # Timeouts and such
             jdbc_result = []
 
