@@ -21,6 +21,7 @@ install_requires = [
     'lizard-map',
     'lizard-ui',
     'lizard-wms',  # Because lizard-map imports from it...
+    'mapnik2',
     'pkginfo',
     'pytz',
     'south',
