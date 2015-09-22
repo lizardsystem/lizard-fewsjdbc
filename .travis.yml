@@ -15,7 +15,7 @@ addons:
 sudo: false
 install:
   - deactivate
-  - pip install --user psycopg2 matplotlib mapnik==2.2.0
+  - pip install --user psycopg2 matplotlib mapnik2==2.2.0
   - python bootstrap.py
   - bin/buildout
 script:
