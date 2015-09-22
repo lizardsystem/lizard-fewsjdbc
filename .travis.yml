@@ -10,6 +10,7 @@ addons:
     packages:
     - libboost-dev
     - libboost-python-dev
+    - libmapnik-dev
     - python-mapnik
 sudo: false
 install:
