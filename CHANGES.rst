@@ -2,7 +2,7 @@ Changelog of lizard-fewsjdbc
 ============================
 
 
-3.3 (unreleased)
+3.3 (2015-10-07)
 ----------------
 
 - Default xmlrpc timeout is now 29 seconds instead of 30. Should help with
